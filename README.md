@@ -101,6 +101,6 @@ A fonte de verdade dos nomes de campos, tipos e enums reside em `raijin/docs/dom
 
 ## 🔒 Licença e Propriedade
 
-Este projeto é um software proprietário e de uso confidencial. Todos os direitos sobre o código-fonte, arquitetura, design e documentação são reservados a **[Seu Nome Completo]**. 
+Este projeto é um software proprietário e de uso confidencial. Todos os direitos sobre o código-fonte, arquitetura, design e documentação são reservados a **Filipe Paulo Coutinho**. 
 
 O acesso ao repositório não concede nenhuma licença de uso, cópia, modificação ou redistribuição por terceiros sem autorização prévia por escrito.
