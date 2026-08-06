@@ -13,6 +13,7 @@
   ![TipTap](https://img.shields.io/badge/TipTap-WYSIWYG-2563EB?labelColor=18181B)
   ![Sanhauá](https://img.shields.io/badge/Design_System-Sanhauá-009688?labelColor=18181B)
   ![NBR 5410](https://img.shields.io/badge/NBR_5410-Compliant-00C853?labelColor=18181B)
+  ![License](https://img.shields.io/badge/Licen%C3%A7a-Propriet%C3%A1ria-red?labelColor=18181B)
 </div>
 
 ---
@@ -97,3 +98,9 @@ npm run preview
 ## 📚 Documentação e Sincronização de Domínio
 
 A fonte de verdade dos nomes de campos, tipos e enums reside em `raijin/docs/domain-glossary.md`. Nenhuma prop, estado ou campo de formulário no **Ituí** deve ter sua nomenclatura inventada — siga rigorosamente o glossário.
+
+## 🔒 Licença e Propriedade
+
+Este projeto é um software proprietário e de uso confidencial. Todos os direitos sobre o código-fonte, arquitetura, design e documentação são reservados a **[Seu Nome Completo]**. 
+
+O acesso ao repositório não concede nenhuma licença de uso, cópia, modificação ou redistribuição por terceiros sem autorização prévia por escrito.
