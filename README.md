@@ -1,51 +1,99 @@
-# itui
+<div align="center">
+  <!-- <img src="docs/assets/logo.png" alt="Ituí" width="96" /> -->
 
-Frontend do sistema de Laudos de Engenharia Elétrica. O engenheiro preenche dados de inspeção, anexa fotos, e o sistema gera um laudo técnico (PDF/DOCX) com auxílio de IA.
+  # Ituí 🐟⚡
 
-Parte de uma reescrita em três repositórios: [`gerador`](../gerador) (monolito Django legado, congelado, referência de domínio) → [`raijin`](../raijin) (backend Rust/Axum + banco) + `itui` (este, frontend). Ver [`CLAUDE.md`](CLAUDE.md) para o contexto completo da migração, decisões de arquitetura e convenções.
+  Interface web do automatizador de **Laudos de Engenharia Elétrica**.  
+  Aplicação em **React + TypeScript**, estilizada com o Design System **Sanhauá** (SCSS + BEM), formulários guiados por schema e editor **TipTap** com streaming de IA em tempo real.
 
-## Stack
+  ![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white&labelColor=18181B)
+  ![TypeScript](https://img.shields.io/badge/TypeScript-5.9-3178C6?logo=typescript&logoColor=white&labelColor=18181B)
+  ![Vite](https://img.shields.io/badge/Vite-6-646CFF?logo=vite&logoColor=white&labelColor=18181B)
+  ![Biome](https://img.shields.io/badge/Biome-1.9-60A5FA?logo=biome&logoColor=white&labelColor=18181B)
+  ![TipTap](https://img.shields.io/badge/TipTap-WYSIWYG-2563EB?labelColor=18181B)
+  ![Sanhauá](https://img.shields.io/badge/Design_System-Sanhauá-009688?labelColor=18181B)
+  ![NBR 5410](https://img.shields.io/badge/NBR_5410-Compliant-00C853?labelColor=18181B)
+</div>
 
-- [Vite](https://vite.dev) + React + TypeScript
-- [Biome](https://biomejs.dev) para lint e formatação (não ESLint/Prettier)
-- [react-router](https://reactrouter.com) para rotas
-- [Sanhauá](https://github.com/fpcoutinho/sanhaua) como Design System — SCSS puro, metodologia BEM
+---
 
-## Comandos
+## 📌 Visão Geral
+
+O **Ituí** é a interface do usuário onde o engenheiro eletricista realiza o preenchimento dos dados de inspeção em campo, anexa evidências fotográficas, recebe sugestões da IA via streaming e edita o laudo técnico final.
+
+### Ecossistema de Repositórios
+
+| Repositório | Descrição |
+|---|---|
+| [`gerador`](../gerador) | Monolito Django legado. Congelado, mantido apenas para consulta histórica. |
+| [`raijin`](../raijin) | Backend em Rust/Axum + PostgreSQL + proxy de IA e emissão de URLs pré-assinadas. |
+| **`itui`** *(este)* | Frontend React/Vite + Design System Sanhauá. Comunica-se com o Raijin via API REST. |
+
+## 🛠️ Stack Tecnológica
+
+- **Build & Core:** Vite + React 19 + TypeScript
+- **Tooling (Lint & Format):** [Biome](https://biomejs.dev) (substitui ESLint e Prettier com performance nativa em Rust)
+- **Roteamento:** `react-router` (declarativo, com URLs amigáveis em português)
+- **Design System & Estilização:** [Sanhauá](https://github.com/fpcoutinho/sanhaua) (`sanhaua/react`) — SCSS puro, tokens globais injetados no Vite e metodologia BEM rigorosa (PROIBIDO Tailwind CSS).
+- **Editor Rich Text:** TipTap (StarterKit, Underline, Link) salvando estrutura nativa em JSONB.
+- **Exportação de Documentos:** PDF via `window.print()` + `@page` e DOCX via `html-to-docx` (100% client-side, sem dependência de servidor).
+
+## 📐 Arquitetura e Decisões de Frontend
+
+- **Formulário Dirigido por Schema Declarativo:** O formulário de inspeção não declara os ~90 campos manualmente. A renderização é guiada dinamicamente pelo mapa do glossário de domínio e pelas opções estáticas de [`docs/nbr-5410-choices.json`](docs/nbr-5410-choices.json).
+- **Streaming de IA no TipTap (SSE):** O hook `useGenerateAI` consome *Server-Sent Events* da API Rust e atualiza o estado do editor TipTap em tempo real conforme a Groq gera o parecer normativo.
+- **Avaliação Qualitativa Ternária:** Suporta a regra de negócio com respostas `Sim`, `Não` e `Parcialmente` + observação textual. Ensaios quantitativos exibem textos de procedimento e critérios da NBR 5410.
+- **Upload Direto para Storage (Zero-SDK):** Faz o `PUT` HTTP diretamente para a URL pré-assinada emitida pelo Raijin, eliminando SDKs de provedores específicos e garantindo portabilidade entre S3, Supabase Storage e R2.
+
+## 🗺️ Rotas da Aplicação
+
+| Rota | Descrição | Acesso |
+|---|---|---|
+| `/` | Landing page institucional e comercial (funcionalidade nova) | Público |
+| `/plataforma` | Painel principal, gestão e listagem dos laudos | Privado |
+| `/conta/login` | Autenticação (e-mail/senha + Google OAuth) | Público |
+| `/conta/cadastro` | Registro de novos engenheiros | Público |
+| `/conta/logout` | Ação client-side: descarta o JWT local e redireciona | Privado |
+
+## 📂 Estrutura do Projeto
+
+```text
+src/
+├── pages/             # Componentes de rota (LandingPage, PlatformPage, pages/account/*)
+├── components/
+│   ├── ui/            # Componentes base do DS (Button, Input, Card) — candidatos ao Sanhauá
+│   └── features/      # Componentes de domínio (InspectionForm, ReportEditor)
+├── hooks/             # Custom hooks (ex: useGenerateAI para consumo do SSE)
+└── services/          # Clientes HTTP e contratos espelhados da API do Raijin
+docs/
+└── nbr-5410-choices.json # Cópia local sincronizada com o backend (fonte dos selects)
+```
+
+## 🚀 Comandos de Desenvolvimento
 
 ```bash
-npm install        # instalar dependências
-npm run dev         # servidor de desenvolvimento
-npm run build       # build de produção (tsc -b && vite build)
-npm run preview     # servir o build localmente
-npm run lint         # checar lint/formatação (Biome)
-npm run lint:fix     # corrigir automaticamente
-npm run format       # só formatação
+# Instalar dependências
+npm install
+
+# Iniciar servidor de desenvolvimento local
+npm run dev
+
+# Checar lint e formatação com o Biome
+npm run lint
+
+# Corrigir automaticamente problemas de lint e formatação
+npm run lint:fix
+
+# Formatar arquivos
+npm run format
+
+# Gerar build de produção (tsc -b && vite build)
+npm run build
+
+# Executar a build de produção localmente
+npm run preview
 ```
 
-## Rotas
+## 📚 Documentação e Sincronização de Domínio
 
-| Rota | Conteúdo | Acesso |
-|---|---|---|
-| `/` | Landing | Público |
-| `/plataforma` | Lista de laudos | Privado |
-| `/conta/login` | Login (e-mail/senha + Google) | Público |
-| `/conta/cadastro` | Cadastro | Público |
-| `/conta/logout` | Descarta o JWT e redireciona | — |
-
-## Estrutura
-
-```
-src/
-  pages/               componentes de rota (LandingPage, PlatformPage, pages/account/*)
-  components/ui/       componentes base do Design System (Button, Input, Card)
-  components/features/ componentes de domínio (InspectionForm, ReportEditor)
-  hooks/                hooks de estado e chamadas de API
-  services/             clientes HTTP e integração com a API do raijin
-docs/
-  nbr-5410-choices.json cópia das listas normativas (fonte: raijin/docs/)
-```
-
-## Status
-
-Bootstrap inicial. Rotas e estrutura de pastas montadas; telas ainda são placeholders — aguardando o contrato de API do `raijin` para o CRUD de laudos e a integração de IA.
+A fonte de verdade dos nomes de campos, tipos e enums reside em `raijin/docs/domain-glossary.md`. Nenhuma prop, estado ou campo de formulário no **Ituí** deve ter sua nomenclatura inventada — siga rigorosamente o glossário.
