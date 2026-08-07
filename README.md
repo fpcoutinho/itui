@@ -1,7 +1,7 @@
 <div align="center">
-  <!-- <img src="docs/assets/logo.png" alt="Ituí" width="96" /> -->
+  <img src="public/mascot.png" alt="Ituí" width="128" />
 
-  # Ituí 🐟⚡
+  # Ituí
 
   Interface web do automatizador de **Laudos de Engenharia Elétrica**.  
   Aplicação em **React + TypeScript**, estilizada com o Design System **Sanhauá** (SCSS + BEM), formulários guiados por schema e editor **TipTap** com streaming de IA em tempo real.
@@ -54,7 +54,7 @@ O **Ituí** é a interface do usuário onde o engenheiro eletricista realiza o p
 | `/plataforma` | Painel principal, gestão e listagem dos laudos | Privado |
 | `/conta/login` | Autenticação (e-mail/senha + Google OAuth) | Público |
 | `/conta/cadastro` | Registro de novos engenheiros | Público |
-| `/conta/logout` | Ação client-side: descarta o JWT local e redireciona | Privado |
+| `/conta/logout` | Ação: encerra a sessão no backend (`POST /api/v1/auth/logout`) e redireciona — ver `CLAUDE.md` | Privado |
 
 ## 📂 Estrutura do Projeto
 

@@ -31,11 +31,44 @@ URLs em português (são conteúdo voltado ao usuário, diferente de rota de API
 | `/plataforma` | Lista de laudos | Privado |
 | `/conta/login` | Login (e-mail/senha + Google) | Público |
 | `/conta/cadastro` | Cadastro | Público |
-| `/conta/logout` | Ação: descarta o JWT client-side, redireciona pra `/` | — |
+| `/conta/logout` | Ação: `POST /api/v1/auth/logout` com `credentials: 'include'`, limpa o access token da memória, redireciona pra `/` | — |
 
 O legado não tinha landing — a raiz caía direto na listagem. A landing é **funcionalidade nova**, decidida explicitamente, e precisa ser bem cuidada visualmente (não é migração, não tem "como já era" pra copiar).
 
-`/conta/logout` é ação client-side (remove o token do storage), não uma página de conteúdo — diferente do legado, que fazia POST com CSRF token no servidor Django.
+`/conta/logout` não é página de conteúdo, mas também **não é ação puramente client-side**: o refresh token é um cookie `httpOnly`, então JS não consegue lê-lo nem apagá-lo. Sem o `POST /api/v1/auth/logout` a sessão de 30 dias continua viva no servidor mesmo com a UI parecendo deslogada.
+
+## Contrato de autenticação
+
+Dois tokens, dois transportes diferentes:
+
+- **Access token** — vem no corpo JSON da resposta, vale 15 minutos, vai em `Authorization: Bearer <token>` em toda chamada de API que não seja de auth. Guardar **só em memória, nunca em `localStorage`**: o refresh token já está protegido de XSS por ser `httpOnly`, e jogar o access token no storage devolveria parte dessa superfície.
+- **Refresh token** — cookie `httpOnly` setado pelo backend. JS não lê nem precisa ler; basta `fetch(..., { credentials: 'include' })` nas rotas de auth. Atributos do cookie: `HttpOnly; Secure; SameSite=None; Path=/api/v1/auth`.
+
+As cinco rotas, todas `POST` sob `/api/v1/auth`:
+
+| Rota | Corpo | Retorno |
+|---|---|---|
+| `/register` | `{ email, password }` | 201 + sessão |
+| `/login` | `{ email, password }` | 200 + sessão |
+| `/google` | `{ id_token }` | 200 + sessão |
+| `/refresh` | (nenhum — o cookie é a credencial) | 200 + sessão |
+| `/logout` | (nenhum — o cookie é a credencial) | 204 |
+
+O corpo "sessão" é `{ access_token, token_type, expires_in, user }`. `token_type` é sempre `"Bearer"` — montar o header a partir dele em vez de hardcodar o esquema. O refresh token **não** vem no corpo.
+
+**Renovação**: agendar o refresh a partir de `expires_in` (segundos); **não** decodificar o JWT no navegador. Em 401 de qualquer chamada de API, tentar `POST /auth/refresh` uma vez e repetir a requisição original; se o refresh também der 401, mandar o usuário pro login.
+
+**Multi-aba já está resolvido no backend**: a rotação do refresh token tem uma janela de tolerância de 10 segundos justamente pra que duas abas renovando ao mesmo tempo não derrubem a sessão uma da outra. Ou seja, o `itui` **não** precisa de `BroadcastChannel` nem de lock em `localStorage` — não implemente essa coordenação.
+
+**Google**: carregar o Google Identity Services, usar o `GOOGLE_CLIENT_ID` (não é segredo — vai no bundle por design), receber o ID Token e mandá-lo pra `/api/v1/auth/google`.
+
+**Erros**:
+
+- 401 em `/login` é **sempre** a mensagem genérica "E-mail ou senha inválidos". O backend nunca revela se o e-mail existe nem se é conta Google — isso seria um oráculo de enumeração de usuários. Por isso a dica de "entrou com o Google?" na UI é **linha estática abaixo do formulário** (ex.: "Entrou com o Google? Use o botão acima"), nunca algo renderizado em reação à resposta do servidor.
+- 409 em `/register` distingue dois casos na mensagem: e-mail já cadastrado, ou e-mail que é conta Google (usar o botão do Google).
+- 503 em `/google` é serviço de chaves do Google inacessível — mostrar retentativa, não erro de credencial.
+
+**CORS**: toda chamada autenticada precisa de `credentials: 'include'`, e a origem de dev do `itui` precisa estar registrada em `CORS_ALLOWED_ORIGINS` no `.env` do `raijin` — é o primeiro lugar a olhar quando aparecer falha opaca de CORS.
 
 ## Convenções de código
 
@@ -69,7 +102,7 @@ O legado não tinha landing — a raiz caía direto na listagem. A landing é **
 
 - Biome, não ESLint/Prettier.
 - `react-router`, não outra lib de rotas.
-- Auth: JWT emitido pelo `raijin` (não Supabase Auth) — o `itui` só guarda e envia o token, não fala direto com nenhum provedor de auth.
+- Auth: JWT emitido pelo `raijin` (não Supabase Auth). No login com Google o `itui` **fala direto com o Google**: carrega o Google Identity Services, obtém um ID Token e só então o manda pro `raijin`. Ver "Contrato de autenticação" abaixo.
 - Upload de imagem: `itui` faz `PUT` direto pra URL pré-assinada que o `raijin` gera — sem SDK de storage de provedor nenhum no frontend (mantém o frontend portável entre provedores).
 - Avaliação qualitativa do formulário é ternária (Sim/Não/Parcialmente); ensaios da avaliação quantitativa são binários (Sim/Não). Ver `domain-glossary.md` no `raijin`.
 - Seção de imagens do documento exportado: grade rotulada `(a)(b)(c)` + legenda + parágrafo de análise (não a lista solta do legado) — ver `raijin/docs/findings-taxonomy.md`.
