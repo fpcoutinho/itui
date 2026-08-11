@@ -10,7 +10,7 @@ Frontend do sistema de Laudos de Engenharia Elétrica. React + Vite, Design Syst
 | `raijin` | Backend Rust/Axum + schema do banco. Fonte de verdade do domínio (`raijin/docs/domain-glossary.md`). |
 | `itui` (este) | Frontend. |
 
-O contrato entre `itui` e `raijin` é a **API REST**, documentada em `raijin/docs/api-contract.md` (ainda não existe — nasce junto com os endpoints, Step 4 da migração). Sem tipos compartilhados automaticamente entre Rust e TypeScript: ao consumir um endpoint novo, replique o shape manualmente em `src/services/`.
+O contrato entre `itui` e `raijin` é a **API REST**, documentada em [`./docs/api-contract.md`](./docs/api-contract.md) — leia antes de escrever qualquer serviço: rota, campo, formato de erro e o consumo do SSE estão todos lá, com código pronto. Sem tipos compartilhados automaticamente entre Rust e TypeScript: ao consumir um endpoint novo, replique o shape manualmente em `src/services/`.
 
 ## Stack
 
@@ -96,6 +96,9 @@ O corpo "sessão" é `{ access_token, token_type, expires_in, user }`. `token_ty
 ## Documentação de domínio
 
 - [`docs/nbr-5410-choices.json`](docs/nbr-5410-choices.json) — cópia do arquivo homônimo do `raijin`. Alimenta os `<select>` do formulário de inspeção. É **cópia**, não link simbólico nem dependência cross-repo — os dois repos são independentes; se a lista mudar, sincronizar manualmente (muda raramente, só quando a norma muda).
+- [`docs/nbr-5410-tests.md`](docs/nbr-5410-tests.md) + [`.json`](docs/nbr-5410-tests.json) — os 6 ensaios: procedimento e critério de aceitação, exibidos como texto de apoio no formulário. A ramificação do ensaio 7.3.5 por esquema de aterramento está aqui. **Cópia**, mesma política do `nbr-5410-choices.json`.
+- [`docs/findings-taxonomy.md`](docs/findings-taxonomy.md) — as 5 categorias de não conformidade e seus slugs canônicos. Alimenta o seletor de `finding_category` no upload de imagem. **Cópia**, mesma política.
+- [`docs/frontend-steps.md`](docs/frontend-steps.md) — planejamento dos Steps 6a a 7 (camada de API e auth, wizard, editor + SSE, exportação). Recorte de decisões de UI; o contrato em si não é duplicado lá.
 - Nomenclatura completa dos ~90 campos do laudo, tipos e regras por seção: `raijin/docs/domain-glossary.md` (repositório irmão).
 
 ## Decisões já fechadas (não reabrir sem motivo novo)
@@ -105,4 +108,4 @@ O corpo "sessão" é `{ access_token, token_type, expires_in, user }`. `token_ty
 - Auth: JWT emitido pelo `raijin` (não Supabase Auth). No login com Google o `itui` **fala direto com o Google**: carrega o Google Identity Services, obtém um ID Token e só então o manda pro `raijin`. Ver "Contrato de autenticação" abaixo.
 - Upload de imagem: `itui` faz `PUT` direto pra URL pré-assinada que o `raijin` gera — sem SDK de storage de provedor nenhum no frontend (mantém o frontend portável entre provedores).
 - Avaliação qualitativa do formulário é ternária (Sim/Não/Parcialmente); ensaios da avaliação quantitativa são binários (Sim/Não). Ver `domain-glossary.md` no `raijin`.
-- Seção de imagens do documento exportado: grade rotulada `(a)(b)(c)` + legenda + parágrafo de análise (não a lista solta do legado) — ver `raijin/docs/findings-taxonomy.md`.
+- Seção de imagens do documento exportado: grade rotulada `(a)(b)(c)` + legenda + parágrafo de análise (não a lista solta do legado) — ver `raijin/docs/findings-taxonomy.md`. **As legendas vêm prontas do `GET .../draft`**; o `itui` posiciona a foto ao lado, resolvendo o marcador `![](image:<uuid>)` para uma URL assinada fresca — e nunca gravando essa URL de volta no documento.
