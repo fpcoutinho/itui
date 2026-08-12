@@ -1,6 +1,9 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
+// Estilos compilados dos componentes do Sanhauá (UaButton, UaInputField, ...).
+import 'sanhaua/style.css'
 import { App } from './App.tsx'
+import './styles/global.scss'
 
 const rootElement = document.getElementById('root')
 

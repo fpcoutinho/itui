@@ -1,10 +1,32 @@
 <!doctype html>
-<html lang="pt-BR">
+<html lang="pt-BR" class="sanhaua light">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>itui</title>
+    <meta
+      name="description"
+      content="Ituí — laudos de inspeção elétrica conforme a NBR 5410, do formulário de campo ao documento pronto para entrega."
+    />
+    <title>Ituí — Laudos de Engenharia Elétrica</title>
+
+    <!-- Script bloqueante anti-FOUC -->
+    <script>
+      (() => {
+        try {
+          const stored = localStorage.getItem('itui-theme')
+          const isDark =
+            stored === 'dark' ||
+            (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)
+          
+          const root = document.documentElement
+          root.classList.remove('light', 'dark')
+          root.classList.add(isDark ? 'dark' : 'light')
+        } catch {
+          // Mantém as classes padrão 'sanhaua light' do HTML caso ocorra erro
+        }
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

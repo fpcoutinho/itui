@@ -1,0 +1,336 @@
+// Landing pública. Tokens do Sanhauá chegam pelo additionalData do Vite —
+// nada de @use aqui (ver src/styles/global.scss).
+
+.landing {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+
+	// -- Barra de navegação --------------------------------------------------
+
+	&__nav {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: spacing(4);
+		padding: spacing(4) spacing(5);
+		max-width: 1180px;
+		width: 100%;
+		margin: 0 auto;
+
+		@include breakpoint-min('sm') {
+			padding: spacing(5) spacing(8);
+		}
+	}
+
+	&__brand {
+		display: flex;
+		align-items: center;
+		gap: spacing(2);
+		text-decoration: none;
+		color: inherit;
+	}
+
+	&__brand-mascot {
+		height: auto;
+	}
+
+	&__brand-name {
+		@include headline-5;
+		color: var(--app-link-strong);
+	}
+
+	&__nav-actions {
+		display: flex;
+		align-items: center;
+		gap: spacing(2);
+	}
+
+	// -- Botões (links estilizados) ------------------------------------------
+
+	&__button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: spacing(2) spacing(4);
+		border: map.get($border-width, 'small') solid transparent;
+		border-radius: map.get($border-radius, 'medium');
+		@include body-2-bold;
+		text-decoration: none;
+		color: var(--app-text);
+		transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+
+		&:hover {
+			background-color: var(--app-border);
+		}
+
+		&--primary {
+			background-color: var(--app-link);
+			color: var(--app-on-accent);
+
+			&:hover {
+				background-color: var(--app-link-strong);
+			}
+		}
+
+		&--large {
+			padding: spacing(3) spacing(6);
+			@include body-1;
+		}
+
+		&--inverse {
+			background-color: var(--app-surface-raised);
+			color: var(--app-link-strong);
+
+			&:hover {
+				background-color: var(--app-border);
+			}
+		}
+
+		&--ghost {
+			color: var(--app-on-accent);
+			border-color: rgba(255, 255, 255, 0.4);
+
+			&:hover {
+				background-color: rgba(255, 255, 255, 0.12);
+			}
+		}
+	}
+
+	// -- Hero ----------------------------------------------------------------
+
+	&__hero {
+		max-width: 1180px;
+		width: 100%;
+		margin: 0 auto;
+		padding: spacing(10) spacing(5) spacing(12);
+		display: grid;
+		gap: spacing(8);
+		align-items: center;
+
+		@include breakpoint-min('rg') {
+			grid-template-columns: 1.15fr 0.85fr;
+			padding: spacing(16) spacing(8);
+		}
+	}
+
+	&__hero-text {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(4);
+	}
+
+	&__eyebrow {
+		@include caption;
+		font-weight: map.get($font-weight, 'bold');
+		text-transform: uppercase;
+		letter-spacing: 0.1em;
+		color: var(--app-link);
+	}
+
+	&__hero-title {
+		@include headline-2;
+		letter-spacing: -0.02em;
+
+		@include breakpoint-min('sm') {
+			@include headline-1;
+		}
+	}
+
+	&__hero-description {
+		@include body-1;
+		color: var(--app-text-muted);
+		max-width: 56ch;
+	}
+
+	&__hero-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: spacing(3);
+		margin-top: spacing(2);
+	}
+
+	&__hero-figure {
+		display: flex;
+		justify-content: center;
+	}
+
+	&__hero-mascot {
+		width: min(280px, 70vw);
+		height: auto;
+		filter: drop-shadow(0 18px 40px rgba(2, 6, 23, 0.16));
+	}
+
+	// -- Seções de conteúdo --------------------------------------------------
+
+	&__section {
+		max-width: 1180px;
+		width: 100%;
+		margin: 0 auto;
+		padding: spacing(12) spacing(5);
+		display: flex;
+		flex-direction: column;
+		gap: spacing(8);
+
+		@include breakpoint-min('sm') {
+			padding: spacing(16) spacing(8);
+		}
+	}
+
+	&__section--steps {
+		border-top: map.get($border-width, 'small') solid var(--app-border);
+	}
+
+	&__section-header {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(3);
+		max-width: 68ch;
+	}
+
+	&__section-title {
+		@include headline-3;
+
+		@include breakpoint-min('sm') {
+			@include headline-2;
+		}
+	}
+
+	&__section-description {
+		color: var(--app-text-muted);
+		@include body-1;
+	}
+
+	// -- Etapas --------------------------------------------------------------
+
+	&__steps {
+		display: grid;
+		gap: spacing(6);
+
+		@include breakpoint-min('rg') {
+			grid-template-columns: repeat(3, 1fr);
+		}
+	}
+
+	&__step {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(3);
+		padding: spacing(6);
+		background-color: var(--app-surface-raised);
+		border: map.get($border-width, 'small') solid var(--app-border);
+		border-radius: map.get($border-radius, 'large');
+	}
+
+	&__step-number {
+		@include headline-2;
+		line-height: 1;
+		color: var(--app-accent-soft);
+	}
+
+	&__step-title {
+		@include headline-6;
+	}
+
+	&__step-description {
+		color: var(--app-text-muted);
+		@include body-2;
+	}
+
+	// -- Conformidade --------------------------------------------------------
+
+	&__section--compliance {
+		border-top: map.get($border-width, 'small') solid var(--app-border);
+	}
+
+	&__compliance {
+		display: grid;
+		gap: spacing(6);
+
+		@include breakpoint-min('sm') {
+			grid-template-columns: repeat(2, 1fr);
+		}
+	}
+
+	&__compliance-item {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(2);
+		padding-left: spacing(4);
+		border-left: map.get($border-width, 'medium') solid
+			var(--app-accent-edge);
+	}
+
+	&__compliance-title {
+		@include body-1-bold;
+	}
+
+	&__compliance-description {
+		color: var(--app-text-muted);
+		@include body-2;
+	}
+
+	// -- Chamada final -------------------------------------------------------
+
+	&__cta {
+		margin: 0 auto spacing(16);
+		max-width: 1100px;
+		width: calc(100% - #{spacing(10)});
+		padding: spacing(12) spacing(6);
+		border-radius: map.get($border-radius, 'large');
+		text-align: center;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: spacing(3);
+		background: linear-gradient(
+			135deg,
+			var(--app-link),
+			var(--app-link-deep)
+		);
+		color: var(--app-on-accent);
+	}
+
+	&__cta-title {
+		@include headline-3;
+		color: var(--app-on-accent);
+	}
+
+	&__cta-description {
+		color: rgba(255, 255, 255, 0.85);
+	}
+
+	// -- Rodapé --------------------------------------------------------------
+
+	&__footer {
+		margin-top: auto;
+		border-top: map.get($border-width, 'small') solid var(--app-border);
+		padding: spacing(6) spacing(5);
+		max-width: 1180px;
+		width: 100%;
+		margin-inline: auto;
+		display: flex;
+		flex-direction: column;
+		gap: spacing(3);
+
+		@include breakpoint-min('sm') {
+			flex-direction: row;
+			align-items: center;
+			justify-content: space-between;
+			padding: spacing(6) spacing(8);
+		}
+	}
+
+	&__footer-brand {
+		display: flex;
+		align-items: baseline;
+		flex-wrap: wrap;
+		gap: spacing(2);
+	}
+
+	&__footer-tagline,
+	&__footer-rights {
+		@include caption;
+		color: var(--app-text-muted);
+	}
+}

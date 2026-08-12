@@ -1,0 +1,214 @@
+// Estilos globais da aplicação.
+//
+// Tokens do Sanhauá (mapas e funções SCSS) chegam aqui pelo `additionalData` do
+// vite.config.ts — não importar nada de token neste arquivo.
+//
+// REGRA: nunca escrever `@use` num .scss deste projeto. O `additionalData` é
+// prepended ao arquivo, e já traz `@use "sass:map"` na primeira linha — um
+// `@use` aqui deixaria de ser a primeira regra e o Sass aborta. Escreva
+// `map.get(...)` e `spacing(...)` direto, sem importar nada.
+//
+// REGRA: tipografia sempre pelos mixins da escala do Sanhauá (`@include body-2`,
+// `@include headline-3`, `@include icon-3`…). `font-size` cru é proibido.
+
+// Paleta semântica da aplicação.
+//
+// Os tokens do Sanhauá são mapas SCSS, resolvidos em tempo de compilação — não
+// dá para trocá-los em runtime. Como o tema muda com um clique, o valor precisa
+// ser uma custom property. As duas famílias usam as MESMAS chaves para o mesmo
+// papel (`'100'` é o fundo da página nas duas, `'900'` o texto de maior
+// contraste), então o mapeamento claro→escuro é só trocar o sufixo.
+//
+// Estilo de componente deve consumir `var(--app-*)`, nunca `map.get($color-*-light, …)`
+// direto, senão o elemento fica preso ao tema claro.
+//
+// As classes de tema vivem no `<html>`, e só nele — ver ThemeProvider. Duas
+// camadas de `.sanhaua` (uma no html, outra no body) fariam o Sanhauá aplicar
+// as duas: ele estiliza descendentes direto (`.sanhaua.dark .ua-button`), então
+// a regra escura, por vir depois no arquivo, ganharia mesmo com o body claro.
+:root {
+	--app-surface: #{map.get($color-neutral-light, '100')};
+	--app-surface-raised: #{map.get($color-neutral-light, '200')};
+	--app-surface-sunken: #{map.get($color-neutral-light, '200')};
+	--app-border: #{map.get($color-neutral-light, '200')};
+	--app-border-strong: #{map.get($color-neutral-light, '300')};
+	--app-text: #{map.get($color-neutral-light, '800')};
+	--app-text-strong: #{map.get($color-neutral-light, '900')};
+	--app-text-muted: #{map.get($color-neutral-light, '500')};
+	--app-text-subtle: #{map.get($color-neutral-light, '400')};
+	--app-link: #{map.get($color-primary-light, '600')};
+	--app-link-strong: #{map.get($color-primary-light, '700')};
+	--app-link-deep: #{map.get($color-primary-light, '800')};
+	--app-accent-soft: #{map.get($color-primary-light, '200')};
+	--app-accent-edge: #{map.get($color-primary-light, '300')};
+	--app-focus: #{map.get($color-primary-light, '500')};
+
+	// Texto sobre fundo de cor saturada (botão primário, CTA). Fica claro nos dois
+	// temas: o fundo é primário nos dois, não a superfície da página.
+	--app-on-accent: #{map.get($color-neutral-light, '100')};
+
+	--app-info-surface: #{map.get($color-primary-light, '100')};
+	--app-info-edge: #{map.get($color-primary-light, '500')};
+	--app-info-text: #{map.get($color-primary-light, '900')};
+	--app-warning-surface: #{map.get($color-warning-light, '100')};
+	--app-warning-edge: #{map.get($color-warning-light, '700')};
+	--app-warning-text: #{map.get($color-neutral-light, '800')};
+	--app-danger-surface: #{map.get($color-danger-light, '100')};
+	--app-danger-edge: #{map.get($color-danger-light, '500')};
+	--app-danger-text: #{map.get($color-danger-light, '900')};
+	--app-success-surface: #{map.get($color-success-light, '100')};
+	--app-success-edge: #{map.get($color-success-light, '700')};
+	--app-success-text: #{map.get($color-neutral-light, '800')};
+
+	// Fundo dos painéis de vitrine (telas de conta). Precisa de par próprio: os
+	// tokens de link não servem porque no tema escuro a família primária clareia
+	// (`primary-dark '800'` é quase pastel), e um painel claro num tema escuro é
+	// exatamente o contraste errado. Aqui o painel é escuro nos dois temas, com
+	// `--app-on-accent` (claro nos dois) por cima.
+	--app-showcase-from: #{map.get($color-primary-light, '800')};
+	--app-showcase-to: #{map.get($color-primary-light, '600')};
+}
+
+:root.dark {
+	--app-surface: #{map.get($color-neutral-dark, '100')};
+	--app-surface-raised: #{map.get($color-neutral-dark, '200')};
+	--app-surface-sunken: #{map.get($color-neutral-dark, '200')};
+	--app-border: #{map.get($color-neutral-dark, '300')};
+	--app-border-strong: #{map.get($color-neutral-dark, '400')};
+	--app-text: #{map.get($color-neutral-dark, '800')};
+	--app-text-strong: #{map.get($color-neutral-dark, '900')};
+	--app-text-muted: #{map.get($color-neutral-dark, '500')};
+	--app-text-subtle: #{map.get($color-neutral-dark, '400')};
+	--app-link: #{map.get($color-primary-dark, '600')};
+	--app-link-strong: #{map.get($color-primary-dark, '700')};
+	--app-link-deep: #{map.get($color-primary-dark, '800')};
+	--app-accent-soft: #{map.get($color-primary-dark, '200')};
+	--app-accent-edge: #{map.get($color-primary-dark, '300')};
+	--app-focus: #{map.get($color-primary-dark, '500')};
+
+	--app-info-surface: #{map.get($color-primary-dark, '100')};
+	--app-info-edge: #{map.get($color-primary-dark, '500')};
+	--app-info-text: #{map.get($color-primary-dark, '900')};
+	--app-warning-surface: #{map.get($color-warning-dark, '100')};
+	--app-warning-edge: #{map.get($color-warning-dark, '700')};
+	--app-warning-text: #{map.get($color-neutral-dark, '800')};
+	--app-danger-surface: #{map.get($color-danger-dark, '100')};
+	--app-danger-edge: #{map.get($color-danger-dark, '500')};
+	--app-danger-text: #{map.get($color-danger-dark, '900')};
+	--app-success-surface: #{map.get($color-success-dark, '100')};
+	--app-success-edge: #{map.get($color-success-dark, '700')};
+	--app-success-text: #{map.get($color-neutral-dark, '800')};
+
+	// No escuro o painel sai da superfície da página e sobe até o azul mais
+	// fechado da família — continua legível sob texto claro sem estourar o brilho.
+	--app-showcase-from: #{map.get($color-neutral-dark, '200')};
+	--app-showcase-to: #{map.get($color-primary-dark, '100')};
+}
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+}
+
+body {
+	margin: 0;
+	min-height: 100vh;
+
+	// Base tipográfica da aplicação: `body-1` da escala do Sanhauá, não uma
+	// combinação própria de família e peso. Todo texto herda daqui, então o que
+	// sobra nos componentes é só desvio dessa base — e desvio também vem da
+	// escala (`@include body-2`, `@include caption`…), nunca de `font-size` cru.
+	@include body-1;
+
+	line-height: 1.5;
+	color: var(--app-text);
+	background-color: var(--app-surface);
+	-webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+	margin: 0;
+}
+
+h1,
+h2,
+h3,
+h4 {
+	line-height: 1.2;
+	text-wrap: balance;
+	color: var(--app-text-strong);
+}
+
+img,
+picture,
+svg {
+	display: block;
+	max-width: 100%;
+}
+
+a {
+	color: var(--app-link);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 2px;
+}
+
+button,
+input,
+select,
+textarea {
+	font: inherit;
+	color: inherit;
+}
+
+ul,
+ol {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+:focus-visible {
+	outline: map.get($border-width, 'medium') solid var(--app-focus);
+	outline-offset: 2px;
+}
+
+#root {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+// Estado de carregamento de rota (ProtectedRoute, LogoutPage). Fica no global
+// porque é usado por componentes que não têm .scss próprio.
+.route-loading {
+	flex: 1;
+	width: 100%;
+	max-width: 1100px;
+	margin: 0 auto;
+	padding: spacing(10) spacing(5);
+	display: flex;
+	flex-direction: column;
+	gap: spacing(4);
+}
+
+// Utilitário de acessibilidade: some visualmente, permanece para leitor de tela.
+.visually-hidden {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	padding: 0;
+	margin: -1px;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+}

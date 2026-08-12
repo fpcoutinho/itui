@@ -1,0 +1,10 @@
+// Tokens do Sanhauá chegam pelo additionalData do vite.config.ts.
+// Nunca abrir um .scss com @use — ver src/styles/global.scss.
+
+// O UaButton `ghost` já traz o comportamento de cor; aqui só o formato, para o
+// botão ficar redondo e do tamanho do ícone em vez de largo como um botão de texto.
+.theme-toggle {
+	flex-shrink: 0;
+	border-radius: map.get($border-radius, 'pill');
+	aspect-ratio: 1;
+}

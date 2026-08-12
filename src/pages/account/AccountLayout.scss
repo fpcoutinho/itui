@@ -1,0 +1,221 @@
+.account {
+	position: relative;
+	flex: 1;
+	display: grid;
+	// Coluna única por padrão: a vitrine só aparece a partir de `md`.
+	grid-template-columns: 1fr;
+	min-height: 100%;
+	background-color: var(--app-surface);
+
+	@include breakpoint-min('md') {
+		grid-template-columns: 1fr 1fr;
+	}
+
+	// Marca e alternador de tema: ancorados nos cantos da tela, fora do fluxo das
+	// colunas. No fluxo, empurrariam a centralização do formulário.
+	&__brand {
+		position: absolute;
+		top: spacing(5);
+		left: spacing(5);
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		gap: spacing(2);
+		text-decoration: none;
+		color: inherit;
+	}
+
+	&__mascot {
+		height: auto;
+	}
+
+	&__theme {
+		position: absolute;
+		top: spacing(5);
+		right: spacing(5);
+		z-index: 1;
+
+		// A partir de `md` o botão fica sobre a vitrine. O `ghost` do Sanhauá NÃO é
+		// transparente no tema escuro (`background-color: #020617`), então sobre o
+		// painel ele viraria um quadrado preto avulso — daqui sai a cor do texto e
+		// o fundo transparente que deixam o gradiente aparecer.
+		@include breakpoint-min('md') {
+			.ua-button.ghost {
+				color: var(--app-on-accent);
+				background-color: transparent;
+			}
+
+			.ua-button.ghost:hover {
+				background-color: color-mix(
+					in srgb,
+					var(--app-on-accent) 20%,
+					transparent
+				);
+			}
+		}
+	}
+
+	&__pane {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		padding: spacing(20) spacing(5) spacing(12);
+	}
+
+	// Sem borda nem sombra: no layout de duas colunas o próprio painel já
+	// separa formulário e vitrine, e uma moldura em volta viraria caixa dentro
+	// de caixa.
+	&__card {
+		width: 100%;
+		max-width: 380px;
+		display: flex;
+		flex-direction: column;
+		gap: spacing(6);
+	}
+
+	&__intro {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(2);
+		text-align: center;
+	}
+
+	&__title {
+		@include headline-2;
+		line-height: 1.15;
+		color: var(--app-text-strong);
+	}
+
+	&__subtitle {
+		color: var(--app-text-muted);
+		@include body-1;
+	}
+
+	&__footer {
+		text-align: center;
+		@include body-2;
+		color: var(--app-text-muted);
+	}
+
+	// ── Vitrine ──────────────────────────────────────────────────────────────
+	// Ornamento: escondida em tela estreita, onde competiria com o formulário.
+	//
+	// O fundo é primário nos DOIS temas — muda o tom, não o papel — então o texto
+	// em cima é sempre `--app-on-accent`, o mesmo token do botão primário. Véus e
+	// molduras derivam desse token por `color-mix` em vez de branco cravado, para
+	// acompanharem a troca de tema junto com o resto.
+	&__showcase {
+		display: none;
+
+		@include breakpoint-min('md') {
+			position: relative;
+			display: flex;
+			flex-direction: column;
+			justify-content: center;
+			gap: spacing(10);
+			// `hidden` à direita e embaixo: a moldura sangra de propósito, como se
+			// a aplicação continuasse fora da tela.
+			overflow: hidden;
+			padding: spacing(12) 0 spacing(12) spacing(12);
+			color: var(--app-on-accent);
+			background: linear-gradient(
+				145deg,
+				var(--app-showcase-from),
+				var(--app-showcase-to)
+			);
+		}
+	}
+
+	&__showcase-copy {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(3);
+		max-width: 30rem;
+		padding-right: spacing(12);
+	}
+
+	&__showcase-title {
+		@include headline-3;
+		line-height: 1.2;
+	}
+
+	&__showcase-text {
+		@include body-1;
+		line-height: 1.5;
+		color: color-mix(in srgb, var(--app-on-accent) 82%, transparent);
+	}
+
+	// Moldura da captura. Trocar o conteúdo por `<img>` mantém o enquadramento:
+	// largura maior que a coluna, ancorada à esquerda, cortada à direita.
+	&__frame {
+		min-width: 44rem;
+		aspect-ratio: 16 / 10;
+		border-radius: map.get($border-radius, 'large') 0 0
+			map.get($border-radius, 'large');
+		overflow: hidden;
+		background-color: color-mix(
+			in srgb,
+			var(--app-on-accent) 12%,
+			transparent
+		);
+		box-shadow: 0 24px 60px
+			color-mix(in srgb, var(--app-showcase-from) 45%, transparent);
+	}
+
+	// Placeholder — some no dia em que a captura entrar.
+	&__preview {
+		width: 100%;
+		height: 100%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background: repeating-linear-gradient(
+			135deg,
+			color-mix(in srgb, var(--app-on-accent) 7%, transparent) 0 12px,
+			transparent 12px 24px
+		);
+	}
+
+	&__preview-label {
+		@include caption;
+		letter-spacing: 0.08em;
+		text-transform: uppercase;
+		color: color-mix(in srgb, var(--app-on-accent) 70%, transparent);
+	}
+}
+
+.auth-form {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(4);
+
+	&__actions {
+		margin-top: spacing(1);
+	}
+
+	// Mensagens do bloco do Google (indisponível, falha de carga). Ver
+	// GoogleSignInButton.
+	&__hint {
+		text-align: center;
+		@include caption;
+		color: var(--app-text-muted);
+	}
+}
+
+.auth-divider {
+	display: flex;
+	align-items: center;
+	gap: spacing(3);
+	color: var(--app-text-subtle);
+	@include caption;
+	text-transform: uppercase;
+	letter-spacing: 0.08em;
+
+	&::before,
+	&::after {
+		content: '';
+		flex: 1;
+		height: map.get($border-width, 'small');
+		background-color: var(--app-border);
+	}
+}

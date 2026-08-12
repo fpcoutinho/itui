@@ -1,0 +1,32 @@
+.page-header {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(4);
+
+	@include breakpoint-min('sm') {
+		flex-direction: row;
+		align-items: flex-end;
+		justify-content: space-between;
+	}
+
+	&__text {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(2);
+	}
+
+	&__title {
+		@include headline-3;
+	}
+
+	&__description {
+		color: var(--app-text-muted);
+		max-width: 60ch;
+	}
+
+	&__actions {
+		display: flex;
+		gap: spacing(3);
+		flex-shrink: 0;
+	}
+}
