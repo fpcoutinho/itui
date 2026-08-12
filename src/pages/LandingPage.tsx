@@ -169,7 +169,7 @@ export function LandingPage() {
 					</span>
 				</div>
 				<p className="landing__footer-rights">
-					© {new Date().getFullYear()} Filipe Paulo Coutinho.{' '}
+					© {new Date().getFullYear()} fpcoutinho.{' '}
 					{landingTexts.footer.rights}
 				</p>
 			</footer>

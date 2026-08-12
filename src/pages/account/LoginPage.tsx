@@ -65,14 +65,14 @@ export function LoginPage() {
 
 	return (
 		<AccountLayout
+			title={authTexts.login.title}
+			subtitle={authTexts.login.subtitle}
 			footer={
 				<>
 					{authTexts.login.noAccount}{' '}
 					<Link to="/conta/cadastro">{authTexts.login.signupLink}</Link>
 				</>
 			}
-			subtitle={authTexts.login.subtitle}
-			title={authTexts.login.title}
 		>
 			{formError ? (
 				<UaAlert appearance="danger" description={formError} />

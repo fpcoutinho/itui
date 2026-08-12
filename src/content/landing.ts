@@ -14,7 +14,7 @@ export const landingTexts = {
 	},
 
 	hero: {
-		eyebrow: 'Laudos de engenharia elétrica',
+		eyebrow: 'Soluções em engenharia elétrica',
 		title: 'Da inspeção em campo ao laudo pronto para entrega.',
 		description:
 			'O Ituí conduz o engenheiro pelo roteiro da NBR 5410, organiza as evidências fotográficas e entrega o documento técnico formatado — sem planilha paralela e sem template de Word quebrado.',

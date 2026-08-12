@@ -20,7 +20,6 @@ export const authTexts = {
 
 	signup: {
 		title: 'Criar conta',
-		subtitle: 'Comece a emitir laudos conforme a NBR 5410.',
 		email: 'E-mail',
 		password: 'Senha',
 		passwordHint: 'Mínimo de 8 caracteres.',
