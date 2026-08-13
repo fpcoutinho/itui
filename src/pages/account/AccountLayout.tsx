@@ -6,7 +6,8 @@ import './AccountLayout.scss'
 
 interface AccountLayoutProps {
 	title: string
-	subtitle: string
+	/** Opcional: o cadastro se explica pelo título e dispensa a linha de apoio. */
+	subtitle?: string
 	children: ReactNode
 	/** Rodapé do cartão: link para a outra tela de conta. */
 	footer: ReactNode
@@ -29,24 +30,24 @@ export function AccountLayout({
 		<main className="account">
 			{/* Marca e alternador ficam ancorados nos cantos da TELA, fora das duas
 			    colunas: a esquerda é do formulário, a direita é ornamento. */}
-			<Link aria-label="Ituí" className="account__brand" to="/">
-				<img alt="" className="account__mascot" src="/mascot.webp" width={40} />
+			<Link aria-label="Ituí" className="brand" to="/">
+				<img alt="" className="mascot" src="/mascot.webp" width={40} />
 			</Link>
 
-			<div className="account__theme">
+			<div className="theme">
 				<ThemeToggle />
 			</div>
 
-			<section className="account__pane">
-				<div className="account__card">
-					<div className="account__intro">
-						<h1 className="account__title">{title}</h1>
-						<p className="account__subtitle">{subtitle}</p>
+			<section className="pane">
+				<div className="card">
+					<div className="intro">
+						<h1 className="title">{title}</h1>
+						{subtitle ? <p className="subtitle">{subtitle}</p> : null}
 					</div>
 
 					{children}
 
-					<p className="account__footer">{footer}</p>
+					<p className="footer">{footer}</p>
 				</div>
 			</section>
 
@@ -66,19 +67,15 @@ export function AccountLayout({
  */
 function AccountShowcase() {
 	return (
-		<aside aria-hidden="true" className="account__showcase">
-			<div className="account__showcase-copy">
-				<p className="account__showcase-title">{authTexts.showcase.title}</p>
-				<p className="account__showcase-text">
-					{authTexts.showcase.description}
-				</p>
+		<aside aria-hidden="true" className="showcase">
+			<div className="copy">
+				<p className="title">{authTexts.showcase.title}</p>
+				<p className="text">{authTexts.showcase.description}</p>
 			</div>
 
-			<div className="account__frame">
-				<div className="account__preview">
-					<span className="account__preview-label">
-						{authTexts.showcase.placeholder}
-					</span>
+			<div className="frame">
+				<div className="preview">
+					<span className="label">{authTexts.showcase.placeholder}</span>
 				</div>
 			</div>
 		</aside>

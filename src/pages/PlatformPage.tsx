@@ -31,9 +31,7 @@ const columns: Column<ReportSummary>[] = [
 	{
 		key: 'locationCode',
 		header: platformTexts.table.locationCode,
-		render: (report) => (
-			<span className="platform__code">{report.locationCode}</span>
-		),
+		render: (report) => <span className="code">{report.locationCode}</span>,
 	},
 	{
 		key: 'inspectedAt',
@@ -44,7 +42,7 @@ const columns: Column<ReportSummary>[] = [
 		key: 'status',
 		header: platformTexts.table.status,
 		render: (report) => (
-			<span className={`platform__status platform__status--${report.status}`}>
+			<span className={`status ${report.status}`}>
 				{reportStatusLabels[report.status]}
 			</span>
 		),
@@ -96,9 +94,9 @@ export function PlatformPage() {
 				title={platformTexts.title}
 			/>
 
-			<div className="platform__account">
-				<span className="platform__account-email">{user?.email}</span>
-				<Link className="platform__logout" to="/conta/logout">
+			<div className="account">
+				<span className="email">{user?.email}</span>
+				<Link className="logout" to="/conta/logout">
 					Sair
 				</Link>
 			</div>
@@ -120,17 +118,15 @@ export function PlatformPage() {
 				/>
 			) : null}
 
-			<fieldset className="platform__filters">
+			<fieldset className="filters">
 				<legend className="visually-hidden">
 					{platformTexts.filters.legend}
 				</legend>
 
-				<label className="platform__filter">
-					<span className="platform__filter-label">
-						{platformTexts.filters.status}
-					</span>
+				<label className="filter">
+					<span className="label">{platformTexts.filters.status}</span>
 					<select
-						className="platform__select"
+						className="select"
 						onChange={(event) =>
 							setStatus(event.target.value as ReportStatus | '')
 						}
@@ -145,12 +141,10 @@ export function PlatformPage() {
 					</select>
 				</label>
 
-				<label className="platform__filter">
-					<span className="platform__filter-label">
-						{platformTexts.filters.locationPrefix}
-					</span>
+				<label className="filter">
+					<span className="label">{platformTexts.filters.locationPrefix}</span>
 					<input
-						className="platform__input"
+						className="input"
 						onChange={(event) =>
 							setLocationPrefix(event.target.value.toUpperCase())
 						}
@@ -160,23 +154,24 @@ export function PlatformPage() {
 				</label>
 
 				{hasFilters ? (
-					<button
-						className="platform__clear"
+					<UaButton
+						appearance="ghost"
 						onClick={() => {
 							setStatus('')
 							setLocationPrefix('')
 						}}
+						size="small"
 						type="button"
 					>
 						{platformTexts.filters.clear}
-					</button>
+					</UaButton>
 				) : null}
 			</fieldset>
 
 			{error ? <UaAlert appearance="danger" description={error} /> : null}
 
 			{isLoading ? (
-				<div aria-busy="true" className="platform__loading">
+				<div aria-busy="true" className="loading">
 					<span className="visually-hidden">Carregando laudos…</span>
 					<UaSkeleton height="56px" width="100%" />
 					<UaSkeleton height="56px" width="100%" />
@@ -187,11 +182,9 @@ export function PlatformPage() {
 					caption={platformTexts.table.caption}
 					columns={columns}
 					emptyState={
-						<div className="platform__empty">
-							<h2 className="platform__empty-title">
-								{platformTexts.empty.title}
-							</h2>
-							<p className="platform__empty-description">
+						<div className="empty">
+							<h2 className="title">{platformTexts.empty.title}</h2>
+							<p className="description">
 								{hasFilters
 									? platformTexts.empty.filtered
 									: platformTexts.empty.description}

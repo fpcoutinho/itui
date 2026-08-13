@@ -90,7 +90,7 @@ export function GoogleSignInButton({
 	})
 
 	if (!isConfigured) {
-		return <p className="auth-form__hint">{authTexts.google.unavailable}</p>
+		return <p className="auth-hint">{authTexts.google.unavailable}</p>
 	}
 
 	return (
@@ -101,17 +101,15 @@ export function GoogleSignInButton({
 				{/* Só aparência: `aria-hidden` porque quem é anunciado e focado é o
 				    botão real do Google, e `pointer-events: none` no SCSS para que o
 				    clique atravesse até ele. */}
-				<span aria-hidden="true" className="google-button__face">
+				<span aria-hidden="true" className="face">
 					<GoogleMark />
-					<span className="google-button__label">
-						{authTexts.google.buttonLabel}
-					</span>
+					<span className="label">{authTexts.google.buttonLabel}</span>
 				</span>
 
-				<div className="google-button__widget" ref={buttonRef} />
+				<div className="widget" ref={buttonRef} />
 			</div>
 
-			{error ? <p className="auth-form__hint">{error}</p> : null}
+			{error ? <p className="auth-hint">{error}</p> : null}
 		</>
 	)
 }

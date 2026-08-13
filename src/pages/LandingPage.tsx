@@ -1,4 +1,5 @@
 import { Link } from 'react-router'
+import { ButtonLink } from '../components/ui/ButtonLink'
 import { ThemeToggle } from '../components/ui/ThemeToggle'
 import { landingTexts } from '../content/landing'
 import { useSession } from '../hooks/useSession'
@@ -8,7 +9,9 @@ import './LandingPage.scss'
  * Landing pública.
  *
  * Funcionalidade nova — o legado caía direto na listagem. Sem Tailwind e sem
- * biblioteca de UI de terceiros: SCSS puro, BEM, tokens do Sanhauá.
+ * biblioteca de UI de terceiros: SCSS puro com classes aninhadas e tokens do
+ * Sanhauá. Os botões são do design system (via `ButtonLink`, que preserva a
+ * navegação do react-router) — não há botão desenhado aqui.
  */
 export function LandingPage() {
 	const { status } = useSession()
@@ -16,160 +19,141 @@ export function LandingPage() {
 
 	return (
 		<div className="landing">
-			<header className="landing__nav">
-				<Link className="landing__brand" to="/">
+			<header className="nav">
+				<Link className="brand" to="/">
 					<img
 						alt=""
-						className="landing__brand-mascot"
+						className="mascot"
 						height={40}
 						src="/mascot.webp"
 						width={40}
 					/>
-					<span className="landing__brand-name">Ituí</span>
+					<span className="brand-name">Ituí</span>
 				</Link>
 
-				<nav className="landing__nav-actions">
+				<nav className="actions">
 					<ThemeToggle />
 
 					{isAuthenticated ? (
-						<Link
-							className="landing__button landing__button--primary"
-							to="/plataforma"
-						>
+						<ButtonLink size="small" to="/plataforma">
 							{landingTexts.nav.platform}
-						</Link>
+						</ButtonLink>
 					) : (
 						<>
-							<Link className="landing__button" to="/conta/login">
+							<ButtonLink appearance="ghost" size="small" to="/conta/login">
 								{landingTexts.nav.login}
-							</Link>
-							<Link
-								className="landing__button landing__button--primary"
-								to="/conta/cadastro"
-							>
+							</ButtonLink>
+							<ButtonLink size="small" to="/conta/cadastro">
 								{landingTexts.nav.signup}
-							</Link>
+							</ButtonLink>
 						</>
 					)}
 				</nav>
 			</header>
 
 			<main>
-				<section className="landing__hero">
-					<div className="landing__hero-text">
-						<p className="landing__eyebrow">{landingTexts.hero.eyebrow}</p>
-						<h1 className="landing__hero-title">{landingTexts.hero.title}</h1>
-						<p className="landing__hero-description">
-							{landingTexts.hero.description}
-						</p>
+				<section className="hero">
+					<div className="hero-text">
+						<p className="eyebrow">{landingTexts.hero.eyebrow}</p>
+						<h1 className="title">{landingTexts.hero.title}</h1>
+						<p className="description">{landingTexts.hero.description}</p>
 
-						<div className="landing__hero-actions">
-							<Link
-								className="landing__button landing__button--primary landing__button--large"
+						<div className="hero-actions">
+							<ButtonLink
+								size="large"
 								to={isAuthenticated ? '/plataforma' : '/conta/cadastro'}
 							>
 								{isAuthenticated
 									? landingTexts.nav.platform
 									: landingTexts.hero.primaryCta}
-							</Link>
+							</ButtonLink>
 							{isAuthenticated ? null : (
-								<Link
-									className="landing__button landing__button--large"
+								<ButtonLink
+									appearance="tertiary"
+									size="large"
 									to="/conta/login"
 								>
 									{landingTexts.hero.secondaryCta}
-								</Link>
+								</ButtonLink>
 							)}
 						</div>
 					</div>
 
-					<div className="landing__hero-figure">
+					<div className="hero-figure">
 						<img
 							alt={landingTexts.hero.mascotAlt}
-							className="landing__hero-mascot"
+							className="hero-mascot"
 							src="/mascot.webp"
 						/>
 					</div>
 				</section>
 
-				<section className="landing__section landing__section--steps">
-					<div className="landing__section-header">
-						<h2 className="landing__section-title">
-							{landingTexts.steps.title}
-						</h2>
-						<p className="landing__section-description">
+				<section className="section steps-section">
+					<div className="section-header">
+						<h2 className="section-title">{landingTexts.steps.title}</h2>
+						<p className="section-description">
 							{landingTexts.steps.description}
 						</p>
 					</div>
 
-					<ol className="landing__steps">
+					<ol className="steps">
 						{landingTexts.steps.items.map((step) => (
-							<li className="landing__step" key={step.number}>
-								<span aria-hidden="true" className="landing__step-number">
+							<li className="step" key={step.number}>
+								<span aria-hidden="true" className="number">
 									{step.number}
 								</span>
-								<h3 className="landing__step-title">{step.title}</h3>
-								<p className="landing__step-description">{step.description}</p>
+								<h3 className="title">{step.title}</h3>
+								<p className="description">{step.description}</p>
 							</li>
 						))}
 					</ol>
 				</section>
 
-				<section className="landing__section landing__section--compliance">
-					<div className="landing__section-header">
-						<h2 className="landing__section-title">
-							{landingTexts.compliance.title}
-						</h2>
-						<p className="landing__section-description">
+				<section className="section compliance-section">
+					<div className="section-header">
+						<h2 className="section-title">{landingTexts.compliance.title}</h2>
+						<p className="section-description">
 							{landingTexts.compliance.description}
 						</p>
 					</div>
 
-					<ul className="landing__compliance">
+					<ul className="compliance">
 						{landingTexts.compliance.items.map((item) => (
-							<li className="landing__compliance-item" key={item.title}>
-								<h3 className="landing__compliance-title">{item.title}</h3>
-								<p className="landing__compliance-description">
-									{item.description}
-								</p>
+							<li className="item" key={item.title}>
+								<h3 className="title">{item.title}</h3>
+								<p className="description">{item.description}</p>
 							</li>
 						))}
 					</ul>
 				</section>
 
 				{isAuthenticated ? null : (
-					<section className="landing__cta">
-						<h2 className="landing__cta-title">{landingTexts.cta.title}</h2>
-						<p className="landing__cta-description">
-							{landingTexts.cta.description}
-						</p>
-						<div className="landing__hero-actions">
-							<Link
-								className="landing__button landing__button--inverse landing__button--large"
+					<section className="cta">
+						<h2 className="title">{landingTexts.cta.title}</h2>
+						<p className="description">{landingTexts.cta.description}</p>
+						<div className="hero-actions">
+							<ButtonLink
+								appearance="tertiary"
+								size="large"
 								to="/conta/cadastro"
 							>
 								{landingTexts.cta.primary}
-							</Link>
-							<Link
-								className="landing__button landing__button--ghost landing__button--large"
-								to="/conta/login"
-							>
+							</ButtonLink>
+							<ButtonLink appearance="ghost" size="large" to="/conta/login">
 								{landingTexts.cta.secondary}
-							</Link>
+							</ButtonLink>
 						</div>
 					</section>
 				)}
 			</main>
 
-			<footer className="landing__footer">
-				<div className="landing__footer-brand">
-					<span className="landing__brand-name">Ituí</span>
-					<span className="landing__footer-tagline">
-						{landingTexts.footer.tagline}
-					</span>
+			<footer className="footer">
+				<div className="footer-brand">
+					<span className="brand-name">Ituí</span>
+					<span className="tagline">{landingTexts.footer.tagline}</span>
 				</div>
-				<p className="landing__footer-rights">
-					© {new Date().getFullYear()} fpcoutinho.{' '}
+				<p className="rights">
+					© {new Date().getFullYear()} Filipe Paulo Coutinho.{' '}
 					{landingTexts.footer.rights}
 				</p>
 			</footer>

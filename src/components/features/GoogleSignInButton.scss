@@ -1,8 +1,8 @@
 // Tokens do Sanhauá chegam pelo additionalData do vite.config.ts.
 // Nunca abrir um .scss com @use — ver src/styles/global.scss.
 
-// Sobreposição: o widget do Google (`__widget`) fica por cima, transparente, e
-// é ele quem recebe clique e foco. O `__face` é só pintura, atrás e sem eventos.
+// Sobreposição: o widget do Google (`.widget`) fica por cima, transparente, e
+// é ele quem recebe clique e foco. A `.face` é só pintura, atrás e sem eventos.
 //
 // O widget é quem dita a altura da caixa — por isso ele fica no fluxo e a face
 // é que é posicionada de forma absoluta. Assim a face nunca fica maior ou menor
@@ -13,6 +13,10 @@
 //
 // O teto de 400px é do próprio Google: acima disso o widget para de acompanhar
 // e sobrariam bordas com aparência clicável que não são.
+//
+// Este bloco NÃO usa o `UaButton`: quem recebe o clique tem que ser o widget
+// desenhado pelo Google (único caminho do GIS que devolve um ID Token), e ele
+// não aceita CSS nosso. A face é uma réplica da superfície, não um botão do DS.
 .google-button {
 	position: relative;
 	display: flex;
@@ -22,13 +26,13 @@
 	margin-inline: auto;
 	min-height: 44px;
 
-	&__widget {
+	.widget {
 		position: relative;
 		z-index: 1;
 		opacity: 0;
 	}
 
-	&__face {
+	.face {
 		position: absolute;
 		inset: 0;
 		z-index: 0;
@@ -50,17 +54,17 @@
 	}
 
 	// O foco vive no widget invisível, então o anel precisa ser desenhado na face.
-	&:focus-within &__face {
+	&:focus-within .face {
 		outline: map.get($border-width, 'medium') solid var(--app-focus);
 		outline-offset: 2px;
 	}
 
-	&:hover &__face {
+	&:hover .face {
 		background-color: var(--app-surface-sunken);
 		border-color: var(--app-text-muted);
 	}
 
-	&__label {
+	.label {
 		line-height: 1;
 	}
 }

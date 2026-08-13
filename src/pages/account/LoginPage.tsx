@@ -101,7 +101,7 @@ export function LoginPage() {
 					widthBehavior="full"
 				/>
 
-				<div className="auth-form__actions">
+				<div className="actions">
 					<UaButton disabled={isSubmitting} type="submit" widthBehavior="full">
 						{isSubmitting ? authTexts.login.submitting : authTexts.login.submit}
 					</UaButton>

@@ -67,7 +67,6 @@ export function SignupPage() {
 					<Link to="/conta/login">{authTexts.signup.loginLink}</Link>
 				</>
 			}
-			subtitle={authTexts.signup.subtitle}
 			title={authTexts.signup.title}
 		>
 			{formError ? (
@@ -99,7 +98,7 @@ export function SignupPage() {
 					widthBehavior="full"
 				/>
 
-				<div className="auth-form__actions">
+				<div className="actions">
 					<UaButton disabled={isSubmitting} type="submit" widthBehavior="full">
 						{isSubmitting
 							? authTexts.signup.submitting
