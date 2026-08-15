@@ -313,6 +313,39 @@ para as seções, buscar o laudo individual):
 ]
 ```
 
+### Pendências para a UI — pedidos ao `raijin`
+
+> Esta seção **não** faz parte do contrato vigente: é o que a listagem em dashboard precisa e
+> ainda não existe. Enquanto não chegar, o `itui` degrada de propósito, e cada degradação está
+> anotada abaixo. Ao implementar no `raijin`, atualizar a tabela de query params acima e apagar
+> este bloco.
+
+1. **Ordenação (`sort` + `order`).** Hoje não há parâmetro nenhum; a ordem é comportamento
+   implícito do backend. A tabela do `itui` já emite o evento de ordenação para cima
+   (`onSortChange` do `UaTable`, com `{ key, direction }`) sem reordenar nada por conta própria —
+   falta só o destino. Sugestão: `sort` ∈ {`location_code`, `inspected_at`, `updated_at`,
+   `created_at`, `status`} e `order` ∈ {`asc`, `desc`}, default `updated_at` + `desc`.
+
+   *Degradação atual:* a ordenação é client-side e por isso só classifica as linhas da página
+   carregada. O `itui` esconde os controles quando há mais de uma página, senão "mais antigo"
+   significaria "o mais antigo dos que calharam de vir".
+
+2. **Total de registros.** A resposta é um array cru, então não há como dizer "página 3 de 12"
+   nem "mostrando 1–8 de 256". Sugestão: envelope `{ "items": [...], "total": 256 }` (ou header
+   `X-Total-Count`, se preferir manter o corpo como está).
+
+   *Degradação atual:* o rodapé mostra só "Mostrando 21–40", com anterior/próximo, e infere que
+   existe próxima página quando a atual voltou cheia. O `UaPagination` já aceita `total` opcional
+   — no dia em que ele chegar, as páginas numeradas aparecem sem mudar mais nada.
+
+3. **Busca textual (`q`).** Só existe `location_prefix`, que casa o começo do código do local. Um
+   campo de busca de verdade precisa de correspondência parcial e, de preferência, cobrir mais de
+   uma coluna (código do local e responsáveis). Sugestão: `q`, case-insensitive, aplicado com
+   `AND` sobre os demais filtros.
+
+   *Degradação atual:* não há busca na tela — o campo é rotulado como filtro por bloco
+   (`Ex.: CCHLA`), não como busca genérica, para não prometer o que a API não faz.
+
 ---
 
 ## `GET /api/v1/reports/{report_id}` — laudo completo

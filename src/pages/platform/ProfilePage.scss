@@ -1,0 +1,26 @@
+
+.profile-card {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(4);
+	max-width: 44rem;
+
+	.row {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: spacing(4);
+	}
+
+	.label {
+		@include caption;
+		font-weight: map.get($font-weight, 'bold');
+		color: var(--app-text-muted);
+	}
+
+	.value {
+		@include body-2;
+		color: var(--app-text);
+		overflow-wrap: anywhere;
+	}
+}

@@ -35,15 +35,15 @@ export function LandingPage() {
 					<ThemeToggle />
 
 					{isAuthenticated ? (
-						<ButtonLink size="small" to="/plataforma">
+						<ButtonLink size="medium" to="/plataforma">
 							{landingTexts.nav.platform}
 						</ButtonLink>
 					) : (
 						<>
-							<ButtonLink appearance="ghost" size="small" to="/conta/login">
+							<ButtonLink appearance="ghost" size="medium" to="/conta/login">
 								{landingTexts.nav.login}
 							</ButtonLink>
-							<ButtonLink size="small" to="/conta/cadastro">
+							<ButtonLink size="medium" to="/conta/cadastro">
 								{landingTexts.nav.signup}
 							</ButtonLink>
 						</>

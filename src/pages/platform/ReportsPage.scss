@@ -1,0 +1,40 @@
+
+.report-filters {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: spacing(3);
+}
+
+.report-loading {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(2);
+}
+
+.report-sort-hint {
+	@include caption;
+	color: var(--app-text-muted);
+	margin: 0;
+}
+
+.report-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: spacing(2);
+	padding: spacing(12) spacing(6);
+	text-align: center;
+	border: map.get($border-width, 'small') dashed var(--app-border-strong);
+	border-radius: map.get($border-radius, 'large');
+	background-color: var(--app-surface-raised);
+
+	.title {
+		@include headline-6;
+	}
+
+	.description {
+		color: var(--app-text-muted);
+		max-width: 46ch;
+	}
+}

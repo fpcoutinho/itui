@@ -16,6 +16,30 @@ export const platformTexts = {
 	newReport: 'Novo laudo',
 	cancel: 'Cancelar',
 
+	nav: {
+		label: 'Navegação principal',
+		reports: 'Laudos',
+		newReport: 'Novo laudo',
+		profile: 'Perfil',
+		signOut: 'Sair',
+	},
+
+	detail: {
+		title: 'Laudo',
+		underConstruction:
+			'A tela do laudo entra no próximo passo, junto do editor. Por enquanto ela só confirma que a navegação chegou até aqui.',
+		identifier: 'Identificador',
+		back: 'Voltar aos laudos',
+	},
+
+	profile: {
+		title: 'Perfil',
+		underConstruction:
+			'Ainda não há o que editar: a API não expõe dados de perfil além do e-mail da sessão.',
+		email: 'E-mail',
+		theme: 'Tema',
+	},
+
 	filters: {
 		legend: 'Filtrar laudos',
 		status: 'Situação',
@@ -31,6 +55,23 @@ export const platformTexts = {
 		inspectedAt: 'Inspeção',
 		status: 'Situação',
 		updatedAt: 'Atualizado',
+	},
+
+	pagination: {
+		label: 'Paginação dos laudos',
+		previous: 'Anterior',
+		next: 'Próxima',
+		/** Sem total: a listagem devolve array cru. Ver `docs/api-contract.md`. */
+		range: (first: number, last: number) => `Mostrando ${first}–${last}`,
+	},
+
+	sort: {
+		/**
+		 * A ordenação é client-side e só classifica a página carregada, então os
+		 * controles somem quando há mais de uma. Ver `docs/api-contract.md`.
+		 */
+		paginatedHint:
+			'A ordenação fica disponível quando todos os laudos cabem numa página.',
 	},
 
 	empty: {

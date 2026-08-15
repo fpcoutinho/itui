@@ -1,0 +1,13 @@
+
+.report-table {
+	.code {
+		font-weight: map.get($font-weight, 'bold');
+		letter-spacing: 0.02em;
+		color: var(--app-link);
+		text-decoration: none;
+
+		&:hover {
+			text-decoration: underline;
+		}
+	}
+}

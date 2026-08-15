@@ -1,7 +1,8 @@
-.create-report-card {
+.create-report-wrapper {
 	display: flex;
 	flex-direction: column;
 	gap: spacing(4);
+	padding-top: spacing(6);
 
 	.title {
 		@include headline-6;

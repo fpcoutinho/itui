@@ -1,5 +1,5 @@
 import { type FormEvent, useState } from 'react'
-import { UaAlert, UaButton, UaCard, UaInputField } from 'sanhaua/react'
+import { UaAlert, UaButton, UaInputField } from 'sanhaua/react'
 import { platformTexts } from '../../content/platform'
 import { useCreateReport } from '../../hooks/useCreateReport'
 import { LOCATION_CODE_PATTERN } from '../../services/reports'
@@ -64,9 +64,7 @@ export function CreateReportForm({
 	}
 
 	return (
-		<UaCard className="create-report-card">
-			<h2 className="title">{platformTexts.form.title}</h2>
-
+		<div className="create-report-wrapper">
 			{(fieldError ?? error) ? (
 				<UaAlert appearance="danger" description={fieldError ?? error} />
 			) : null}
@@ -137,6 +135,6 @@ export function CreateReportForm({
 					</UaButton>
 				</div>
 			</form>
-		</UaCard>
+		</div>
 	)
 }
