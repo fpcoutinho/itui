@@ -1,6 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { ImageUrlStore } from '../components/features/editor/imageUrls'
 import { listImages } from '../services/images'
+import type { ReportImage } from '../services/types'
 import { describeError } from './useReports'
 
 /**
@@ -14,6 +15,16 @@ interface UseReportImageUrlsResult {
 	/** Identidade estável: é passada ao node view do TipTap na criação do editor. */
 	store: ImageUrlStore
 	error: string | null
+	/**
+	 * Renova agora e devolve a listagem.
+	 *
+	 * Existe para a exportação: ela precisa das URLs **frescas** (as `<img>` da
+	 * tela repintadas para o PDF, os bytes baixados para o `.docx`) e não pode
+	 * depender de onde o intervalo de 4 minutos estava. Diferente do ciclo
+	 * automático, a falha aqui sobe para quem chamou — exportar sem foto é erro
+	 * a mostrar, não estado a tolerar.
+	 */
+	refresh: () => Promise<ReportImage[]>
 }
 
 /**
@@ -55,5 +66,14 @@ export function useReportImageUrls(reportId: string): UseReportImageUrlsResult {
 		}
 	}, [reportId])
 
-	return { store: storeRef.current, error }
+	const refresh = useCallback(async () => {
+		const images = await listImages(reportId)
+
+		;(storeRef.current as ImageUrlStore).replaceAll(images)
+		setError(null)
+
+		return images
+	}, [reportId])
+
+	return { store: storeRef.current, error, refresh }
 }

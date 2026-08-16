@@ -37,7 +37,7 @@ O **Ituí** é a interface do usuário onde o engenheiro eletricista realiza o p
 - **Roteamento:** `react-router` (declarativo, com URLs amigáveis em português)
 - **Design System & Estilização:** [Sanhauá](https://github.com/fpcoutinho/sanhaua) (`sanhaua/react`) — SCSS puro, tokens globais injetados no Vite e classes aninhadas seguindo a convenção do próprio pacote — sem BEM (PROIBIDO Tailwind CSS).
 - **Editor Rich Text:** TipTap (StarterKit, Underline, Link) salvando estrutura nativa em JSONB.
-- **Exportação de Documentos:** PDF via `window.print()` + `@page` e DOCX via `html-to-docx` (100% client-side, sem dependência de servidor).
+- **Exportação de Documentos:** PDF via `window.print()` + `@page` e DOCX via `@turbodocx/html-to-docx` + `file-saver` (100% client-side, sem dependência de servidor). As fotos entram no `.docx` em Base64, baixadas da URL assinada no momento da exportação; o conversor preserva `colspan`, exigência das tabelas de cabeçalho duplo do laudo.
 
 ## 📐 Arquitetura e Decisões de Frontend
 
@@ -66,6 +66,7 @@ src/
 │   └── features/      # Domínio (CreateReportForm, GoogleSignInButton)
 ├── design-system/     # Quarentena: micro e agnóstico a contexto (hoje, vazia)
 ├── session/           # Access token em memória + renovação agendada
+├── export/            # Laudo → arquivo: impressão (PDF), conversão (DOCX), imagens em Base64
 ├── hooks/             # useSession, useReports, useGoogleIdentity
 ├── services/          # Clientes HTTP e contratos espelhados da API do Raijin
 ├── content/           # Textos pt-BR isolados do JSX

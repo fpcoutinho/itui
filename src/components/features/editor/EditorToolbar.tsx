@@ -54,7 +54,11 @@ export function EditorToolbar({
 	}
 
 	return (
-		<div aria-label={toolbar.label} className="editor-toolbar" role="toolbar">
+		<div
+			aria-label={toolbar.label}
+			className="editor-toolbar no-print"
+			role="toolbar"
+		>
 			<div className="group">
 				<ToolbarButton
 					disabled={disabled || !state.canUndo}

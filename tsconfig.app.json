@@ -14,6 +14,9 @@
 		/* Bundler mode */
 		"moduleResolution": "bundler",
 		"allowImportingTsExtensions": true,
+		/* O `@turbodocx/html-to-docx` publica `export =` (CommonJS). Sem interop, a
+		   importação default dele não compila — e é assim que o pacote é publicado. */
+		"esModuleInterop": true,
 		"verbatimModuleSyntax": true,
 		"moduleDetection": "force",
 		"noEmit": true,

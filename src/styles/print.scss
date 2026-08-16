@@ -1,0 +1,175 @@
+// Folha de impressão.
+//
+// É o que transforma a tela do editor no documento entregue — e é a metade
+// server-side que este projeto não tem: o "gerador de PDF" é o motor de
+// impressão do navegador, e este arquivo é toda a configuração dele.
+//
+// Importado depois do `global.scss` no `main.tsx`, e não de dentro dele: aqui
+// não há regra de tela nenhuma, e manter as duas coisas separadas evita que uma
+// mudança de layout de tela mexa no papel sem querer.
+//
+// REGRA: as mesmas do resto do projeto — nada de `@use` (o `additionalData` é
+// prepended), nada de `font-size` cru, tipografia sempre por mixin da escala.
+
+// Contraparte de `.no-print`: existe no DOM, aparece só no papel. Fica **fora**
+// do `@media print` porque o efeito principal dela é na tela — esconder.
+.print-only {
+	display: none;
+}
+
+@media print {
+	// A4 com margem de documento técnico. `@page` é a única forma de controlar
+	// margem de papel: `body { margin }` fica *dentro* da área imprimível e se
+	// soma a ela.
+	@page {
+		size: A4;
+		margin: 20mm 18mm;
+	}
+
+	// O tema escuro não vai para o papel. Em vez de reescrever cor componente a
+	// componente, os tokens da aplicação inteira voltam para a família clara —
+	// tudo que consome `var(--app-*)` (que é a regra do projeto) acompanha
+	// sozinho, inclusive o que ainda nem foi escrito.
+	:root,
+	:root.dark {
+		--app-surface: #{map.get($color-neutral-light, '100')};
+		--app-surface-raised: #{map.get($color-neutral-light, '100')};
+		--app-surface-sunken: #{map.get($color-neutral-light, '200')};
+		--app-panel: #{map.get($color-neutral-light, '100')};
+		--app-panel-raised: #{map.get($color-neutral-light, '100')};
+		--app-shell: #{map.get($color-neutral-light, '100')};
+		--app-border: #{map.get($color-neutral-light, '400')};
+		--app-border-strong: #{map.get($color-neutral-light, '500')};
+		--app-text: #{map.get($color-neutral-light, '900')};
+		--app-text-strong: #{map.get($color-neutral-light, '900')};
+		--app-text-muted: #{map.get($color-neutral-light, '700')};
+		--app-text-subtle: #{map.get($color-neutral-light, '600')};
+		--app-link: #{map.get($color-neutral-light, '900')};
+		--app-accent-edge: #{map.get($color-neutral-light, '400')};
+		--app-accent-soft: transparent;
+	}
+
+	html,
+	body {
+		height: auto;
+		background: none;
+		color: var(--app-text);
+	}
+
+	// Interface: navegação, barra de ferramentas, botões e o próprio formulário
+	// de exportação. A classe é aplicada na marcação de cada um deles.
+	.no-print {
+		display: none !important;
+	}
+
+	.print-only {
+		display: block;
+	}
+
+	// A moldura da área logada é uma caixa de `100dvh` com rolagem interna. No
+	// papel isso imprime **um viewport** e descarta o resto do laudo — o sintoma
+	// clássico de PDF de uma página só. Desmontar a moldura é o que devolve o
+	// documento inteiro ao fluxo paginado.
+	.dashboard-layout {
+		display: block;
+		height: auto;
+		overflow: visible;
+
+		.container {
+			display: block;
+			padding: 0;
+		}
+
+		.panel {
+			display: block;
+			overflow: visible;
+			gap: 0;
+			padding: 0;
+			border-radius: 0;
+		}
+	}
+
+	.inspection-wizard,
+	.report-editor,
+	.report-editor .printable {
+		display: block;
+		gap: 0;
+	}
+
+	// A superfície de edição vira a página: sem moldura, sem altura mínima e sem
+	// rolagem horizontal (que no papel viraria conteúdo cortado).
+	.report-editor .document .surface {
+		min-height: 0;
+		padding: 0;
+		border: none;
+		border-radius: 0;
+		overflow: visible;
+		background: none;
+
+		// A marca da prosa escrita por IA é sinalização de tela: no documento
+		// assinado, o texto é do engenheiro que revisou.
+		p[data-ai-section] {
+			padding-left: 0;
+			border-left: none;
+		}
+
+		h1,
+		h2,
+		h3 {
+			// Título no pé da folha, com o texto dele na seguinte, é o defeito de
+			// paginação mais visível que existe.
+			break-after: avoid;
+			break-inside: avoid;
+		}
+
+		p {
+			orphans: 3;
+			widows: 3;
+		}
+
+		table {
+			// A tabela de inspeção não se parte. Quando ela é maior que uma folha
+			// — a de circuitos costuma ser —, o navegador descarta a restrição e
+			// pagina normalmente, que é exatamente o comportamento desejado: a
+			// regra protege as tabelas curtas sem tornar as longas impossíveis.
+			break-inside: avoid;
+
+			thead {
+				// Tabela longa repete o cabeçalho em cada folha. Sem isto, a partir
+				// da segunda página as colunas ficam sem nome.
+				display: table-header-group;
+			}
+
+			tr,
+			th,
+			td {
+				break-inside: avoid;
+			}
+		}
+
+		// O achado fotográfico: foto ao lado da legenda, e não uma embaixo da
+		// outra. O `/draft` emite os dois no mesmo parágrafo (marcador e legenda),
+		// então o par já está agrupado — o que falta é dispô-lo em duas colunas.
+		// O `.docx` chega no mesmo desenho por outro caminho, com uma tabela de
+		// duas células (ver `export/exportHtml.ts`).
+		p:has(.report-image) {
+			display: grid;
+			grid-template-columns: 45% 1fr;
+			align-items: center;
+			gap: spacing(4);
+			break-inside: avoid;
+		}
+
+		.report-image {
+			width: 100%;
+			max-height: 80mm;
+			margin: 0;
+			object-fit: contain;
+		}
+
+		a {
+			color: inherit;
+			text-decoration: none;
+		}
+	}
+}

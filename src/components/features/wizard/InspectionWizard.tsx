@@ -92,7 +92,7 @@ export function InspectionWizard({
 		<div className="inspection-wizard">
 			<WizardSteps current={current} onSelect={goTo} steps={steps} />
 
-			<p className="position">
+			<p className="position no-print">
 				{wizard.stepPosition(currentIndex + 1, steps.length)}
 			</p>
 

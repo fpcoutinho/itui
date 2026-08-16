@@ -1,0 +1,131 @@
+// Capa e assinatura do documento impresso.
+//
+// Os dois blocos nascem escondidos (`.print-only`, em `styles/print.scss`) e só
+// aparecem no papel — por isso não há aqui nenhuma preocupação com tema escuro
+// ou com breakpoint: o meio é sempre a folha A4, sempre branca.
+
+.report-print-cover {
+	// A capa ocupa a primeira folha sozinha, e o laudo começa na seguinte.
+	break-after: page;
+	min-height: 60vh;
+
+	.letterhead {
+		text-align: center;
+		margin-bottom: spacing(10);
+
+		.name {
+			@include body-1-bold;
+		}
+
+		.subtitle {
+			@include body-2;
+		}
+	}
+
+	.identity {
+		text-align: center;
+		margin-bottom: spacing(12);
+
+		.title {
+			@include headline-2;
+
+			text-transform: uppercase;
+		}
+
+		.standard {
+			@include body-1;
+
+			margin-top: spacing(2);
+		}
+
+		.place {
+			@include body-1-bold;
+
+			margin-top: spacing(4);
+		}
+	}
+
+	.caption {
+		@include overline;
+
+		margin-bottom: spacing(2);
+	}
+
+	.summary {
+		margin: 0;
+		border-top: map.get($border-width, 'small') solid currentcolor;
+
+		.row {
+			display: grid;
+			grid-template-columns: 35% 1fr;
+			border-bottom: map.get($border-width, 'small') solid currentcolor;
+			// Rótulo e valor não se separam entre duas folhas.
+			break-inside: avoid;
+		}
+
+		.term {
+			@include body-2-bold;
+
+			padding: spacing(2) spacing(3);
+		}
+
+		.value {
+			@include body-2;
+
+			margin: 0;
+			padding: spacing(2) spacing(3);
+		}
+	}
+
+	.note {
+		@include caption;
+
+		margin-top: spacing(4);
+	}
+}
+
+.report-print-signature {
+	// O fecho é indivisível: parecer, local, data e linha de assinatura numa
+	// folha só. Uma assinatura órfã no alto da última página não serve como
+	// documento assinado.
+	break-inside: avoid;
+	margin-top: spacing(12);
+
+	.title {
+		@include headline-5;
+
+		margin-bottom: spacing(4);
+	}
+
+	.remarks {
+		@include body-1;
+
+		text-align: justify;
+		white-space: pre-wrap;
+	}
+
+	.place {
+		@include body-1;
+
+		margin-top: spacing(8);
+		text-align: right;
+	}
+
+	.signature {
+		margin-top: spacing(16);
+		text-align: center;
+
+		.line {
+			@include body-1-bold;
+
+			display: inline-block;
+			padding-top: spacing(2);
+			border-top: map.get($border-width, 'small') solid currentcolor;
+			min-width: 70mm;
+		}
+
+		.detail {
+			@include body-2;
+		}
+	}
+}

@@ -34,7 +34,7 @@ export function Sidebar() {
 	const { user } = useSession()
 
 	return (
-		<aside className="sidebar">
+		<aside className="sidebar no-print">
 			<div className="brand">
 				<img
 					alt="itui"

@@ -29,7 +29,7 @@ interface WizardStepsProps {
  */
 export function WizardSteps({ steps, current, onSelect }: WizardStepsProps) {
 	return (
-		<nav aria-label={wizard.label} className="wizard-steps">
+		<nav aria-label={wizard.label} className="wizard-steps no-print">
 			<ol className="list">
 				{steps.map((step, index) => (
 					<li className="item" key={step.id}>

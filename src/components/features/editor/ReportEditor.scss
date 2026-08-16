@@ -53,6 +53,15 @@
 		padding-top: spacing(2);
 	}
 
+	// A região que a impressão leva para o papel: capa, documento e assinatura.
+	// Na tela ela é só um agrupador — os dois blocos de impressão estão ocultos,
+	// e o que se vê aqui continua sendo o editor sozinho.
+	.printable {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(4);
+	}
+
 	// -- Superfície de edição -------------------------------------------------
 	//
 	// `.surface` é a classe que o `editorProps.attributes` dá ao contenteditable

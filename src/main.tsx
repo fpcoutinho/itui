@@ -4,6 +4,8 @@ import { createRoot } from 'react-dom/client'
 import 'sanhaua/style.css'
 import { App } from './App.tsx'
 import './styles/global.scss'
+// Depois do global de propósito: é a folha do papel, e sobrepõe o layout de tela.
+import './styles/print.scss'
 
 const rootElement = document.getElementById('root')
 

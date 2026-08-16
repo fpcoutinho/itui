@@ -137,6 +137,8 @@ export const platformTexts = {
 
 	form: {
 		title: 'Novo laudo',
+		description:
+			'Preencha os campos abaixo com os metadados coletados em campo para dar início ao fluxo de vistoria e carregar as diretrizes da inspeção.',
 		locationCode: 'Código do local',
 		locationCodeHint:
 			'Padrão BLOCO-SALA, em maiúsculas. Ex.: CCHLA-102, CI-T02.',
