@@ -108,8 +108,11 @@ export interface InspectionPlanning {
 }
 
 /**
- * §3 — as 22 classes NBR. Cada valor é a opção normativa inteira, como está em
- * `nbr-5410-choices.json` (`"AA4 - Temperado (-5 ° a 40 °C)"`), não só o código.
+ * §3 — as 22 classes NBR. Cada valor é **só o código** da classe (`"AA4"`,
+ * `"AD3"`), não a opção inteira de `nbr-5410-choices.json`
+ * (`"AA4 - Temperado (-5 ° a 40 °C)"`) — ver `docs/api-contract.md` §3. A
+ * string completa é rótulo de exibição, e a ponte entre as duas formas é
+ * `externalInfluenceCode` em `domain/nbr.ts`. Mandar a string inteira é `422`.
  *
  * `mechanicalImpactClass` (AG) e `vibrationClass` (AH) são campos separados: no
  * legado eram um só, mas são grupos independentes na norma.

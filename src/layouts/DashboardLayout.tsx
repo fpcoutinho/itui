@@ -8,7 +8,7 @@ export function DashboardLayout() {
 			<Sidebar />
 
 			<main className="container">
-				<div className="content">
+				<div className="panel">
 					<Outlet />
 				</div>
 			</main>

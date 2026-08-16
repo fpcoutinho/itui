@@ -3,22 +3,26 @@
 	flex-direction: column;
 	gap: spacing(5);
 
+	// Título e descrição ficam aninhados no `.intro`: soltos no bloco, alcançavam
+	// também o `.title`/`.description` de dentro do `UaAlert` que a etapa rende
+	// como irmão — o aviso saía com tipografia de cabeçalho e cor apagada, por
+	// cima da cor própria do alerta.
 	.intro {
 		display: flex;
 		flex-direction: column;
 		gap: spacing(1);
-	}
 
-	.title {
-		@include headline-5;
+		.title {
+			@include headline-5;
 
-		margin: 0;
-	}
+			margin: 0;
+		}
 
-	.description {
-		@include body-2;
+		.description {
+			@include body-2;
 
-		color: var(--app-text-muted);
+			color: var(--app-text-muted);
+		}
 	}
 
 	.groups {

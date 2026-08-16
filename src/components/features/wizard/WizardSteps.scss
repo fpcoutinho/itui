@@ -24,9 +24,13 @@
 			background-color: var(--app-accent-soft);
 		}
 
+		// O par de cores se inverte entre os temas: `--app-success-edge` é verde
+		// escuro no claro e verde claro no escuro. Por isso o texto vem de
+		// `--app-success-surface`, que acompanha a inversão — `--app-on-accent` é
+		// claro nos dois e sumia contra a pastilha clara do tema escuro.
 		&.done .position {
 			background-color: var(--app-success-edge);
-			color: var(--app-on-accent);
+			color: var(--app-success-surface);
 		}
 	}
 
@@ -38,7 +42,7 @@
 		width: spacing(6);
 		height: spacing(6);
 		border-radius: map.get($border-radius, 'pill');
-		background-color: var(--app-surface-sunken);
+		background-color: var(--app-surface-raised);
 		color: var(--app-text-strong);
 		font-weight: map.get($font-weight, 'bold');
 	}

@@ -21,7 +21,12 @@
 		padding-top: 0;
 	}
 
-	.content {
+	// `.panel`, e não `.content`: os componentes do Sanhauá usam classes internas
+	// curtas, e `.ua-alert` embrulha o próprio conteúdo num `.content`. Como o
+	// escopo aqui é por aninhamento, `.dashboard-layout .content` casava também
+	// com o miolo de todo alerta da área logada — que aparecia como um cartão
+	// escuro, com raio de 32px e o padding do painel, dentro do alerta.
+	.panel {
 		// Dentro do painel, "superfície" volta a ser o painel: os componentes
 		// pintam com `--app-surface*` e no tema escuro o painel já está um degrau
 		// acima da moldura. Sem esta religação, um cartão elevado ficaria mais
@@ -50,7 +55,7 @@
 			padding-left: 0;
 		}
 
-		.content {
+		.panel {
 			padding: spacing(8) spacing(12);
 		}
 	}

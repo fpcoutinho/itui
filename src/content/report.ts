@@ -261,6 +261,7 @@ export const reportTexts = {
 		description:
 			'Categoria do achado e seção do laudo são independentes: uma foto pode ter as duas, só uma, ou nenhuma. Sem seção, a foto entra no apêndice geral.',
 		select: 'Escolher imagem',
+		noFileSelected: 'Nenhum arquivo escolhido',
 		findingCategory: 'Categoria da não conformidade',
 		reportSection: 'Seção do laudo',
 		caption: 'Legenda',

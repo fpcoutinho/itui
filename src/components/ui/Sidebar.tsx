@@ -1,4 +1,4 @@
-import { Link, NavLink } from 'react-router'
+import { NavLink } from 'react-router'
 import { UaAvatar } from 'sanhaua/react'
 import { platformTexts } from '../../content/platform'
 import { useSession } from '../../hooks/useSession'
@@ -35,7 +35,7 @@ export function Sidebar() {
 
 	return (
 		<aside className="sidebar">
-			<Link className="brand" to="/">
+			<div className="brand">
 				<img
 					alt=""
 					className="mascot"
@@ -44,7 +44,7 @@ export function Sidebar() {
 					width={32}
 				/>
 				<span className="name">Ituí</span>
-			</Link>
+			</div>
 
 			<div className="identity">
 				<UaAvatar

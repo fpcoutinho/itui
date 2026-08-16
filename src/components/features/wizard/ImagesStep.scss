@@ -3,22 +3,24 @@
 	flex-direction: column;
 	gap: spacing(5);
 
+	// Aninhados no `.intro` pela mesma razão do `SectionStep`: soltos no bloco,
+	// pegariam o `.title`/`.description` interno do `UaAlert` irmão.
 	.intro {
 		display: flex;
 		flex-direction: column;
 		gap: spacing(1);
-	}
 
-	.title {
-		@include headline-5;
+		.title {
+			@include headline-5;
 
-		margin: 0;
-	}
+			margin: 0;
+		}
 
-	.description {
-		@include body-2;
+		.description {
+			@include body-2;
 
-		color: var(--app-text-muted);
+			color: var(--app-text-muted);
+		}
 	}
 
 	.uploader {
@@ -35,10 +37,6 @@
 			align-items: center;
 			gap: spacing(3);
 			flex-wrap: wrap;
-		}
-
-		.file-label {
-			@include body-2-bold;
 		}
 
 		.file-name {

@@ -79,10 +79,10 @@ export function SchemaField({
 						label={field.label}
 						name={name}
 						onChange={onChange}
-						options={field.options.map((option) => ({
-							value: option,
-							label: option,
-						}))}
+						// O par valor/rótulo vem pronto do schema: nas influências
+						// externas o que se grava é o código da classe, não o texto
+						// exibido. Reconstruí-lo aqui devolveria o bug.
+						options={[...field.options]}
 						required
 						value={typeof value === 'string' ? value : ''}
 						widthBehavior="full"
@@ -96,10 +96,7 @@ export function SchemaField({
 						legend={field.label}
 						name={name}
 						onChange={onChange}
-						options={field.options.map((option) => ({
-							value: option,
-							label: option,
-						}))}
+						options={field.options}
 						required
 						value={Array.isArray(value) ? (value as string[]) : []}
 					/>

@@ -28,6 +28,7 @@ import type {
 } from '../services/types'
 import {
 	externalInfluenceChoice,
+	externalInfluenceCode,
 	externalInfluenceKeys,
 	planningChoice,
 	qualitativeChoice,
@@ -46,16 +47,29 @@ export interface BooleanField<K> extends FieldBase<K> {
 	kind: 'boolean'
 }
 
+/**
+ * Uma opção do campo: o que é **gravado** e o que é **exibido**.
+ *
+ * Os dois coincidem na maior parte do laudo — a §2 e a §4 gravam a própria
+ * string da opção. Nas influências externas não: ali o valor de domínio é o
+ * código da classe (`"AA4"`) e a string do JSON é o rótulo. Manter o par
+ * separado no descritor é o que impede a UI de gravar rótulo.
+ */
+export interface ChoiceOption {
+	value: string
+	label: string
+}
+
 export interface SingleChoiceField<K> extends FieldBase<K> {
 	kind: 'single-choice'
-	options: readonly string[]
+	options: readonly ChoiceOption[]
 	/** Cláusula NBR exibida junto do campo, quando a fonte a traz. */
 	nbrClause?: string | null
 }
 
 export interface MultiChoiceField<K> extends FieldBase<K> {
 	kind: 'multi-choice'
-	options: readonly string[]
+	options: readonly ChoiceOption[]
 }
 
 export interface TernaryField<K> extends FieldBase<K> {
@@ -91,6 +105,10 @@ export type Field<K> =
 /** Estado de trabalho do formulário: a seção ainda incompleta. */
 export type Draft<T> = { [K in keyof T]?: T[K] }
 
+/** Opção cujo valor gravado é a própria string exibida — o caso da §2 e da §4. */
+const literalOptions = (options: readonly string[]): readonly ChoiceOption[] =>
+	options.map((option) => ({ value: option, label: option }))
+
 // -- §2 Planejamento e segurança ---------------------------------------------
 
 type PlanningKey = keyof InspectionPlanning
@@ -109,9 +127,11 @@ const choicePlanningField = (
 ): SingleChoiceField<PlanningKey> | MultiChoiceField<PlanningKey> => {
 	const entry = planningChoice(source)
 
+	const options = literalOptions(entry.options)
+
 	return entry.multiple
-		? { kind: 'multi-choice', key, label: entry.label, options: entry.options }
-		: { kind: 'single-choice', key, label: entry.label, options: entry.options }
+		? { kind: 'multi-choice', key, label: entry.label, options }
+		: { kind: 'single-choice', key, label: entry.label, options }
 }
 
 /** Ordem do `domain-glossary.md` §2 — é a ordem em que a equipe preenche em campo. */
@@ -149,6 +169,11 @@ const toCamel = (key: string): string =>
  * Os 22 campos saem inteiros do JSON — chave, rótulo, grupo NBR, cláusula e
  * opções. Não há lista de campos escrita aqui: acrescentar uma classe ao JSON
  * acrescenta o campo ao formulário.
+ *
+ * Único grupo em que valor e rótulo divergem: a API trafega o **código** da
+ * classe (`"AA4"`), e a string do JSON, que traz código e descrição juntos, é
+ * só o que se exibe. Gravar a string inteira é `422` no `raijin` — e, no que já
+ * estivesse gravado, um `<select>` sem opção correspondente, em branco.
  */
 export const externalInfluenceFields: readonly SingleChoiceField<InfluenceKey>[] =
 	externalInfluenceKeys.map((source) => {
@@ -160,7 +185,10 @@ export const externalInfluenceFields: readonly SingleChoiceField<InfluenceKey>[]
 			label: entry.nbrGroup
 				? `${entry.nbrGroup} — ${entry.label}`
 				: entry.label,
-			options: entry.options,
+			options: entry.options.map((option) => ({
+				value: externalInfluenceCode(option),
+				label: option,
+			})),
 			nbrClause: entry.nbrClause ?? null,
 		}
 	})
@@ -189,7 +217,7 @@ const qualitativeSingleChoice = (
 		kind: 'single-choice',
 		key,
 		label: entry.label,
-		options: entry.options,
+		options: literalOptions(entry.options),
 		nbrClause: qualitativeClause(source),
 	}
 }

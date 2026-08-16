@@ -3,7 +3,9 @@
 	flex-direction: column;
 	gap: spacing(3);
 
-	.title {
+	// Filho direto: o painel também rende um `UaAlert`, e o alerta tem um
+	// `.title` próprio lá dentro.
+	> .title {
 		@include headline-6;
 
 		margin: 0;

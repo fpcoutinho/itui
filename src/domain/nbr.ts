@@ -50,6 +50,18 @@ export function externalInfluenceChoice(key: string): ChoiceEntry {
 	return requireEntry(externalInfluencesChoices, key, 'externalInfluences')
 }
 
+/**
+ * Código da classe NBR dentro da opção das influências externas.
+ *
+ * Nesse grupo o JSON guarda código e descrição na mesma string, em dois
+ * formatos (`"AA4 - Temperado (-5 ° a 40 °C)"` e `"AC1 Baixa"`), e o que
+ * trafega na API é **só o código** — ver `docs/api-contract.md` §3 e o
+ * `code_of` do `raijin`, que faz o mesmo recorte para validar o que chega. O
+ * primeiro token serve nos dois formatos.
+ */
+export const externalInfluenceCode = (option: string): string =>
+	option.split(/\s+/)[0] ?? option
+
 /** Cláusula NBR do item da avaliação qualitativa; `null` onde o template não trazia referência. */
 export function qualitativeClause(key: string): string | null {
 	const clauses = choicesJson.qualitativeAssessment.nbrClauses as Record<

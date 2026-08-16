@@ -125,17 +125,37 @@ export function ImagesStep({ reportId, onPrevious }: ImagesStepProps) {
 			) : null}
 
 			<div className="uploader">
-				<label className="file" htmlFor="report-image">
-					<span className="file-label">{texts.select}</span>
+				{/*
+				 * O seletor de arquivo do navegador não aceita estilo — a face
+				 * visível é o `UaButton`, e o `<input type="file">` fica só como
+				 * mecanismo, acionado pelo `ref`. Ele continua no DOM, rotulado,
+				 * porque é ele quem abre o diálogo e guarda o arquivo escolhido.
+				 */}
+				<div className="file">
 					<input
 						accept="image/jpeg,image/png,image/webp,image/heic"
+						aria-label={texts.select}
+						className="visually-hidden"
 						id="report-image"
 						onChange={handleFile}
 						ref={fileInputRef}
 						type="file"
 					/>
-					<span className="file-name">{file?.name ?? '—'}</span>
-				</label>
+
+					<UaButton
+						appearance="secondary"
+						leftIcon="add_photo_alternate"
+						onClick={() => fileInputRef.current?.click()}
+						size="small"
+						type="button"
+					>
+						{texts.select}
+					</UaButton>
+
+					<span className="file-name">
+						{file?.name ?? texts.noFileSelected}
+					</span>
+				</div>
 
 				<div className="metadata">
 					<UaSelect

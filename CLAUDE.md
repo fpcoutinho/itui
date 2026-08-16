@@ -105,6 +105,8 @@ O alvo de deploy resolve isso sem custo: o build do `itui` é estático (S3) e o
 
   **Migração concluída**: não há mais BEM no repositório. Os últimos 5 arquivos (`PageHeader`, `GoogleSignInButton`, `AccountLayout`, `LandingPage`, `PlatformPage`) foram convertidos junto com a troca dos botões desenhados à mão pelo `UaButton`. `grep -rE "&__|&--" src` tem que continuar vazio.
 
+  **O componente do Sanhauá usa as mesmas classes curtas por dentro** — `UaAlert` embrulha o próprio conteúdo num `.content` e tem `.title`/`.description` lá dentro; `UaSelect` tem `.value`, `.label`, `.option`. Como o escopo é por aninhamento, uma regra nossa solta no bloco (`.dashboard-layout { .content { … } }`) atravessa qualquer componente do pacote que esteja dentro dele — foi assim que todo alerta da área logada apareceu com um cartão escuro de raio 32px dentro. Regra prática: classe que o pacote também usa fica **aninhada no elemento a que pertence** (`.intro { .title { … } }`) ou presa com filho direto (`> .title`); e nome que descreve o papel do nosso layout (`.panel`) é melhor que nome genérico (`.content`).
+
   Uma renomeação saiu daí: `auth-form__hint` virou o bloco solto `.auth-hint`. O `GoogleSignInButton` é **irmão** do `<form class="auth-form">`, não descendente — aninhar a classe sob `.auth-form` teria matado o estilo, e o nome antigo escondia isso.
 - **SCSS puro**, um arquivo `.scss` por componente, acoplado ao `.tsx`.
 - **Tokens injetados globalmente** via `vite.config.ts` (`css.preprocessorOptions.scss.additionalData`, apontando pra `sanhaua/system/themes/main/design-tokens/design-tokens.scss` e pra `responsiveness/responsiveness`). Nenhum `.scss` de componente precisa importar tokens manualmente.
