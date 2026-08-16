@@ -6,6 +6,13 @@
 // componente do Sanhauá que caísse dentro do editor.
 .report-document {
 	.surface {
+		// A única família fora da do design system em todo o repositório, e de
+		// propósito: daqui para dentro não é interface, é o documento técnico que
+		// vai ser impresso e assinado. Laudo de engenharia se entrega em Arial ou
+		// Times — a fonte do produto na folha assinada denuncia a ferramenta que o
+		// gerou. Só a família muda; **tamanho continua vindo dos mixins da
+		// escala**, como no resto do projeto.
+		font-family: Arial, Helvetica, sans-serif;
 		min-height: 24rem;
 		padding: spacing(6);
 		border: map.get($border-width, 'small') solid var(--app-border);
@@ -70,6 +77,26 @@
 			color: var(--app-link);
 		}
 
+		// O cabeçalho de contexto das Tabelas 7, 8 e 9 — data, local, clima e
+		// responsáveis, montado pelo frontend (ver `domain/reportDocument.ts`).
+		// Encostado na legenda de cima e na tabela de baixo: os três são um bloco
+		// só, e o espaçamento padrão entre irmãos os separaria em três coisas.
+		.inspection-context {
+			margin-top: spacing(1);
+			padding: spacing(3);
+			border: map.get($border-width, 'small') solid var(--app-border);
+			border-radius: map.get($border-radius, 'small');
+			background: var(--app-surface-sunken);
+
+			> * + * {
+				margin-top: spacing(1);
+			}
+
+			p {
+				@include caption;
+			}
+		}
+
 		table {
 			width: 100%;
 			border-collapse: collapse;
@@ -90,6 +117,7 @@
 
 				background: var(--app-surface-sunken);
 				color: var(--app-text-strong);
+				text-align: center;
 			}
 
 			// Célula selecionada pelo ProseMirror ao arrastar sobre a tabela.
@@ -102,6 +130,26 @@
 			}
 		}
 
+		// A figura ABNT: o `/draft` emite as fotos de um achado num parágrafo só e
+		// a legenda numerada no seguinte (ver `template.rs::render_figure`). Aqui
+		// esse parágrafo vira a grade das fotos, lado a lado.
+		p:has(.report-image) {
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: spacing(3);
+			margin-bottom: spacing(1);
+		}
+
+		// A legenda que segue a grade. Sem seletor de classe possível — a legenda
+		// é um parágrafo em negrito que o Markdown produziu —, então é a
+		// adjacência que a identifica, e é ela que amarra legenda e figura.
+		p:has(.report-image) + p {
+			@include caption;
+
+			text-align: center;
+		}
+
 		// A imagem do achado: o `src` exibido é resolvido pelo node view a cada
 		// renderização e **nunca** é o que está gravado no documento.
 		// Largura fixa, altura pelo aspecto — o mesmo enquadramento do template
@@ -112,7 +160,7 @@
 			width: 200px;
 			max-width: 100%;
 			height: auto;
-			margin: spacing(2) auto;
+			margin: 0;
 			border-radius: map.get($border-radius, 'small');
 
 			// Enquanto a URL assinada não chegou (ou a imagem ainda está `pending`

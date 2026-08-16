@@ -126,6 +126,9 @@
 	// A superfície de edição vira a página: sem moldura, sem altura mínima e sem
 	// rolagem horizontal (que no papel viraria conteúdo cortado).
 	.report-document .surface {
+		// Redundante com a regra de tela, e mantida assim de propósito: se um dia
+		// a superfície de edição voltar à fonte do produto, o papel não vai junto.
+		font-family: Arial, Helvetica, sans-serif;
 		min-height: 0;
 		padding: 0;
 		border: none;
@@ -169,6 +172,38 @@
 			break-inside: avoid;
 		}
 
+		// A legenda ABNT ("Tabela 7. …") e o bloco de contexto abaixo dela. Os
+		// dois pertencem à tabela que vem em seguida: `break-after: avoid` é o que
+		// impede a folha de terminar com a legenda e começar a seguinte com a
+		// grade órfã — o mesmo defeito do título solto, uma linha mais abaixo.
+		.inspection-context {
+			@include caption;
+
+			break-after: avoid;
+			break-inside: avoid;
+			margin-top: spacing(1);
+			padding: spacing(2);
+			border: map.get($border-width, 'small') solid var(--app-border);
+			background: none;
+
+			> * + * {
+				margin-top: spacing('half');
+			}
+
+			p {
+				@include caption;
+			}
+		}
+
+		// A legenda é um parágrafo em negrito seguido de tabela ou do bloco de
+		// contexto — não há classe a que se prender, então é a adjacência que a
+		// identifica.
+		p:has(+ table),
+		p:has(+ .inspection-context) {
+			break-after: avoid;
+			margin-bottom: spacing(1);
+		}
+
 		// A marca da prosa escrita por IA é sinalização de tela: no documento
 		// assinado, o texto é do engenheiro que revisou.
 		p[data-ai-section] {
@@ -177,17 +212,36 @@
 		}
 
 		table {
+			// Na tela a tabela é `table-layout: fixed` com as larguras em pixel que
+			// o TipTap grava no `<col>` — elas foram medidas na largura do editor e
+			// no papel produzem o defeito da captura: colunas estreitas onde a
+			// pergunta quebra em cinco linhas, ao lado de uma coluna vazia larga.
+			// Soltando o layout e as larguras gravadas, a coluna passa a caber o
+			// próprio conteúdo. O `!important` é porque a largura é atributo de
+			// estilo inline no `<col>`.
+			table-layout: auto;
+
+			col {
+				width: auto !important;
+			}
+
 			// **Sem `break-inside: avoid` na tabela.** Ele estava aqui para proteger
 			// as curtas, e o efeito real era o oposto: quase toda tabela do laudo é
 			// maior que uma folha, o navegador empurrava a tabela inteira para a
 			// página seguinte e deixava o título sozinho numa folha em branco. Quem
-			// mantém a grade legível ao virar a página é o `thead` repetido abaixo,
-			// não a proibição de quebrar.
+			// mantém a grade legível ao virar a página é o cabeçalho repetido
+			// abaixo, não a proibição de quebrar.
 			break-inside: auto;
 
-			thead {
-				// Tabela longa repete o cabeçalho em cada folha. Sem isto, a partir
-				// da segunda página as colunas ficam sem nome.
+			// Tabela longa repete o cabeçalho em cada folha. Sem isto, a partir da
+			// segunda página as colunas ficam sem nome.
+			//
+			// O seletor é a **linha**, e não o `<thead>`: o `/draft` emite `<thead>`
+			// no HTML, mas o TipTap não o tem no esquema e o descarta na conversão —
+			// a tabela renderizada é `<colgroup>` + `<tbody>`, e a regra antiga, em
+			// `thead`, não casava com nada. As linhas de cabeçalho continuam sendo
+			// as únicas com `<th>`, e são sempre as primeiras da tabela.
+			tr:has(> th) {
 				display: table-header-group;
 			}
 
@@ -208,25 +262,40 @@
 				@include caption;
 
 				font-weight: map.get($font-weight, 'bold');
+				text-align: center;
 			}
 		}
 
-		// O achado fotográfico: foto ao lado da legenda, e não uma embaixo da
-		// outra. O `/draft` emite os dois no mesmo parágrafo (marcador e legenda),
-		// então o par já está agrupado — o que falta é dispô-lo em duas colunas.
-		// O `.docx` chega no mesmo desenho por outro caminho, com uma tabela de
-		// duas células (ver `export/exportHtml.ts`).
+		// A figura ABNT: as fotos do achado lado a lado, e a legenda numerada
+		// centralizada embaixo delas. O `/draft` emite as fotos num parágrafo e a
+		// legenda no seguinte (ver `template.rs::render_figure`); o `.docx` chega
+		// ao mesmo desenho com uma linha de tabela (ver `export/exportHtml.ts`).
 		p:has(.report-image) {
-			display: grid;
-			grid-template-columns: 45% 1fr;
-			align-items: center;
-			gap: spacing(4);
+			display: flex;
+			flex-wrap: wrap;
+			justify-content: center;
+			gap: spacing(3);
+			margin-bottom: spacing(1);
+			// A figura e a legenda **não se separam** entre folhas: as duas regras
+			// abaixo, juntas, é que garantem isso — a primeira mantém as fotos
+			// inteiras, a segunda prende a legenda a elas.
+			break-inside: avoid;
+			break-after: avoid;
+		}
+
+		p:has(.report-image) + p {
+			@include caption;
+
+			text-align: center;
 			break-inside: avoid;
 		}
 
 		.report-image {
-			width: 100%;
-			max-height: 80mm;
+			// Largura pela quantidade de fotos, não 100%: três achados numa figura
+			// não podem sair com uma folha por foto.
+			max-width: 55mm;
+			max-height: 70mm;
+			width: auto;
 			margin: 0;
 			object-fit: contain;
 		}

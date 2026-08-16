@@ -2,9 +2,14 @@ import type { Editor } from '@tiptap/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { writeSectionProse } from '../components/features/editor/sectionProse'
 import { reportTexts } from '../content/report'
-import { type DocumentSection, draftToHtml } from '../domain/reportDocument'
+import {
+	type DocumentSection,
+	draftToHtml,
+	withInspectionContext,
+} from '../domain/reportDocument'
 import { getReportDraft } from '../services/draft'
 import { generateReport } from '../services/generate'
+import type { Report } from '../services/types'
 import { describeError } from './useReports'
 
 /**
@@ -42,8 +47,14 @@ const { editor: texts } = reportTexts
  */
 export function useReportGeneration(
 	editor: Editor | null,
-	reportId: string,
+	/**
+	 * O laudo inteiro, e não só o `id`: o cabeçalho de contexto das tabelas
+	 * precisa de `location_code` e `responsible_parties`, que o `/draft` omite
+	 * por privacidade e só existem aqui.
+	 */
+	report: Report,
 ): UseReportGenerationResult {
+	const reportId = report.id
 	const [phase, setPhase] = useState<GenerationPhase>('idle')
 	const [error, setError] = useState<string | null>(null)
 	const [warning, setWarning] = useState<string | null>(null)
@@ -113,7 +124,9 @@ export function useReportGeneration(
 				return
 			}
 
-			target.commands.setContent(draftToHtml(draft))
+			target.commands.setContent(
+				withInspectionContext(draftToHtml(draft), report),
+			)
 			setPhase('streaming')
 
 			flushTimerRef.current = setInterval(flush, FLUSH_INTERVAL_MS)
@@ -157,7 +170,7 @@ export function useReportGeneration(
 				setPhase('finished')
 			})
 			.finally(stopFlushing)
-	}, [flush, reportId, stopFlushing])
+	}, [flush, report, reportId, stopFlushing])
 
 	useEffect(
 		() => () => {

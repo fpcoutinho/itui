@@ -77,6 +77,50 @@ export const coverTitle = (settings: ExportSettings): string =>
 	settings.documentTitle.trim() || cover.defaultTitle
 
 /**
+ * A capa, em texto.
+ *
+ * Mesmo motivo do `buildReportHeader`: a folha impressa é React e o `.docx` é
+ * string, e as duas montagens divergiriam no primeiro campo novo. Campo não
+ * preenchido vem como string vazia — aqui, ao contrário do cabeçalho de
+ * identificação, o bloco **some**: capa com "Não informado" no lugar do
+ * contratante é pior que capa sem a linha.
+ */
+export interface CoverContent {
+	institutionName: string
+	institutionSubtitle: string
+	title: string
+	standard: string
+	/** `Relatório nº CCHLA-102` — o identificador pelo qual o laudo é citado. */
+	reportNumber: string
+	client: string
+	location: string
+	/** Só o ano: é o que a capa de laudo técnico carimba embaixo do assunto. */
+	year: string
+	artNote: string
+}
+
+export function buildCover(
+	report: Report,
+	settings: ExportSettings,
+): CoverContent {
+	const inspected = new Date(report.inspectedAt)
+
+	return {
+		institutionName: settings.institutionName.trim(),
+		institutionSubtitle: settings.institutionSubtitle.trim(),
+		title: coverTitle(settings),
+		standard: cover.standard,
+		reportNumber: `${cover.reportNumber} ${report.locationCode}`,
+		client: settings.clientName.trim(),
+		location: settings.coverLocation.trim(),
+		year: Number.isNaN(inspected.getTime())
+			? ''
+			: String(inspected.getFullYear()),
+		artNote: settings.artNote.trim(),
+	}
+}
+
+/**
  * As linhas de identificação, na ordem em que aparecem no documento.
  *
  * Campo não preenchido **não some**: some o valor, e o rótulo continua lá com

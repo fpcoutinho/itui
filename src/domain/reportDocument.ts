@@ -8,7 +8,8 @@
  */
 
 import MarkdownIt from 'markdown-it'
-import type { ReportSection } from '../services/types'
+import { reportTexts } from '../content/report'
+import type { Report, ReportSection } from '../services/types'
 
 /**
  * As seções que o stream do `/generate` conhece: as cinco do laudo mais
@@ -78,6 +79,145 @@ const markdown = new MarkdownIt({
 
 /** Markdown do `/draft` → HTML para `setContent` do editor. */
 export const draftToHtml = (draft: string): string => markdown.render(draft)
+
+// -- Cabeçalho de contexto das tabelas --------------------------------------
+
+/**
+ * Marca o invólucro do bloco de contexto no HTML — é por ela que o CSS, o
+ * esquema do editor e o `.docx` o reconhecem. Mora aqui, e não na extensão do
+ * TipTap, porque `domain/` não depende de `components/`.
+ */
+export const INSPECTION_CONTEXT_ATTRIBUTE = 'data-inspection-context'
+
+/**
+ * As tabelas que recebem o cabeçalho de contexto, por número ABNT.
+ *
+ * São as três do formulário legado que traziam data, local e responsáveis
+ * repetidos no topo (`docs/report-template.md` §"Cabeçalho do laudo"): quem
+ * recebe o laudo impresso costuma ler uma tabela isolada, fora do documento
+ * inteiro, e sem esse bloco não há como saber de que inspeção ela é. As
+ * tabelas 10 a 12 ficam de fora porque no legado também ficavam.
+ */
+const CONTEXT_TABLE_NUMBERS = new Set([7, 8, 9])
+
+/**
+ * `**Tabela 7. …**` vira `<p><strong>Tabela 7. …</strong></p>` — este é o
+ * contrato com `raijin/src/document/template.rs::render_table`. Se a legenda
+ * mudar de formato lá, o bloco de contexto simplesmente não é inserido aqui;
+ * por isso o teste do lado do backend fixa a string da legenda.
+ */
+const CAPTION_PATTERN = /^Tabela\s+(\d+)\./
+
+const escapeText = (value: string): string =>
+	value.replace(/[&<>]/g, (character) =>
+		character === '&' ? '&amp;' : character === '<' ? '&lt;' : '&gt;',
+	)
+
+/**
+ * Separador entre dois pares rótulo/valor na mesma linha ("Data da inspeção: …
+ * Hora da inspeção: …").
+ *
+ * Espaços inquebráveis, e **não** um `<span>` com largura no CSS: o bloco
+ * atravessa o esquema do TipTap, que descarta todo elemento que não conhece —
+ * um `<span class="gap">` some no `setContent` e os dois pares chegam colados
+ * ("16/08/2026Hora da inspeção:"). Texto sobrevive; elemento sem nó, não.
+ */
+const PAIR_GAP = '    '
+
+const line = (parts: [string, string][]): string =>
+	`<p>${parts
+		.map(([label, value]) => `<strong>${label}:</strong> ${escapeText(value)}`)
+		.join(PAIR_GAP)}</p>`
+
+/**
+ * Data e hora separadas, como no formulário: `inspectedAt` é um instante só,
+ * mas o cabeçalho legado tem dois campos e o engenheiro procura por eles.
+ */
+function inspectionMoment(iso: string): { date: string; time: string } {
+	const moment = new Date(iso)
+
+	if (Number.isNaN(moment.getTime())) {
+		return { date: iso, time: '' }
+	}
+
+	return {
+		date: moment.toLocaleDateString('pt-BR'),
+		time: moment.toLocaleTimeString('pt-BR', {
+			hour: '2-digit',
+			minute: '2-digit',
+		}),
+	}
+}
+
+/**
+ * O bloco de contexto de uma inspeção, em HTML.
+ *
+ * Montado aqui e não no `/draft` porque `location_code` e `responsible_parties`
+ * são omitidos do modelo que o `raijin` gera — endereço de edificação com
+ * vulnerabilidade documentada e nome de pessoa não saem do banco para alimentar
+ * provedor de IA. O frontend já tem o laudo inteiro e é quem os posiciona; é a
+ * mesma razão de `domain/reportHeader.ts` existir.
+ */
+export function inspectionContextHtml(report: Report): string {
+	const { context } = reportTexts.document
+	const { date, time } = inspectionMoment(report.inspectedAt)
+	const temperature =
+		report.ambientTemperatureC === null
+			? context.notInformed
+			: `${report.ambientTemperatureC.toLocaleString('pt-BR')} °C`
+
+	return [
+		`<div ${INSPECTION_CONTEXT_ATTRIBUTE}="" class="inspection-context">`,
+		line([
+			[context.date, date],
+			[context.time, time === '' ? context.notInformed : `${time} h`],
+		]),
+		line([[context.location, report.locationCode]]),
+		line([
+			[context.temperature, temperature],
+			[context.weather, report.weatherConditions || context.notInformed],
+		]),
+		line([
+			[
+				context.responsibleParties,
+				report.responsibleParties.join(', ') || context.notInformed,
+			],
+		]),
+		'</div>',
+	].join('')
+}
+
+/**
+ * Insere o bloco de contexto logo abaixo da legenda das Tabelas 7, 8 e 9.
+ *
+ * Opera no DOM já parseado, e não por regex sobre a string: a legenda é um
+ * parágrafo inteiro e o que interessa é o **nó** seguinte ao qual pendurar o
+ * bloco. Tabela cuja legenda não casar com o padrão passa intacta — o
+ * documento sai sem o cabeçalho, nunca corrompido.
+ */
+export function withInspectionContext(html: string, report: Report): string {
+	const parsed = new DOMParser().parseFromString(
+		`<!doctype html><body>${html}</body>`,
+		'text/html',
+	)
+
+	const block = parsed.createElement('template')
+	block.innerHTML = inspectionContextHtml(report)
+
+	for (const caption of Array.from(
+		parsed.body.querySelectorAll('p > strong'),
+	)) {
+		const number = CAPTION_PATTERN.exec(caption.textContent ?? '')?.[1]
+
+		if (number === undefined || !CONTEXT_TABLE_NUMBERS.has(Number(number))) {
+			continue
+		}
+
+		caption.parentElement?.after(block.content.cloneNode(true))
+	}
+
+	return parsed.body.innerHTML
+}
 
 // -- Achado fotográfico -----------------------------------------------------
 

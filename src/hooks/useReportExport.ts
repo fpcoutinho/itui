@@ -27,11 +27,24 @@ interface UseReportExportInput {
 	refreshImages: () => Promise<ReportImage[]>
 }
 
+/**
+ * Aviso de sucesso (ou de sucesso parcial, quando faltou foto).
+ *
+ * `sticky` separa o aviso que some sozinho daquele que precisa ficar: o do PDF
+ * é instrução para usar dentro do diálogo de impressão, que é modal do
+ * navegador — um temporizador de 5 segundos correria atrás dele e a instrução
+ * teria sumido quando o usuário voltasse para a página.
+ */
+export interface ExportNotice {
+	title: string
+	message: string
+	sticky: boolean
+}
+
 interface UseReportExportResult {
 	phase: ExportPhase
 	error: string | null
-	/** Mensagem de sucesso (ou de sucesso parcial, quando faltou foto). */
-	notice: string | null
+	notice: ExportNotice | null
 	exportPdf: () => void
 	exportDocx: () => void
 	dismiss: () => void
@@ -53,7 +66,7 @@ export function useReportExport({
 }: UseReportExportInput): UseReportExportResult {
 	const [phase, setPhase] = useState<ExportPhase>('idle')
 	const [error, setError] = useState<string | null>(null)
-	const [notice, setNotice] = useState<string | null>(null)
+	const [notice, setNotice] = useState<ExportNotice | null>(null)
 
 	const dismiss = useCallback(() => {
 		setError(null)
@@ -98,7 +111,7 @@ export function useReportExport({
 		}
 
 		run()
-			.then(() => setNotice(exportTexts.status.printReady))
+			.then(() => setNotice({ ...exportTexts.status.printReady, sticky: true }))
 			.catch((cause: unknown) => {
 				console.error('[export] impressão falhou:', cause)
 				setError(`${exportTexts.errors.printFailed} ${describeError(cause)}`)
@@ -134,11 +147,14 @@ export function useReportExport({
 
 		run()
 			.then(({ missingImages }) => {
-				setNotice(
-					missingImages === 0
-						? exportTexts.status.docxReady
-						: `${exportTexts.status.docxReady} ${exportTexts.errors.missingImages(missingImages)}`,
-				)
+				setNotice({
+					title: exportTexts.status.docxReady.title,
+					message:
+						missingImages === 0
+							? exportTexts.status.docxReady.message
+							: exportTexts.errors.missingImages(missingImages),
+					sticky: missingImages > 0,
+				})
 			})
 			.catch((cause: unknown) => {
 				console.error('[export] geração do .docx falhou:', cause)

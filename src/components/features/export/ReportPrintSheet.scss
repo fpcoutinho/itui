@@ -5,48 +5,110 @@
 // ou com breakpoint: o meio é sempre a folha A4, sempre branca.
 
 .report-print-cover {
-	// A capa ocupa a primeira folha sozinha, e o laudo começa na seguinte.
+	// A capa ocupa a primeira folha sozinha, e o laudo começa na seguinte. A
+	// altura é a da área útil de uma A4 com as margens do `@page` (297 − 2×18);
+	// é ela que permite distribuir os blocos na folha em vez de empilhá-los no
+	// alto, que era o defeito da capa anterior.
 	break-after: page;
-	min-height: 60vh;
+	flex-direction: column;
+	min-height: 261mm;
+	text-align: center;
+
+	// O `.print-only` de `styles/print.scss` devolve `display: block` no papel, e
+	// as duas regras têm a mesma especificidade — em bloco as margens `auto` dos
+	// filhos não distribuem nada. Prender as duas classes é o que garante que a
+	// capa chegue ao papel como coluna flexível.
+	@media print {
+		&.print-only {
+			display: flex;
+		}
+	}
 
 	.letterhead {
-		text-align: center;
-		margin-bottom: spacing(10);
+		padding-bottom: spacing(3);
+		border-bottom: map.get($border-width, 'small') solid currentcolor;
 
 		.name {
 			@include body-1-bold;
+
+			text-transform: uppercase;
+			letter-spacing: 0.08em;
 		}
 
 		.subtitle {
 			@include body-2;
+
+			margin-top: spacing(1);
 		}
 	}
 
+	// O bloco do título fica no terço superior do miolo, e o assunto abaixo
+	// dele: as duas margens automáticas são o que distribui o vazio da folha.
 	.identity {
-		text-align: center;
-		margin-bottom: spacing(12);
+		margin-top: auto;
 
 		.title {
 			@include headline-2;
 
 			text-transform: uppercase;
+			line-height: 1.2;
 		}
 
 		.standard {
 			@include body-1;
 
-			margin-top: spacing(2);
+			margin-top: spacing(3);
 		}
 
-		.place {
+		// O número é como o laudo é citado depois. Emoldurado porque é o único
+		// dado da capa que alguém procura com o olho, não com a leitura.
+		.number {
 			@include body-1-bold;
 
-			margin-top: spacing(4);
+			display: inline-block;
+			margin-top: spacing(6);
+			padding: spacing(2) spacing(6);
+			border: map.get($border-width, 'small') solid currentcolor;
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
 		}
 	}
 
+	.subject {
+		margin-top: auto;
+		margin-bottom: auto;
+
+		.client {
+			@include headline-5;
+		}
+
+		.place {
+			@include body-1;
+
+			margin-top: spacing(2);
+		}
+
+		.year {
+			@include headline-6;
+
+			margin-top: spacing(8);
+		}
+	}
+
+	.note {
+		@include caption;
+
+		padding-top: spacing(3);
+		border-top: map.get($border-width, 'small') solid currentcolor;
+	}
+}
+
+// A grade de identificação, primeiro bloco do documento — folha seguinte à capa.
+.report-print-header {
+	margin-bottom: spacing(6);
+
 	.caption {
-		@include overline;
+		@include headline-5;
 
 		margin-bottom: spacing(2);
 	}
@@ -75,12 +137,6 @@
 			margin: 0;
 			padding: spacing(2) spacing(3);
 		}
-	}
-
-	.note {
-		@include caption;
-
-		margin-top: spacing(4);
 	}
 }
 

@@ -296,6 +296,25 @@ export const reportTexts = {
 			'O link desta imagem venceu. Use "Atualizar miniaturas" para pedir outro.',
 	},
 
+	/**
+	 * Texto que entra **dentro** do laudo gerado, e não na interface em volta
+	 * dele. Rótulos verbatim do cabeçalho do formulário legado
+	 * (`raijin/docs/report-template.md` §"Cabeçalho do laudo") — quem confere o
+	 * laudo compara com o formulário de campo, então reescrevê-los para "soar
+	 * melhor" quebra a conferência.
+	 */
+	document: {
+		context: {
+			date: 'Data da inspeção',
+			time: 'Hora da inspeção',
+			location: 'Local',
+			temperature: 'Condições climáticas: Temperatura',
+			weather: 'Clima',
+			responsibleParties: 'Responsáveis',
+			notInformed: 'Não informado',
+		},
+	},
+
 	editor: {
 		title: 'Documento do laudo',
 		description:

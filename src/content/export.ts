@@ -62,6 +62,7 @@ export const exportTexts = {
 	cover: {
 		defaultTitle: 'Laudo de inspeção predial de instalações elétricas',
 		standard: 'ABNT NBR 5410',
+		reportNumber: 'Relatório nº',
 		issuedAt: 'Emitido em',
 	},
 
@@ -79,6 +80,11 @@ export const exportTexts = {
 
 	dismiss: 'Dispensar aviso',
 
+	/**
+	 * Cada aviso é um par: o `title` do toast e o corpo abaixo dele. O componente
+	 * do Sanhauá desenha as duas faixas sempre — título sem texto, ou texto sem
+	 * título, deixam uma metade vazia ocupando espaço.
+	 */
 	status: {
 		/**
 		 * O diálogo de impressão é do navegador: a partir daqui a UI não controla
@@ -86,9 +92,15 @@ export const exportTexts = {
 		 * URL do `localhost` e o "1 de 23" que o navegador carimba em cada folha
 		 * são desenhados fora da página, onde nenhuma regra de CSS os alcança.
 		 */
-		printReady:
-			'A janela de impressão foi aberta. Escolha "Salvar como PDF" no destino e, em "Mais definições", desmarque "Cabeçalhos e rodapés" — é o navegador que carimba a URL e a data em cada folha.',
-		docxReady: 'Arquivo .docx gerado.',
+		printReady: {
+			title: 'Janela de impressão aberta',
+			message:
+				'Escolha "Salvar como PDF" no destino e, em "Mais definições", desmarque "Cabeçalhos e rodapés" — é o navegador que carimba a URL e a data em cada folha.',
+		},
+		docxReady: {
+			title: 'Arquivo .docx gerado',
+			message: 'O download foi iniciado pelo navegador.',
+		},
 	},
 
 	errors: {

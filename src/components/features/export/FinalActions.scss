@@ -60,6 +60,17 @@
 		color: var(--app-text-subtle);
 	}
 
+	// O `.ua-toast` do pacote é `width: 100%` — quem escolhe a largura é o
+	// contêiner, e aqui ele é a própria caixa flutuante.
+	.notice {
+		position: fixed;
+		right: spacing(6);
+		bottom: spacing(6);
+		z-index: 100;
+		width: min(360px, calc(100vw - #{spacing(8)}));
+		filter: drop-shadow(0 spacing(2) spacing(4) rgb(0 0 0 / 25%));
+	}
+
 	.controls {
 		display: flex;
 		flex-wrap: wrap;

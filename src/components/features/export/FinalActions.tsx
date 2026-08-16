@@ -1,11 +1,12 @@
 import type { Editor } from '@tiptap/react'
-import type { RefObject } from 'react'
+import { type RefObject, useEffect } from 'react'
 import {
 	UaAlert,
 	UaButton,
 	UaCard,
 	UaInputField,
 	UaTextarea,
+	UaToast,
 } from 'sanhaua/react'
 import { exportTexts } from '../../../content/export'
 import type { ExportSettings } from '../../../domain/exportSettings'
@@ -14,6 +15,9 @@ import type { Report, ReportImage } from '../../../services/types'
 import './FinalActions.scss'
 
 const { fields, groups, hints, actions } = exportTexts
+
+/** Tempo em tela do aviso efêmero. */
+const NOTICE_TIMEOUT_MS = 5000
 
 interface FinalActionsProps {
 	report: Report
@@ -46,6 +50,21 @@ export function FinalActions({
 		useReportExport({ report, settings, editor, printRootRef, refreshImages })
 
 	const isExporting = phase !== 'idle'
+
+	/**
+	 * O aviso efêmero se dispensa sozinho. O temporizador é recriado a cada
+	 * aviso novo — sem isso, uma segunda exportação herdaria o que restasse da
+	 * contagem da primeira e o toast piscaria.
+	 */
+	useEffect(() => {
+		if (notice === null || notice.sticky) {
+			return
+		}
+
+		const timer = window.setTimeout(dismiss, NOTICE_TIMEOUT_MS)
+
+		return () => window.clearTimeout(timer)
+	}, [dismiss, notice])
 
 	const field = (name: keyof ExportSettings) => ({
 		label: fields[name],
@@ -122,16 +141,6 @@ export function FinalActions({
 				/>
 			) : null}
 
-			{notice ? (
-				<UaAlert
-					actionAs="button"
-					actionLabel={exportTexts.dismiss}
-					appearance="informative"
-					description={notice}
-					onActionClick={dismiss}
-				/>
-			) : null}
-
 			<div className="controls">
 				<UaButton
 					disabled={isExporting}
@@ -152,6 +161,17 @@ export function FinalActions({
 					{phase === 'docx' ? actions.preparingDocx : actions.docx}
 				</UaButton>
 			</div>
+
+			{notice ? (
+				<div className="notice">
+					<UaToast
+						appearance="informative"
+						message={notice.message}
+						onDismiss={dismiss}
+						title={notice.title}
+					/>
+				</div>
+			) : null}
 		</section>
 	)
 }

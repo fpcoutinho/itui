@@ -5,6 +5,7 @@ import {
 	TableRow,
 } from '@tiptap/extension-table'
 import StarterKit from '@tiptap/starter-kit'
+import { InspectionContext } from './extensions/InspectionContext'
 import { ProseParagraph } from './extensions/ProseParagraph'
 import { ReportImageNode } from './extensions/ReportImageNode'
 import type { ImageUrlStore } from './imageUrls'
@@ -29,6 +30,9 @@ export function reportEditorExtensions(urls: ImageUrlStore | null) {
 			link: { openOnClick: false, autolink: true },
 		}),
 		ProseParagraph,
+		// O cabeçalho de contexto das Tabelas 7, 8 e 9. Sem ele registrado, o
+		// invólucro se perde no `setContent` e as quatro linhas viram prosa solta.
+		InspectionContext,
 		// Sem estas quatro, **toda tabela do laudo vira parágrafo solto** — e o
 		// laudo é quase todo tabela. O StarterKit não as traz.
 		Table.configure({ resizable: false }),

@@ -70,7 +70,7 @@ export function ReportEditor({
 	)
 
 	const autosave = useDocumentAutosave(editor, report.id, onSaved)
-	const generation = useReportGeneration(editor, report.id)
+	const generation = useReportGeneration(editor, report)
 
 	const isGenerating =
 		generation.phase === 'drafting' || generation.phase === 'streaming'

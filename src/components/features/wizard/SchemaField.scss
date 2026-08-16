@@ -7,6 +7,14 @@
 	border-radius: map.get($border-radius, 'medium');
 	background-color: var(--app-surface);
 
+	// O `.ua-checkbox` do pacote é `justify-content: space-between` — desenhado
+	// para linha de largura total, com o rótulo na borda oposta. Aqui a lista é
+	// uma pergunta do laudo: encolher cada opção ao próprio conteúdo é o que
+	// mantém caixa e rótulo juntos.
+	.ua-input-group .options {
+		align-items: flex-start;
+	}
+
 	// Texto normativo de apoio (procedimento do ensaio, critério de aceitação).
 	// Fica visualmente subordinado ao campo: é referência para a leitura, não
 	// mais uma pergunta.
