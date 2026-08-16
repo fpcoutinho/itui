@@ -15,7 +15,10 @@ export function NewReportPage() {
 
 	return (
 		<>
-			<PageHeader title={platformTexts.form.title} />
+			<PageHeader 
+				title={platformTexts.form.title} 
+				description={platformTexts.form.description}
+			/>
 
 			<CreateReportForm
 				onCancel={() => navigate('/plataforma/relatorios')}
