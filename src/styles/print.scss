@@ -8,6 +8,12 @@
 // não há regra de tela nenhuma, e manter as duas coisas separadas evita que uma
 // mudança de layout de tela mexa no papel sem querer.
 //
+// O que **não** dá para controlar daqui: o cabeçalho e o rodapé que o próprio
+// navegador desenha (URL, título, data, "1 de 23"). São desenhados fora da
+// página, na margem do papel, e nenhuma regra CSS os alcança — é a caixa
+// "Cabeçalhos e rodapés" do diálogo de impressão, e por isso a interface avisa
+// sobre ela antes de abrir o diálogo.
+//
 // REGRA: as mesmas do resto do projeto — nada de `@use` (o `additionalData` é
 // prepended), nada de `font-size` cru, tipografia sempre por mixin da escala.
 
@@ -23,7 +29,7 @@
 	// soma a ela.
 	@page {
 		size: A4;
-		margin: 20mm 18mm;
+		margin: 18mm 16mm;
 	}
 
 	// O tema escuro não vai para o papel. Em vez de reescrever cor componente a
@@ -54,6 +60,10 @@
 		height: auto;
 		background: none;
 		color: var(--app-text);
+		// O fundo cinza do cabeçalho de tabela é o que separa rótulo de resposta
+		// numa grade de inspeção. Sem isto o navegador o descarta por economia de
+		// tinta e a tabela chega ao papel sem hierarquia nenhuma.
+		print-color-adjust: exact;
 	}
 
 	// Interface: navegação, barra de ferramentas, botões e o próprio formulário
@@ -90,15 +100,32 @@
 	}
 
 	.inspection-wizard,
-	.report-editor,
-	.report-editor .printable {
+	.export-step {
 		display: block;
 		gap: 0;
 	}
 
+	// Na tela a folha fica fora do viewport (é assim que as fotos carregam sem
+	// aparecer); no papel ela é o documento e volta ao fluxo.
+	.export-step .print-sheet {
+		position: static;
+		width: auto;
+	}
+
+	// A capa ocupa a primeira folha sozinha, e a assinatura não se parte entre
+	// duas — uma linha de assinatura órfã no alto de uma página é o defeito que
+	// mais desqualifica um laudo entregue.
+	.report-print-cover {
+		break-after: page;
+	}
+
+	.report-print-signature {
+		break-inside: avoid;
+	}
+
 	// A superfície de edição vira a página: sem moldura, sem altura mínima e sem
 	// rolagem horizontal (que no papel viraria conteúdo cortado).
-	.report-editor .document .surface {
+	.report-document .surface {
 		min-height: 0;
 		padding: 0;
 		border: none;
@@ -106,11 +133,31 @@
 		overflow: visible;
 		background: none;
 
-		// A marca da prosa escrita por IA é sinalização de tela: no documento
-		// assinado, o texto é do engenheiro que revisou.
-		p[data-ai-section] {
-			padding-left: 0;
-			border-left: none;
+		// A escala de tela é generosa porque a tela rola; a folha não. Com a
+		// tipografia de tela, uma tabela de 23 itens ocupava sete páginas de duas
+		// linhas cada. Aqui a escala desce um degrau em tudo — sempre por mixin,
+		// nunca por `font-size` cru.
+		> * + * {
+			margin-top: spacing(3);
+		}
+
+		h1 {
+			@include headline-5;
+		}
+
+		h2 {
+			@include headline-6;
+		}
+
+		h3 {
+			@include body-1-bold;
+		}
+
+		p {
+			@include body-2;
+
+			orphans: 3;
+			widows: 3;
 		}
 
 		h1,
@@ -122,17 +169,21 @@
 			break-inside: avoid;
 		}
 
-		p {
-			orphans: 3;
-			widows: 3;
+		// A marca da prosa escrita por IA é sinalização de tela: no documento
+		// assinado, o texto é do engenheiro que revisou.
+		p[data-ai-section] {
+			padding-left: 0;
+			border-left: none;
 		}
 
 		table {
-			// A tabela de inspeção não se parte. Quando ela é maior que uma folha
-			// — a de circuitos costuma ser —, o navegador descarta a restrição e
-			// pagina normalmente, que é exatamente o comportamento desejado: a
-			// regra protege as tabelas curtas sem tornar as longas impossíveis.
-			break-inside: avoid;
+			// **Sem `break-inside: avoid` na tabela.** Ele estava aqui para proteger
+			// as curtas, e o efeito real era o oposto: quase toda tabela do laudo é
+			// maior que uma folha, o navegador empurrava a tabela inteira para a
+			// página seguinte e deixava o título sozinho numa folha em branco. Quem
+			// mantém a grade legível ao virar a página é o `thead` repetido abaixo,
+			// não a proibição de quebrar.
+			break-inside: auto;
 
 			thead {
 				// Tabela longa repete o cabeçalho em cada folha. Sem isto, a partir
@@ -140,10 +191,23 @@
 				display: table-header-group;
 			}
 
-			tr,
+			tr {
+				// A linha, sim, não se parte: separar a pergunta da resposta é perder
+				// a informação.
+				break-inside: avoid;
+			}
+
 			th,
 			td {
-				break-inside: avoid;
+				@include caption;
+
+				padding: spacing(1) spacing(2);
+			}
+
+			th {
+				@include caption;
+
+				font-weight: map.get($font-weight, 'bold');
 			}
 		}
 

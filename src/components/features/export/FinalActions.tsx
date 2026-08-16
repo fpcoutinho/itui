@@ -109,10 +109,27 @@ export function FinalActions({
 
 			<p className="local-only">{exportTexts.localOnly}</p>
 
-			{error ? <UaAlert appearance="danger" description={error} /> : null}
+			{/* O `UaAlert` não tem dismiss próprio; a ação dele é o que dispensa o
+			    aviso, e é por isso que ela mora dentro do alerta em vez de virar um
+			    terceiro botão ao lado dos dois de exportar. */}
+			{error ? (
+				<UaAlert
+					actionAs="button"
+					actionLabel={exportTexts.dismiss}
+					appearance="danger"
+					description={error}
+					onActionClick={dismiss}
+				/>
+			) : null}
 
 			{notice ? (
-				<UaAlert appearance="informative" description={notice} />
+				<UaAlert
+					actionAs="button"
+					actionLabel={exportTexts.dismiss}
+					appearance="informative"
+					description={notice}
+					onActionClick={dismiss}
+				/>
 			) : null}
 
 			<div className="controls">
@@ -134,17 +151,6 @@ export function FinalActions({
 				>
 					{phase === 'docx' ? actions.preparingDocx : actions.docx}
 				</UaButton>
-
-				{error || notice ? (
-					<UaButton
-						appearance="tertiary"
-						onClick={dismiss}
-						size="small"
-						type="button"
-					>
-						{exportTexts.dismiss}
-					</UaButton>
-				) : null}
 			</div>
 		</section>
 	)

@@ -8,7 +8,7 @@
  */
 
 export const exportTexts = {
-	title: 'Ações finais',
+	title: 'Exportar o laudo',
 	description:
 		'Os campos abaixo compõem a capa, o cabeçalho institucional e a assinatura do documento exportado. Eles não fazem parte do laudo no servidor — ficam salvos apenas neste navegador.',
 
@@ -80,9 +80,14 @@ export const exportTexts = {
 	dismiss: 'Dispensar aviso',
 
 	status: {
-		/** O diálogo de impressão é do navegador: a partir daqui a UI não controla mais nada. */
+		/**
+		 * O diálogo de impressão é do navegador: a partir daqui a UI não controla
+		 * mais nada. O aviso sobre cabeçalhos e rodapés não é zelo excessivo — a
+		 * URL do `localhost` e o "1 de 23" que o navegador carimba em cada folha
+		 * são desenhados fora da página, onde nenhuma regra de CSS os alcança.
+		 */
 		printReady:
-			'A janela de impressão foi aberta. Escolha "Salvar como PDF" no destino.',
+			'A janela de impressão foi aberta. Escolha "Salvar como PDF" no destino e, em "Mais definições", desmarque "Cabeçalhos e rodapés" — é o navegador que carimba a URL e a data em cada folha.',
 		docxReady: 'Arquivo .docx gerado.',
 	},
 

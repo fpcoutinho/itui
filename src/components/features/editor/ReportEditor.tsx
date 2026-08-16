@@ -1,29 +1,18 @@
-import {
-	Table,
-	TableCell,
-	TableHeader,
-	TableRow,
-} from '@tiptap/extension-table'
-import { EditorContent, useEditor } from '@tiptap/react'
-import StarterKit from '@tiptap/starter-kit'
-import { useMemo, useRef, useState } from 'react'
+import { useEditor } from '@tiptap/react'
+import { useMemo, useState } from 'react'
 import { UaAlert, UaButton } from 'sanhaua/react'
 import { reportTexts } from '../../../content/report'
 import { useDocumentAutosave } from '../../../hooks/useDocumentAutosave'
-import { useExportSettings } from '../../../hooks/useExportSettings'
 import { useReportGeneration } from '../../../hooks/useReportGeneration'
 import { useReportImageUrls } from '../../../hooks/useReportImageUrls'
-import { useSession } from '../../../hooks/useSession'
 import type { ReportDetail } from '../../../services/types'
 import { ConfirmDialog } from '../../ui/ConfirmDialog'
-import { FinalActions } from '../export/FinalActions'
-import {
-	ReportPrintCover,
-	ReportPrintSignature,
-} from '../export/ReportPrintSheet'
 import { EditorToolbar } from './EditorToolbar'
-import { ProseParagraph } from './extensions/ProseParagraph'
-import { ReportImageNode } from './extensions/ReportImageNode'
+import { ReportDocument } from './ReportDocument'
+import {
+	isEmptyDocument,
+	reportEditorExtensions,
+} from './reportEditorExtensions'
 import './ReportEditor.scss'
 
 const { editor: texts, wizard } = reportTexts
@@ -32,12 +21,9 @@ interface ReportEditorProps {
 	report: ReportDetail
 	/** Resposta do `PATCH /document-content`: o laudo inteiro, já com o documento gravado. */
 	onSaved: (report: ReportDetail) => void
+	onAdvance: () => void
 	onPrevious: () => void
 }
-
-/** Documento vazio: o `document_content` nasce `{}`, nunca `null`. */
-const isEmptyDocument = (document: object): boolean =>
-	Object.keys(document).length === 0
 
 /**
  * O editor do laudo.
@@ -47,55 +33,20 @@ const isEmptyDocument = (document: object): boolean =>
  * gerar parecer. Aqui só se monta o editor e se ligam as três coisas que
  * acontecem em volta dele — salvamento automático, geração por IA e resolução
  * das imagens.
+ *
+ * Capa, assinatura e os botões de exportar **não** moram aqui: são a etapa
+ * seguinte (`ExportStep`). Esta tela é só o texto.
  */
 export function ReportEditor({
 	report,
 	onSaved,
+	onAdvance,
 	onPrevious,
 }: ReportEditorProps) {
-	const {
-		store: imageUrls,
-		error: imagesError,
-		refresh: refreshImages,
-	} = useReportImageUrls(report.id)
-
-	const { user } = useSession()
-
-	/**
-	 * Os campos de capa e assinatura. Ficam neste nível porque têm dois
-	 * consumidores que não se enxergam: o formulário das ações finais, que os
-	 * edita, e a capa impressa, que os exibe.
-	 */
-	const exportSettings = useExportSettings(report.id, {
-		signerName: user?.fullName ?? '',
-		signerTitle: user?.professionalTitle ?? '',
-	})
-
-	/**
-	 * A região que vai para o papel: capa, documento e assinatura. A exportação
-	 * espera as `<img>` **daqui** carregarem antes de abrir o diálogo de
-	 * impressão.
-	 */
-	const printRootRef = useRef<HTMLDivElement>(null)
+	const { store: imageUrls, error: imagesError } = useReportImageUrls(report.id)
 
 	const extensions = useMemo(
-		() => [
-			// A `0.30` do TipTap traz `Underline` e `Link` dentro do StarterKit —
-			// instalá-los à parte registraria a mesma extensão duas vezes.
-			StarterKit.configure({
-				// O parágrafo do laudo carrega a marca da seção que o stream escreveu.
-				paragraph: false,
-				link: { openOnClick: false, autolink: true },
-			}),
-			ProseParagraph,
-			// Sem estas quatro, **toda tabela do laudo vira parágrafo solto** — e o
-			// laudo é quase todo tabela. O StarterKit não as traz.
-			Table.configure({ resizable: false }),
-			TableRow,
-			TableHeader,
-			TableCell,
-			ReportImageNode.configure({ urls: imageUrls }),
-		],
+		() => reportEditorExtensions(imageUrls),
 		[imageUrls],
 	)
 
@@ -139,46 +90,35 @@ export function ReportEditor({
 		generation.start()
 	}
 
+	// `no-print` no bloco inteiro: o que vai ao papel é montado na etapa de
+	// exportação, e imprimir daqui só produziria a barra de ferramentas em A4.
 	return (
-		<section className="report-editor">
-			<header className="intro no-print">
+		<section className="report-editor no-print">
+			<header className="intro">
 				<h2 className="title">{texts.title}</h2>
 				<p className="description">{texts.description}</p>
 			</header>
 
 			{imagesError ? (
-				<UaAlert
-					appearance="warning"
-					className="no-print"
-					description={imagesError}
-				/>
+				<UaAlert appearance="warning" description={imagesError} />
 			) : null}
 
 			{generation.error ? (
 				<UaAlert
 					appearance="danger"
-					className="no-print"
 					description={`${texts.generationFailed} (${generation.error})`}
 				/>
 			) : null}
 
 			{generation.warning ? (
-				<UaAlert
-					appearance="warning"
-					className="no-print"
-					description={generation.warning}
-				/>
+				<UaAlert appearance="warning" description={generation.warning} />
 			) : null}
 
 			{autosave.error ? (
-				<UaAlert
-					appearance="danger"
-					className="no-print"
-					description={autosave.error}
-				/>
+				<UaAlert appearance="danger" description={autosave.error} />
 			) : null}
 
-			<div className="controls no-print">
+			<div className="controls">
 				{isGenerating ? (
 					<UaButton
 						appearance="tertiary"
@@ -217,36 +157,20 @@ export function ReportEditor({
 					<EditorToolbar disabled={isGenerating} editor={editor} />
 
 					{!hasContent && !isGenerating ? (
-						<p className="empty no-print">{texts.empty}</p>
+						<p className="empty">{texts.empty}</p>
 					) : null}
 
-					{/* Capa, documento e assinatura na ordem em que saem no papel — é
-					    a ordem do DOM que pagina, não uma montagem à parte. */}
-					<div className="printable" ref={printRootRef}>
-						<ReportPrintCover
-							report={report}
-							settings={exportSettings.settings}
-						/>
-
-						<EditorContent className="document" editor={editor} />
-
-						<ReportPrintSignature settings={exportSettings.settings} />
-					</div>
+					<ReportDocument editor={editor} />
 				</>
 			) : null}
 
-			<FinalActions
-				editor={editor}
-				onChange={exportSettings.update}
-				printRootRef={printRootRef}
-				refreshImages={refreshImages}
-				report={report}
-				settings={exportSettings.settings}
-			/>
-
-			<div className="actions no-print">
+			<div className="actions">
 				<UaButton appearance="tertiary" onClick={onPrevious} type="button">
 					{wizard.previous}
+				</UaButton>
+
+				<UaButton disabled={!hasContent} onClick={onAdvance} type="button">
+					{texts.toExport}
 				</UaButton>
 			</div>
 

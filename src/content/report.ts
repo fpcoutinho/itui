@@ -193,6 +193,7 @@ export const reportTexts = {
 			circuits: 'Circuitos',
 			images: 'Imagens',
 			document: 'Documento',
+			export: 'Exportar',
 		},
 		stepPosition: (current: number, total: number) =>
 			`Etapa ${current} de ${total}`,
@@ -302,6 +303,8 @@ export const reportTexts = {
 
 		generate: '✨ Gerar Parecer com IA',
 		regenerate: '✨ Gerar novamente',
+		/** Só habilita com documento: a etapa seguinte não tem o que exportar sem ele. */
+		toExport: 'Ir para a exportação',
 		cancel: 'Interromper geração',
 		drafting: 'Montando o documento…',
 		streaming: 'Escrevendo o parecer…',

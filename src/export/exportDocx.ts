@@ -25,6 +25,7 @@ import {
 	documentHeaderHtml,
 } from './exportHtml'
 import { embedReportImages } from './imageAssets'
+import { installNodeGlobals } from './nodeGlobals'
 
 const DOCX_MIME =
 	'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
@@ -83,6 +84,8 @@ export async function exportReportToDocx({
 	images,
 	signal,
 }: ExportDocxInput): Promise<DocxExportResult> {
+	installNodeGlobals()
+
 	const embedded = await embedReportImages(images, signal)
 
 	const html = buildExportHtml({

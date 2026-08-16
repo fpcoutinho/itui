@@ -1,0 +1,25 @@
+.export-step {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(4);
+
+	.actions {
+		display: flex;
+		justify-content: flex-start;
+		padding-top: spacing(2);
+	}
+
+	// A folha impressa: presente no DOM, fora do alcance do olho.
+	//
+	// Não é `display: none` de propósito — imagem em bloco não renderizado não
+	// carrega, e a exportação em PDF depende do `load` de cada foto. Fora da
+	// tela ela mede, baixa e fica pronta; no `@media print` volta ao fluxo
+	// normal (ver `styles/print.scss`).
+	.print-sheet {
+		position: absolute;
+		left: -200vw;
+		top: 0;
+		width: 210mm;
+		pointer-events: none;
+	}
+}

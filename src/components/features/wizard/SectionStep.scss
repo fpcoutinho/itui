@@ -61,15 +61,23 @@
 	// não dá: `z-index`, para ficar acima dos campos que passam por baixo;
 	// `border-top`, senão o texto some no meio de um glifo sem nenhuma pista de
 	// que há uma barra ali; e a mesma cor do painel, para o recorte ser opaco.
+	//
+	// A âncora é o `padding-end` do painel, e não `0`: `bottom: 0` para na borda
+	// interna do padding do container de rolagem, e os campos continuavam
+	// aparecendo na faixa entre a barra e o fim do painel — barra opaca com um
+	// pedaço de formulário rolando embaixo. Descer a barra até a borda do painel
+	// e esticar o preenchimento pela mesma medida fecha a faixa.
 	.actions {
+		--offset: var(--app-panel-padding-end, 0px);
+
 		position: sticky;
-		bottom: 0;
+		bottom: calc(-1 * var(--offset));
 		z-index: 1;
 		display: flex;
 		justify-content: flex-end;
 		gap: spacing(3);
 		margin-top: spacing(2);
-		padding: spacing(4) 0 spacing(2);
+		padding: spacing(4) 0 calc(#{spacing(2)} + var(--offset));
 		border-top: map.get($border-width, 'small') solid var(--app-border);
 		background-color: var(--app-surface);
 	}

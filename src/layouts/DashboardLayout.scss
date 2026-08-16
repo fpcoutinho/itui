@@ -33,6 +33,12 @@
 		// escuro que o fundo em que está.
 		--app-surface: var(--app-panel);
 		--app-surface-raised: var(--app-panel-raised);
+		// O painel é o container de rolagem, e barra fixa (`position: sticky`)
+		// ancorada em `bottom: 0` para na borda do **padding**, não na do painel:
+		// o conteúdo continua passando visível na faixa de baixo. Quem precisa
+		// cobrir essa faixa lê a medida daqui em vez de repetir o número — ver
+		// `.actions` em `SectionStep.scss`.
+		--app-panel-padding-end: #{spacing(6)};
 
 		flex: 1;
 		min-width: 0;
@@ -56,6 +62,8 @@
 		}
 
 		.panel {
+			--app-panel-padding-end: #{spacing(8)};
+
 			padding: spacing(8) spacing(12);
 		}
 	}

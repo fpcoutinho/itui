@@ -25,6 +25,7 @@ import type {
 	ReportDetail,
 } from '../../../services/types'
 import { ReportEditor } from '../editor/ReportEditor'
+import { ExportStep } from '../export/ExportStep'
 import { CircuitsStep } from './CircuitsStep'
 import { ImagesStep } from './ImagesStep'
 import { SectionStep } from './SectionStep'
@@ -176,10 +177,15 @@ export function InspectionWizard({
 
 			{current === 'document' ? (
 				<ReportEditor
+					onAdvance={advance}
 					onPrevious={previous}
 					onSaved={onUpdated}
 					report={report}
 				/>
+			) : null}
+
+			{current === 'export' ? (
+				<ExportStep onPrevious={previous} report={report} />
 			) : null}
 		</div>
 	)

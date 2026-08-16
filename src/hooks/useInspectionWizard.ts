@@ -3,15 +3,19 @@ import { reportTexts } from '../content/report'
 import type { ReportDetail, ReportSection } from '../services/types'
 
 /**
- * As sete etapas. As cinco primeiras são seções do laudo; `images` não é seção
+ * As oito etapas. As cinco primeiras são seções do laudo; `images` não é seção
  * — é um anexo transversal (a foto pode pertencer a qualquer seção ou a
  * nenhuma), e por isso fica no fim, depois de haver conteúdo a ilustrar.
  *
- * `document` é o editor, e vem por último por dependência real: o `/draft` monta
- * o texto a partir das seções preenchidas e das imagens confirmadas, então abri-lo
- * antes só produziria um documento de "seção não avaliada".
+ * `document` é o editor, e vem por dependência real: o `/draft` monta o texto a
+ * partir das seções preenchidas e das imagens confirmadas, então abri-lo antes
+ * só produziria um documento de "seção não avaliada".
+ *
+ * `export` fecha a sequência e é a única etapa que não toca no laudo: capa,
+ * ART, assinatura e os dois botões que produzem o arquivo. Estava empilhada
+ * abaixo do editor e fazia uma página que só terminava depois do laudo inteiro.
  */
-export type WizardStepId = ReportSection | 'images' | 'document'
+export type WizardStepId = ReportSection | 'images' | 'document' | 'export'
 
 export const WIZARD_STEPS: readonly WizardStepId[] = [
 	'inspection_planning',
@@ -21,6 +25,7 @@ export const WIZARD_STEPS: readonly WizardStepId[] = [
 	'circuits',
 	'images',
 	'document',
+	'export',
 ]
 
 export type StepStatus = 'done' | 'pending' | 'optional'
@@ -76,6 +81,11 @@ function stepStatus(report: ReportDetail | null, id: WizardStepId): StepStatus {
 			// `document_content` nasce `{}` e nunca é `null`: a árvore vazia é o
 			// sinal de que o documento ainda não foi gerado.
 			return Object.keys(report.documentContent).length > 0 ? 'done' : 'pending'
+		case 'export':
+			// Exportar não é estado do laudo: o arquivo sai do navegador e não deixa
+			// rastro no servidor. Marcar como pendente faria o laudo parecer
+			// incompleto para sempre.
+			return 'optional'
 	}
 }
 

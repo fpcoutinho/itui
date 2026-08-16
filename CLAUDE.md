@@ -31,7 +31,7 @@ URLs em português (são conteúdo voltado ao usuário, diferente de rota de API
 | `/plataforma` | Shell do dashboard (`DashboardLayout` + `Sidebar`), com `<Outlet>`; a raiz redireciona pra `relatorios` | Privado |
 | `/plataforma/relatorios` | Lista de laudos | Privado |
 | `/plataforma/relatorios/novo` | Criação de laudo | Privado |
-| `/plataforma/relatorios/:reportId` | Laudo: wizard de inspeção em 6 etapas | Privado |
+| `/plataforma/relatorios/:reportId` | Laudo: wizard de inspeção em 8 etapas (5 seções, imagens, documento, exportação) | Privado |
 | `/plataforma/perfil` | Conta: e-mail, nome, título profissional, tema, troca de senha e sair | Privado |
 | `/conta/login` | Login (e-mail/senha + Google) | Público |
 | `/conta/cadastro` | Cadastro | Público |
@@ -201,7 +201,11 @@ O alvo de deploy resolve isso sem custo: o build do `itui` é estático (S3) e o
 - Upload de imagem: `itui` faz `PUT` direto pra URL pré-assinada que o `raijin` gera — sem SDK de storage de provedor nenhum no frontend (mantém o frontend portável entre provedores).
 - Avaliação qualitativa do formulário é ternária (Sim/Não/Parcialmente); ensaios da avaliação quantitativa são binários (Sim/Não). Ver `domain-glossary.md` no `raijin`.
 - **Exportação é 100% client-side, e os dois caminhos partem de origens diferentes.** O PDF imprime o **DOM vivo** (`window.print()`), então o layout impresso é CSS — `src/styles/print.scss`, com `@page`, `.no-print` na interface e `.print-only` na capa/assinatura. O DOCX parte de uma **string montada** (`export/exportHtml.ts`), porque o arquivo viaja e não pode conter URL assinada. Não unificar os dois: o PDF ganha fidelidade ao que foi revisado na tela, o DOCX ganha independência do navegador que o gerou.
+  - **A exportação é a etapa 8 do wizard (`ExportStep`), não um rodapé do editor.** Ela remonta o documento salvo num editor **somente leitura** — o PDF imprime o DOM desta página e o DOCX parte do `getHTML()` dele —, e por isso o esquema das extensões é compartilhado (`editor/reportEditorExtensions.ts`): se as duas telas divergissem, a tabela do arquivo entregue deixaria de ser a revisada. A folha impressa fica **fora da tela** (`.print-sheet`, `position: absolute`), nunca `display: none`: imagem em bloco não renderizado não carrega, e o PDF espera o `load` de cada foto.
+  - **O conversor de DOCX exige `Buffer` e `global`** — é um fork de biblioteca de Node. `export/nodeGlobals.ts` instala os dois no `globalThis` de dentro do `import()` dinâmico. Sem isso a falha é `ReferenceError` no meio da geração, com o clique já dado.
   - A moldura da área logada é `100dvh` com rolagem interna. Sem o bloco que a desmonta no `@media print`, o PDF sai **com uma página só** — a que estava visível. É o primeiro lugar a olhar diante de impressão truncada.
+  - **Tabela não leva `break-inside: avoid`.** A regra existia para proteger as tabelas curtas e produzia o contrário: quase toda tabela do laudo é maior que a folha, o navegador empurrava a tabela inteira para a página seguinte e deixava o título da seção sozinho numa folha em branco. Quem mantém a grade legível é o `thead` repetido (`display: table-header-group`) mais `break-inside: avoid` na **linha**.
+  - O cabeçalho e o rodapé com URL, data e "1 de 23" são desenhados pelo **navegador**, na margem do papel, fora do alcance de qualquer regra de CSS. A única saída é a caixa "Cabeçalhos e rodapés" do diálogo — por isso o aviso de impressão instrui a desmarcá-la.
   - `break-inside: avoid` está na tabela **e** na linha. Na tabela ele protege as curtas; quando a tabela é maior que a folha (a de circuitos costuma ser), o navegador descarta a restrição sozinho e pagina — que é o comportamento desejado, não uma falha.
   - O conversor de DOCX é escolhido por **`colspan`**: é o que preserva o cabeçalho de dois níveis da qualitativa e da Parte II, os mesmos dois blocos que o `/draft` emite em HTML em vez de Markdown. Trocar de biblioteca sem verificar `w:gridSpan` no `word/document.xml` desmonta as duas tabelas.
   - Ele entra por `import()` dinâmico em `useReportExport`: sozinho ele é maior que o resto da aplicação, e só serve a um clique.
