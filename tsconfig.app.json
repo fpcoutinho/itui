@@ -6,6 +6,9 @@
 		"module": "esnext",
 		"types": ["vite/client"],
 		"allowArbitraryExtensions": true,
+		/* As listas normativas moram em docs/*.json (cópias byte a byte do raijin) e
+		   são importadas pelo schema do wizard — nenhuma delas é redigitada em código. */
+		"resolveJsonModule": true,
 		"skipLibCheck": true,
 
 		/* Bundler mode */

@@ -74,14 +74,134 @@ export interface BinaryAnswer {
 }
 
 /**
- * As seções tipadas são tratadas como mapas até o wizard existir: os ~90 nomes
- * de campo são do `domain-glossary.md` do raijin e serão transcritos de lá, não
- * inventados aqui.
+ * As quatro seções tipadas, campo a campo.
+ *
+ * Os nomes são os de `raijin/docs/domain-glossary.md`, convertidos
+ * mecanicamente para `camelCase` — a conversão de volta para `snake_case`
+ * acontece no `request()` de `http.ts`, então o que se escreve aqui é o que o
+ * backend recebe.
+ *
+ * Nenhum campo é opcional: o `PATCH` de seção **substitui a seção inteira**, e
+ * a seção é a unidade de validação. Um `Partial<>` aqui deixaria passar em
+ * tempo de compilação exatamente o corpo que o backend rejeita com `422`.
  */
-export type InspectionPlanning = Record<string, string | boolean | string[]>
-export type ExternalInfluences = Record<string, string>
-export type QualitativeAssessment = Record<string, TernaryAnswer | string>
-export type QuantitativeAssessment = Record<string, unknown>
+
+/** §2 — 17 campos. `professionalQualification` e os três `string[]` são enums de `nbr-5410-choices.json`. */
+export interface InspectionPlanning {
+	professionalQualification: string
+	teamFitForWork: boolean
+	safetyBriefingHeld: boolean
+	hasNr10Training: boolean
+	servicePreChecked: boolean
+	identifiedHazards: string[]
+	safetyEquipment: string[]
+	requiresShutdown: boolean
+	signageUsed: string[]
+	requiresAreaDelimitation: boolean
+	requiresUtilityAssistance: boolean
+	requiresVoltageCheck: boolean
+	requiresTemporaryGrounding: boolean
+	workAtHeight: boolean
+	requiresSafetyHarness: boolean
+	safetyRequirementsMet: boolean
+	requiresReassessment: boolean
+}
+
+/**
+ * §3 — as 22 classes NBR. Cada valor é a opção normativa inteira, como está em
+ * `nbr-5410-choices.json` (`"AA4 - Temperado (-5 ° a 40 °C)"`), não só o código.
+ *
+ * `mechanicalImpactClass` (AG) e `vibrationClass` (AH) são campos separados: no
+ * legado eram um só, mas são grupos independentes na norma.
+ */
+export interface ExternalInfluences {
+	ambientTemperatureClass: string
+	climaticConditionsClass: string
+	altitudeClass: string
+	waterPresenceClass: string
+	solidBodiesPresenceClass: string
+	corrosiveSubstancesClass: string
+	mechanicalImpactClass: string
+	vibrationClass: string
+	floraAndMoldClass: string
+	faunaPresenceClass: string
+	electromagneticInfluenceClass: string
+	solarRadiationClass: string
+	lightningExposureClass: string
+	airMovementClass: string
+	windClass: string
+	peopleCompetenceClass: string
+	bodyElectricalResistanceClass: string
+	earthPotentialContactClass: string
+	evacuationConditionsClass: string
+	processedMaterialsClass: string
+	constructionMaterialsClass: string
+	buildingStructureClass: string
+}
+
+/**
+ * §4 — 21 itens ternários mais duas escolhas únicas.
+ *
+ * `spareCircuitCapacity` e `earthingSystemType` **não** usam o par
+ * resposta+observação: são string de escolha única, e o backend rejeita o
+ * objeto `{ answer, notes }` nesses dois campos.
+ */
+export interface QualitativeAssessment {
+	hasInstallationDocumentation: TernaryAnswer
+	renovationDocumentationUpdated: TernaryAnswer
+	inspectedBeforeCommissioning: TernaryAnswer
+	wiringAllowsMaintenanceAccess: TernaryAnswer
+	componentsSelectedForExternalInfluences: TernaryAnswer
+	wiringCorrectlyInstalled: TernaryAnswer
+	outletsComplyNbr14136: TernaryAnswer
+	sufficientOutletCount: TernaryAnswer
+	distributionBoardAccessible: TernaryAnswer
+	/** Faixa declarada pelo engenheiro. Não confundir com `SpareCircuits.required`, que é calculado. */
+	spareCircuitCapacity: string
+	distributionBoardWarningLabels: TernaryAnswer
+	protectionDevicesIdentified: TernaryAnswer
+	protectionMatchesConductorGauge: TernaryAnswer
+	hasNeutralAndEarthBusbars: TernaryAnswer
+	terminalsMatchConductorGauge: TernaryAnswer
+	conductorsColorIdentified: TernaryAnswer
+	hasResidualCurrentDevice: TernaryAnswer
+	hasSurgeProtectionDevice: TernaryAnswer
+	hasSafetyServiceEquipment: TernaryAnswer
+	/** Determina o ramo condicional do ensaio 7.3.5 — ver `nbr-5410-tests.md`. */
+	earthingSystemType: string
+	hasBackupPowerSource: TernaryAnswer
+	hasSafetyPowerSource: TernaryAnswer
+	hasSourceParallelingPrevention: TernaryAnswer
+}
+
+/**
+ * §5 Partes I e II — 13 medições decimais e 6 ensaios binários.
+ *
+ * As medições são `Decimal` (string) de ponta a ponta: `numeric` no Postgres
+ * existe para não perder precisão, e um `parseFloat` antes do envio desfaria a
+ * garantia no último metro.
+ */
+export interface QuantitativeAssessment {
+	busbarCapacityAmps: Decimal
+	mainBreakerRatingAmps: Decimal
+	rcdRatingAmps: Decimal
+	spdRatingAmps: Decimal
+	voltageAbVolts: Decimal
+	voltageAnVolts: Decimal
+	currentPhaseAAmps: Decimal
+	voltageBcVolts: Decimal
+	voltageBnVolts: Decimal
+	currentPhaseBAmps: Decimal
+	voltageCaVolts: Decimal
+	voltageCnVolts: Decimal
+	currentPhaseCAmps: Decimal
+	continuityTest: BinaryAnswer
+	insulationResistanceTest: BinaryAnswer
+	selvPelvSeparationTest: BinaryAnswer
+	equipotentialBondingTest: BinaryAnswer
+	appliedVoltageTest: BinaryAnswer
+	functionalTest: BinaryAnswer
+}
 
 /**
  * Item da listagem (`GET /reports`).

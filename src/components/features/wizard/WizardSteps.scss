@@ -1,0 +1,63 @@
+.wizard-steps {
+	.list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: spacing(2);
+	}
+
+	.step {
+		display: flex;
+		align-items: center;
+		gap: spacing(2);
+		padding: spacing(2) spacing(3);
+		border: map.get($border-width, 'small') solid var(--app-border);
+		border-radius: map.get($border-radius, 'pill');
+		background-color: var(--app-surface);
+		cursor: pointer;
+
+		&:hover {
+			border-color: var(--app-border-strong);
+		}
+
+		&.active {
+			border-color: var(--app-accent-edge);
+			background-color: var(--app-accent-soft);
+		}
+
+		&.done .position {
+			background-color: var(--app-success-edge);
+			color: var(--app-on-accent);
+		}
+	}
+
+	.position {
+		@include caption;
+
+		display: grid;
+		place-items: center;
+		width: spacing(6);
+		height: spacing(6);
+		border-radius: map.get($border-radius, 'pill');
+		background-color: var(--app-surface-sunken);
+		color: var(--app-text-strong);
+		font-weight: map.get($font-weight, 'bold');
+	}
+
+	.text {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.label {
+		@include body-2-bold;
+
+		color: var(--app-text-strong);
+	}
+
+	.status {
+		@include caption;
+
+		color: var(--app-text-muted);
+	}
+}

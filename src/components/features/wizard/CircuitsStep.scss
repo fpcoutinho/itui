@@ -1,0 +1,63 @@
+.circuits-step {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(5);
+
+	.intro {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(1);
+	}
+
+	.title {
+		@include headline-5;
+
+		margin: 0;
+	}
+
+	.description {
+		@include body-2;
+
+		color: var(--app-text-muted);
+	}
+
+	.circuit-form {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(4);
+		padding: spacing(4);
+		border: map.get($border-width, 'small') solid var(--app-border);
+		border-radius: map.get($border-radius, 'medium');
+		background-color: var(--app-surface);
+
+		.grid {
+			display: grid;
+			gap: spacing(4);
+
+			@include breakpoint-min('sm') {
+				grid-template-columns: repeat(2, minmax(0, 1fr));
+			}
+
+			@include breakpoint-min('md') {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+		}
+
+		.form-actions {
+			display: flex;
+			justify-content: flex-end;
+			gap: spacing(3);
+		}
+	}
+
+	.row-actions {
+		display: flex;
+		gap: spacing(1);
+	}
+
+	.actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: spacing(3);
+	}
+}

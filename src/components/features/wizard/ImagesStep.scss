@@ -1,0 +1,180 @@
+.images-step {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(5);
+
+	.intro {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(1);
+	}
+
+	.title {
+		@include headline-5;
+
+		margin: 0;
+	}
+
+	.description {
+		@include body-2;
+
+		color: var(--app-text-muted);
+	}
+
+	.uploader {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(4);
+		padding: spacing(4);
+		border: map.get($border-width, 'small') solid var(--app-border);
+		border-radius: map.get($border-radius, 'medium');
+		background-color: var(--app-surface);
+
+		.file {
+			display: flex;
+			align-items: center;
+			gap: spacing(3);
+			flex-wrap: wrap;
+		}
+
+		.file-label {
+			@include body-2-bold;
+		}
+
+		.file-name {
+			@include caption;
+
+			color: var(--app-text-muted);
+		}
+
+		.metadata {
+			display: grid;
+			gap: spacing(4);
+
+			@include breakpoint-min('sm') {
+				grid-template-columns: repeat(3, minmax(0, 1fr));
+			}
+		}
+
+		.send {
+			display: flex;
+			justify-content: flex-end;
+		}
+	}
+
+	.queue {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(3);
+	}
+
+	.task {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(2);
+		padding: spacing(3);
+		border: map.get($border-width, 'small') solid var(--app-border);
+		border-radius: map.get($border-radius, 'medium');
+
+		.task-header {
+			display: flex;
+			justify-content: space-between;
+			gap: spacing(3);
+		}
+
+		.name {
+			@include body-2;
+		}
+
+		.stage {
+			@include caption;
+
+			color: var(--app-text-muted);
+		}
+
+		.progress {
+			width: 100%;
+			height: spacing(1);
+			accent-color: var(--app-focus);
+		}
+
+		.task-error {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: spacing(3);
+
+			.message {
+				@include caption;
+
+				color: var(--app-danger-edge);
+			}
+		}
+	}
+
+	.gallery-header {
+		display: flex;
+		justify-content: flex-end;
+	}
+
+	.empty {
+		@include body-2;
+
+		color: var(--app-text-muted);
+	}
+
+	.gallery {
+		display: grid;
+		gap: spacing(4);
+
+		@include breakpoint-min('sm') {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+
+		@include breakpoint-min('md') {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+
+	.card {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(2);
+		padding: spacing(3);
+		border: map.get($border-width, 'small') solid var(--app-border);
+		border-radius: map.get($border-radius, 'medium');
+		background-color: var(--app-surface);
+
+		.thumb {
+			width: 100%;
+			height: 160px;
+			object-fit: cover;
+			border-radius: map.get($border-radius, 'small');
+			background-color: var(--app-surface-sunken);
+		}
+
+		.meta {
+			display: flex;
+			flex-direction: column;
+			gap: spacing(1);
+		}
+
+		.category {
+			@include caption;
+
+			font-weight: map.get($font-weight, 'bold');
+		}
+
+		.section,
+		.caption {
+			@include caption;
+
+			color: var(--app-text-muted);
+		}
+	}
+
+	.actions {
+		display: flex;
+		justify-content: flex-end;
+	}
+}

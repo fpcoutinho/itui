@@ -1,0 +1,40 @@
+.spare-circuits {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(3);
+
+	.title {
+		@include headline-6;
+
+		margin: 0;
+	}
+
+	.figures {
+		display: grid;
+		gap: spacing(3);
+		margin: 0;
+
+		@include breakpoint-min('sm') {
+			grid-template-columns: repeat(3, minmax(0, 1fr));
+		}
+	}
+
+	.figure {
+		display: flex;
+		flex-direction: column;
+		gap: spacing('half');
+	}
+
+	.term {
+		@include caption;
+
+		color: var(--app-text-muted);
+	}
+
+	.value {
+		@include body-1-bold;
+
+		margin: 0;
+		color: var(--app-text-strong);
+	}
+}

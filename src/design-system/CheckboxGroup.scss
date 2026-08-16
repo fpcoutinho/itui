@@ -1,0 +1,70 @@
+// Bloco raiz é o único ponto de entrada; as partes internas são classes curtas
+// aninhadas (padrão do próprio Sanhauá, não BEM).
+.checkbox-group {
+	margin: 0;
+	padding: 0;
+	border: none;
+	display: flex;
+	flex-direction: column;
+	gap: spacing(2);
+
+	.legend {
+		@include body-2-bold;
+
+		padding: 0;
+		color: var(--app-text-strong);
+	}
+
+	.options {
+		display: grid;
+		gap: spacing(2);
+
+		@include breakpoint-min('sm') {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+		}
+	}
+
+	.option {
+		display: flex;
+		align-items: center;
+		gap: spacing(2);
+		padding: spacing(2) spacing(3);
+		border: map.get($border-width, 'small') solid var(--app-border);
+		border-radius: map.get($border-radius, 'medium');
+		background-color: var(--app-surface);
+		cursor: pointer;
+
+		&:hover {
+			border-color: var(--app-border-strong);
+		}
+
+		input {
+			flex-shrink: 0;
+			accent-color: var(--app-focus);
+			width: spacing(4);
+			height: spacing(4);
+			margin: 0;
+			cursor: pointer;
+		}
+
+		.text {
+			@include body-2;
+		}
+	}
+
+	.hint {
+		@include caption;
+
+		color: var(--app-text-muted);
+	}
+
+	.message {
+		@include caption;
+
+		color: var(--app-danger-edge);
+	}
+
+	&.error .option {
+		border-color: var(--app-danger-edge);
+	}
+}

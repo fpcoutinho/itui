@@ -31,7 +31,7 @@ URLs em português (são conteúdo voltado ao usuário, diferente de rota de API
 | `/plataforma` | Shell do dashboard (`DashboardLayout` + `Sidebar`), com `<Outlet>`; a raiz redireciona pra `relatorios` | Privado |
 | `/plataforma/relatorios` | Lista de laudos | Privado |
 | `/plataforma/relatorios/novo` | Criação de laudo | Privado |
-| `/plataforma/relatorios/:reportId` | Laudo (placeholder até o editor) | Privado |
+| `/plataforma/relatorios/:reportId` | Laudo: wizard de inspeção em 6 etapas | Privado |
 | `/plataforma/perfil` | Conta: e-mail, tema e sair | Privado |
 | `/conta/login` | Login (e-mail/senha + Google) | Público |
 | `/conta/cadastro` | Cadastro | Público |
@@ -155,10 +155,11 @@ O alvo de deploy resolve isso sem custo: o build do `itui` é estático (S3) e o
 ## Estrutura de pastas
 
 - `src/pages/` — um componente por rota (`LandingPage`, `pages/platform/ReportsPage`, `pages/account/LoginPage` etc.).
+- `src/domain/` — o laudo como dado, sem React: `nbr.ts` (acesso tipado aos JSON normativos de `docs/`) e `reportSchema.ts` (o schema declarativo das seções — descritor de campo, ordem de exibição e validação de completude). É a única camada que conhece os ~90 campos pelo nome; componente de formulário recebe descritor.
 - `src/layouts/` — shells de rota com `<Outlet>`. Hoje só o `DashboardLayout`, a moldura escura da área logada: ele pinta com os tokens `--app-shell*` (a superfície mais escura nos dois temas) e religa `--app-surface*` pra `--app-panel*` dentro do painel de conteúdo, pra que componente elevado continue elevado no tema escuro.
 - `src/components/ui/` — componentes base acoplados ao contexto da aplicação (`PageHeader`, `Sidebar`, `ThemeToggle`, `ButtonLink`). `Card` e `Banner` moravam aqui e saíram na `0.15.0`, virando `UaCard` e `UaAlert` no pacote.
 - `src/components/features/` — componentes de domínio (`CreateReportForm`, `GoogleSignInButton`, futuros `InspectionForm`/`ReportEditor`).
-- `src/design-system/` — **quarentena**: componentes micro e agnósticos a contexto, candidatos a subir pro `sanhaua` e voltar como dependência. **Hoje está vazia** — `TextField` e `DataTable` já subiram (viraram as props novas do `UaInputField` e o `UaTable`, na `0.13.0`). Quem entrar aqui vai registrado em [`docs/design-system-candidates.md`](docs/design-system-candidates.md). O critério de entrada é único: não pode saber nada de laudo, sessão ou API.
+- `src/design-system/` — **quarentena**: componentes micro e agnósticos a contexto, candidatos a subir pro `sanhaua` e voltar como dependência. Hoje moram lá `TextArea` e `CheckboxGroup`, que o pacote não tem (ele só tem `UaInputField` de linha única e `UaInputRadio`); `TextField` e `DataTable` já subiram na `0.13.0`. Quem entrar aqui vai registrado em [`docs/design-system-candidates.md`](docs/design-system-candidates.md). O critério de entrada é único: não pode saber nada de laudo, sessão ou API.
 - `src/hooks/` — hooks de estado e chamadas de API (`useSession`, `useReports`, `useGoogleIdentity`; futuro `useGenerateAI`, que consome o SSE do `raijin`).
 - `src/services/` — clientes HTTP e integração com a API Rust. A conversão `snake_case` ↔ `camelCase` acontece **só** aqui, dentro do `request()` de `http.ts`.
 - `src/session/` — provider do access token em memória e da renovação agendada.
@@ -179,7 +180,8 @@ O alvo de deploy resolve isso sem custo: o build do `itui` é estático (S3) e o
 - `react-router`, não outra lib de rotas.
 - **Em dev a API vai por proxy do Vite** (`server.proxy`, `/api` → `RAIJIN_ORIGIN`), não por chamada cross-origin. Same-origin em dev significa zero CORS e cookie de refresh first-party. **O caminho não pode ser reescrito**: o cookie tem `Path=/api/v1/auth`, e tirar o `/api` faria o navegador gravá-lo e nunca mais enviá-lo — refresh em `401` eterno, sem pista. Descartado o `vite-plugin-mkcert`/HTTPS local: resolvia menos e custava instalar uma CA raiz na máquina.
 - **`VITE_API_BASE_URL` vazio = modo proxy; preenchido = modo cross-origin.** O segundo é o de produção e existe para reproduzir o caminho real da sessão localmente. Ver README.
-- Camada de dados com hooks próprios sobre o cliente HTTP, sem TanStack Query nem afins — o volume atual (uma listagem, um wizard) não paga a dependência. Reavaliar quando os `PATCH` de seção chegarem.
+- Camada de dados com hooks próprios sobre o cliente HTTP, sem TanStack Query nem afins — o volume atual (uma listagem, um wizard) não paga a dependência. Reavaliado com os `PATCH` de seção no lugar: **continua sem lib de cache**, porque cada rota de seção devolve o `ReportDetail` inteiro (já com `spare_circuits` recalculado) e o wizard só substitui o laudo em memória — não há invalidação de cache a coordenar. As rotas de circuito são a exceção: devolvem o `Circuit`, então mutação de circuito dispara um `GET` do laudo (ver `useCircuits.onChanged`).
+- **Wizard dirigido por schema, não 90 campos escritos à mão.** Campo, rótulo, tipo e ordem vivem em `src/domain/reportSchema.ts`; opção normativa e procedimento de ensaio vêm dos JSON de `docs/` (importados, não redigitados — `resolveJsonModule` no `tsconfig.app.json`). O passo do wizard só submete com a seção **completa**, porque o `PATCH` substitui a seção inteira. Seção `null` na resposta = etapa não concluída, e é assim que o wizard sabe onde o usuário parou — não há campo de progresso.
 - Auth: JWT emitido pelo `raijin` (não Supabase Auth). No login com Google o `itui` **fala direto com o Google**: carrega o Google Identity Services, obtém um ID Token e só então o manda pro `raijin`. Ver "Contrato de autenticação" abaixo.
 - Upload de imagem: `itui` faz `PUT` direto pra URL pré-assinada que o `raijin` gera — sem SDK de storage de provedor nenhum no frontend (mantém o frontend portável entre provedores).
 - Avaliação qualitativa do formulário é ternária (Sim/Não/Parcialmente); ensaios da avaliação quantitativa são binários (Sim/Não). Ver `domain-glossary.md` no `raijin`.

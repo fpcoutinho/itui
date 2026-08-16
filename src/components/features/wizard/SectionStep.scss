@@ -1,0 +1,65 @@
+.section-step {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(5);
+
+	.intro {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(1);
+	}
+
+	.title {
+		@include headline-5;
+
+		margin: 0;
+	}
+
+	.description {
+		@include body-2;
+
+		color: var(--app-text-muted);
+	}
+
+	.groups {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(6);
+	}
+
+	.group {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(3);
+	}
+
+	.group-title {
+		@include headline-6;
+
+		margin: 0;
+		padding-bottom: spacing(2);
+		border-bottom: map.get($border-width, 'small') solid var(--app-border);
+	}
+
+	.group-description {
+		@include body-2;
+
+		color: var(--app-text-muted);
+	}
+
+	.fields {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(3);
+	}
+
+	.actions {
+		position: sticky;
+		bottom: 0;
+		display: flex;
+		justify-content: flex-end;
+		gap: spacing(3);
+		padding: spacing(3) 0;
+		background-color: var(--app-surface);
+	}
+}

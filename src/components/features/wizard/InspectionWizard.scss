@@ -1,0 +1,11 @@
+.inspection-wizard {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(5);
+
+	.position {
+		@include overline;
+
+		color: var(--app-text-muted);
+	}
+}

@@ -1,0 +1,75 @@
+.schema-field {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(2);
+	padding: spacing(4);
+	border: map.get($border-width, 'small') solid var(--app-border);
+	border-radius: map.get($border-radius, 'medium');
+	background-color: var(--app-surface);
+
+	// Texto normativo de apoio (procedimento do ensaio, critério de aceitação).
+	// Fica visualmente subordinado ao campo: é referência para a leitura, não
+	// mais uma pergunta.
+	.support {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(1);
+		padding: spacing(3);
+		border-left: map.get($border-width, 'medium') solid var(--app-info-edge);
+		border-radius: map.get($border-radius, 'small');
+		background-color: var(--app-info-surface);
+		color: var(--app-info-text);
+
+		.term {
+			@include caption;
+
+			font-weight: map.get($font-weight, 'bold');
+			text-transform: uppercase;
+			letter-spacing: 0.04em;
+		}
+
+		.value {
+			@include caption;
+		}
+	}
+}
+
+.radio-answer {
+	margin: 0;
+	padding: 0;
+	border: none;
+	display: flex;
+	flex-direction: column;
+	gap: spacing(2);
+
+	.legend {
+		@include body-2-bold;
+
+		padding: 0;
+		color: var(--app-text-strong);
+	}
+
+	.options {
+		display: flex;
+		flex-wrap: wrap;
+		gap: spacing(4);
+	}
+
+	.hint {
+		@include caption;
+
+		color: var(--app-text-muted);
+	}
+
+	.message {
+		@include caption;
+
+		color: var(--app-danger-edge);
+	}
+}
+
+.answer-with-notes {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(3);
+}

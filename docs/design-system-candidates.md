@@ -9,15 +9,26 @@ O critério de entrada é único: **o componente não pode saber nada de laudo,
 sessão ou API.** Se souber, o lugar dele é `src/components/ui/` (acoplado ao
 contexto da aplicação) ou `src/components/features/` (domínio).
 
-O que o Sanhauá `0.15.0` exporta hoje, e que **não** deve ser reimplementado:
-`UaAlert`, `UaButton`, `UaCard`, `UaInputField`, `UaInputRadio`, `UaSkeleton`, `UaTable`,
+O que o Sanhauá `0.17.0` exporta hoje, e que **não** deve ser reimplementado:
+`UaAccordion`, `UaAlert`, `UaAvatar`, `UaBadge`, `UaButton`, `UaButtonIcon`, `UaCard`,
+`UaInputField`, `UaInputRadio`, `UaPagination`, `UaSelect`, `UaSkeleton`, `UaTable`,
 `UaToast`.
 
 ---
 
-## A quarentena está vazia
+## Na quarentena hoje
 
-Os dois componentes que moravam aqui subiram para o pacote na `0.13.0`:
+Os dois entraram com o wizard de inspeção (Step 6b). Nenhum sabe o que é laudo,
+seção ou API — recebem rótulo, valor e `onChange`.
+
+| Componente | Por que foi escrito aqui | O que falta para subir |
+|---|---|---|
+| `TextArea` | O pacote tem `UaInputField` (linha única) e **nenhum** equivalente multilinha. Os ~27 campos de observação (`notes`) da §4 e da §5 Parte II são texto longo. | Virar `UaTextArea` com as mesmas props de `UaInputField` (`appearance`, `size`, `error`, `hint`, `widthBehavior`) e o mesmo wiring de `aria-invalid`/`aria-describedby`, que aqui está replicado à mão. |
+| `CheckboxGroup` | O pacote tem `UaInputRadio` mas nenhum checkbox. A §2 tem três campos `enum[]` (riscos, EPIs, sinalização) que são seleção múltipla de verdade. | Separar em `UaInputCheckbox` (o controle) + agrupamento, espelhando a divisão que já existe no rádio. O `fieldset`/`legend` é a parte que não pode se perder na subida: é o que faz o leitor de tela anunciar a pergunta antes das oito opções. |
+
+## O que já subiu
+
+Os dois componentes que moravam aqui antes subiram para o pacote na `0.13.0`:
 
 | Era | Virou |
 |---|---|
@@ -50,6 +61,6 @@ a tela que os exige existir, não antes:
 
 | Componente | Entra com |
 |---|---|
-| `Textarea` | campos de observação da avaliação qualitativa (§4) |
 | `Slider` | — sem uso identificado ainda |
-| `ImageCarousel` | upload e revisão de achados fotográficos |
+| `ImageCarousel` | revisão dos achados fotográficos. O upload (Step 6b) resolveu-se com grade estática: enquanto a miniatura depende de uma `view_url` que vence em 5 minutos, carrossel só adiantaria o vencimento das fotos que ninguém olhou. |
+| `ProgressBar` | barra de progresso do upload, hoje um `<progress>` nativo estilizado dentro de `ImagesStep.scss` — pequeno demais para justificar quarentena própria antes de ter um segundo uso. |
