@@ -37,7 +37,7 @@ export function Sidebar() {
 		<aside className="sidebar">
 			<div className="brand">
 				<img
-					alt=""
+					alt="itui"
 					className="mascot"
 					height={32}
 					src="/mascot.webp"
@@ -48,11 +48,15 @@ export function Sidebar() {
 
 			<div className="identity">
 				<UaAvatar
-					name={user?.email ?? ''}
+					name={user?.fullName ?? ''}
 					size="medium"
 					src={user?.avatarUrl}
 				/>
-				<span className="email">{user?.email}</span>
+
+				<div className="user-info">
+					<span className="name">{user?.fullName?.split(' ')[0]}</span>
+					<span className="email">{user?.email}</span>
+				</div>
 			</div>
 
 			<nav aria-label={platformTexts.nav.label} className="menu">

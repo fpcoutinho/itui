@@ -1,6 +1,3 @@
-// A sidebar é a moldura: pinta com os tokens `--app-shell*`, que são a
-// superfície mais escura nos dois temas. Nada aqui usa `--app-text*`, que é o
-// texto do painel claro e sumiria contra este fundo.
 .sidebar {
 	display: flex;
 	flex-direction: row;
@@ -36,9 +33,6 @@
 		overflow-x: auto;
 	}
 
-	// Selecionado se distingue por peso e cor, não por fundo: um retângulo
-	// preenchido dentro de uma moldura escura briga com o painel de conteúdo, que
-	// já é a única superfície clara da tela.
 	.item {
 		display: flex;
 		align-items: center;
@@ -81,11 +75,25 @@
 			gap: spacing(2);
 			min-width: 0;
 
+			.user-info {
+				display: flex;
+				flex-direction: column;
+				min-width: 0;
+			}
+
+			.name {
+				@include caption-bold;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+
 			.email {
 				@include caption;
 				color: var(--app-shell-text-muted);
-				overflow-wrap: anywhere;
-				min-width: 0;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
 			}
 		}
 
