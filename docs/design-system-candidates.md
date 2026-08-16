@@ -1,34 +1,38 @@
 # Candidatos ao Design System Sanhauá
 
-Quarentena de `src/design-system/`: componentes **micro e agnósticos a contexto**
-escritos aqui porque o [Sanhauá](https://github.com/fpcoutinho/sanhaua) ainda não
-os tem. A intenção é subi-los para o pacote e voltar a consumi-los como
-dependência, num follow-up — não mantê-los aqui para sempre.
+Registro da quarentena de `src/design-system/`: componentes **micro e agnósticos a
+contexto** escritos aqui porque o
+[Sanhauá](https://github.com/fpcoutinho/sanhaua) ainda não os tinha, com a
+intenção de subi-los para o pacote e voltar a consumi-los como dependência.
 
-O critério de entrada é único: **o componente não pode saber nada de laudo,
-sessão ou API.** Se souber, o lugar dele é `src/components/ui/` (acoplado ao
-contexto da aplicação) ou `src/components/features/` (domínio).
+**A quarentena está vazia hoje** — a pasta `src/design-system/` foi apagada na
+`0.18.0`, quando os dois últimos moradores subiram. Ela volta a existir quando
+houver um novo candidato; o critério de entrada continua sendo único: **o
+componente não pode saber nada de laudo, sessão ou API.** Se souber, o lugar dele
+é `src/components/ui/` (acoplado ao contexto da aplicação) ou
+`src/components/features/` (domínio).
 
-O que o Sanhauá `0.17.0` exporta hoje, e que **não** deve ser reimplementado:
+O que o Sanhauá `0.18.0` exporta hoje, e que **não** deve ser reimplementado:
 `UaAccordion`, `UaAlert`, `UaAvatar`, `UaBadge`, `UaButton`, `UaButtonIcon`, `UaCard`,
-`UaInputField`, `UaInputRadio`, `UaPagination`, `UaSelect`, `UaSkeleton`, `UaTable`,
-`UaToast`.
+`UaCheckbox`, `UaInputField`, `UaInputGroup`, `UaModal`, `UaPagination`, `UaRadio`,
+`UaSelect`, `UaSkeleton`, `UaTable`, `UaTextarea`, `UaToast`.
+
+`UaInputRadio` foi **renomeado para `UaRadio`** na `0.18.0` (o tipo virou
+`UaRadioProps` e a classe CSS `.ua-input-radio` virou `.ua-radio`).
 
 ---
 
-## Na quarentena hoje
-
-Os dois entraram com o wizard de inspeção (Step 6b). Nenhum sabe o que é laudo,
-seção ou API — recebem rótulo, valor e `onChange`.
-
-| Componente | Por que foi escrito aqui | O que falta para subir |
-|---|---|---|
-| `TextArea` | O pacote tem `UaInputField` (linha única) e **nenhum** equivalente multilinha. Os ~27 campos de observação (`notes`) da §4 e da §5 Parte II são texto longo. | Virar `UaTextArea` com as mesmas props de `UaInputField` (`appearance`, `size`, `error`, `hint`, `widthBehavior`) e o mesmo wiring de `aria-invalid`/`aria-describedby`, que aqui está replicado à mão. |
-| `CheckboxGroup` | O pacote tem `UaInputRadio` mas nenhum checkbox. A §2 tem três campos `enum[]` (riscos, EPIs, sinalização) que são seleção múltipla de verdade. | Separar em `UaInputCheckbox` (o controle) + agrupamento, espelhando a divisão que já existe no rádio. O `fieldset`/`legend` é a parte que não pode se perder na subida: é o que faz o leitor de tela anunciar a pergunta antes das oito opções. |
-
 ## O que já subiu
 
-Os dois componentes que moravam aqui antes subiram para o pacote na `0.13.0`:
+Na `0.18.0` subiram os dois últimos da quarentena, ambos vindos do wizard de
+inspeção (Step 6b):
+
+| Era | Virou |
+|---|---|
+| `TextArea` | `UaTextarea` — mesma anatomia do `UaInputField`, com `appearance`, `size`, `borderStyle`, `widthBehavior` e `resize` que o local não tinha. `onChange` passou a ser o evento nativo do React (não o valor extraído), e não há `hideLabel`: rótulo invisível é omitir `label` e passar `aria-label`. |
+| `CheckboxGroup` | `UaCheckbox` (o controle, com `indeterminate`) + `UaInputGroup` (a cápsula `fieldset`/`legend`, que serve também ao rádio). O componente único virou dois: mapear as opções e calcular o array resultante passou a ser de quem usa — ver `MultiChoice` em `SchemaField.tsx`. |
+
+Antes deles, na `0.13.0`:
 
 | Era | Virou |
 |---|---|

@@ -12,6 +12,7 @@ import { useCircuits } from '../../../hooks/useCircuits'
 import type { CircuitInput } from '../../../services/circuits'
 import { formatDecimal, toWireDecimal } from '../../../services/decimal'
 import type { Circuit, ReportDetail } from '../../../services/types'
+import { ConfirmDialog } from '../../ui/ConfirmDialog'
 import { SpareCircuitsPanel } from './SpareCircuitsPanel'
 import './CircuitsStep.scss'
 
@@ -68,6 +69,8 @@ export function CircuitsStep({
 	const [form, setForm] = useState<CircuitFormState>(EMPTY_FORM)
 	const [editingId, setEditingId] = useState<string | null>(null)
 	const [formError, setFormError] = useState<string | null>(null)
+	/** Circuito aguardando confirmação de remoção; `null` fecha o diálogo. */
+	const [circuitToRemove, setCircuitToRemove] = useState<Circuit | null>(null)
 
 	function startEdit(circuit: Circuit) {
 		setEditingId(circuit.id)
@@ -164,11 +167,7 @@ export function CircuitsStep({
 						appearance="danger"
 						icon="delete"
 						label={`${texts.remove} ${circuit.circuitModel}`}
-						onClick={() => {
-							if (window.confirm(texts.confirmRemove(circuit.circuitModel))) {
-								void remove(circuit.id)
-							}
-						}}
+						onClick={() => setCircuitToRemove(circuit)}
 						size="small"
 					/>
 				</div>
@@ -290,6 +289,25 @@ export function CircuitsStep({
 					{wizard.next}
 				</UaButton>
 			</div>
+
+			<ConfirmDialog
+				appearance="danger"
+				confirmLabel={texts.remove}
+				description={
+					circuitToRemove === null
+						? ''
+						: texts.confirmRemove(circuitToRemove.circuitModel)
+				}
+				isOpen={circuitToRemove !== null}
+				onClose={() => setCircuitToRemove(null)}
+				onConfirm={() => {
+					if (circuitToRemove !== null) {
+						void remove(circuitToRemove.id)
+					}
+					setCircuitToRemove(null)
+				}}
+				title={texts.remove}
+			/>
 		</section>
 	)
 }

@@ -1,0 +1,15 @@
+.confirm-dialog {
+	// `.description` e `.actions` ficam presas ao que o modal do pacote desenha em
+	// volta; soltas no bloco, atravessariam qualquer componente aninhado aqui.
+	> .content > .description {
+		@include body-2;
+
+		color: var(--app-text-muted);
+	}
+
+	> .footer > .actions {
+		display: flex;
+		justify-content: flex-end;
+		gap: spacing(2);
+	}
+}

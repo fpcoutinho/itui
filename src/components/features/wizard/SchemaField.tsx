@@ -1,8 +1,13 @@
 import type { ReactNode } from 'react'
-import { UaInputField, UaInputRadio, UaSelect } from 'sanhaua/react'
+import {
+	UaCheckbox,
+	UaInputField,
+	UaInputGroup,
+	UaRadio,
+	UaSelect,
+	UaTextarea,
+} from 'sanhaua/react'
 import { reportTexts } from '../../../content/report'
-import { CheckboxGroup } from '../../../design-system/CheckboxGroup'
-import { TextArea } from '../../../design-system/TextArea'
 import type { Field } from '../../../domain/reportSchema'
 import type { BinaryAnswer, TernaryAnswer } from '../../../services/types'
 import './SchemaField.scss'
@@ -91,13 +96,12 @@ export function SchemaField({
 
 			case 'multi-choice':
 				return (
-					<CheckboxGroup
+					<MultiChoice
 						error={error}
 						legend={field.label}
 						name={name}
 						onChange={onChange}
 						options={field.options}
-						required
 						value={Array.isArray(value) ? (value as string[]) : []}
 					/>
 				)
@@ -144,9 +148,53 @@ interface RadioOption {
 }
 
 /**
+ * Seleção múltipla.
+ *
+ * O `UaInputGroup` é só a cápsula (`fieldset`/`legend`) — mapear as opções e
+ * calcular o array resultante é de quem usa: marca acrescenta, desmarca filtra.
+ */
+function MultiChoice({
+	name,
+	legend,
+	options,
+	value,
+	onChange,
+	error,
+}: {
+	name: string
+	legend: ReactNode
+	options: readonly RadioOption[]
+	value: readonly string[]
+	onChange: (next: string[]) => void
+	error: string | null
+}) {
+	return (
+		<UaInputGroup error={error} legend={legend} required>
+			{options.map((option) => (
+				<UaCheckbox
+					checked={value.includes(option.value)}
+					id={`${name}-${option.value}`}
+					key={option.value}
+					label={option.label}
+					name={name}
+					onChange={(event) =>
+						onChange(
+							event.target.checked
+								? [...value, option.value]
+								: value.filter((selected) => selected !== option.value),
+						)
+					}
+					value={option.value}
+				/>
+			))}
+		</UaInputGroup>
+	)
+}
+
+/**
  * Grupo de rádio com `fieldset`/`legend`.
  *
- * O `UaInputRadio` do Sanhauá é o controle individual — o agrupamento
+ * O `UaRadio` do Sanhauá é o controle individual — o agrupamento
  * semântico (a pergunta que o leitor de tela anuncia antes das opções) é de
  * quem usa.
  */
@@ -178,7 +226,7 @@ function RadioAnswer({
 
 			<div className="options">
 				{options.map((option) => (
-					<UaInputRadio
+					<UaRadio
 						checked={value === option.value}
 						id={`${name}-${option.value}`}
 						key={option.value}
@@ -246,18 +294,17 @@ function AnswerWithNotes({
 				value={answer?.answer}
 			/>
 
-			<TextArea
-				hideLabel
-				label={`${answers.notes} — ${label}`}
+			<UaTextarea
+				aria-label={`${answers.notes} — ${label}`}
 				name={`${name}-notes`}
 				// Observação digitada antes da resposta **não** escolhe uma resposta:
 				// o objeto sai com `answer` ainda indefinido e a validação continua
 				// apontando o item como pendente. Assumir "Não" aqui responderia uma
 				// pergunta normativa no lugar do engenheiro.
-				onChange={(next) =>
+				onChange={(event) =>
 					onChange({
 						answer: answer?.answer,
-						notes: next,
+						notes: event.target.value,
 					} as unknown as TernaryAnswer | BinaryAnswer)
 				}
 				placeholder={answers.notesPlaceholder}

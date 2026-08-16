@@ -143,7 +143,24 @@
 		border-radius: map.get($border-radius, 'medium');
 		background-color: var(--app-surface);
 
+		// O recorte inteiro é clicável: o `<button>` não deve parecer botão, só
+		// oferecer o alvo, o cursor e o anel de foco.
+		.thumb-button {
+			display: block;
+			padding: 0;
+			border: none;
+			background: none;
+			cursor: zoom-in;
+			border-radius: map.get($border-radius, 'small');
+
+			&:focus-visible {
+				outline: map.get($border-width, 'medium') solid var(--app-focus);
+				outline-offset: 2px;
+			}
+		}
+
 		.thumb {
+			display: block;
 			width: 100%;
 			height: 160px;
 			object-fit: cover;
@@ -174,5 +191,51 @@
 	.actions {
 		display: flex;
 		justify-content: flex-end;
+		gap: spacing(3);
+	}
+}
+
+// Bloco solto: o `UaModal` monta em portal, fora da árvore da `.images-step`.
+.image-viewer {
+	.frame {
+		display: flex;
+		align-items: center;
+		gap: spacing(2);
+	}
+
+	.full {
+		flex: 1;
+		min-width: 0;
+		// Altura da viewport menos a moldura do modal, para a foto inteira caber
+		// sem cortar e sem empurrar o rodapé para fora da tela.
+		max-height: 70vh;
+		object-fit: contain;
+		border-radius: map.get($border-radius, 'small');
+		background-color: var(--app-surface-sunken);
+	}
+
+	.expired {
+		@include body-2;
+
+		flex: 1;
+		text-align: center;
+		color: var(--app-text-muted);
+	}
+
+	.details {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(1);
+		margin-top: spacing(3);
+
+		.position {
+			@include overline;
+
+			color: var(--app-text-muted);
+		}
+
+		.caption {
+			@include body-2;
+		}
 	}
 }

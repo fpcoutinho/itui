@@ -3,11 +3,15 @@ import { reportTexts } from '../content/report'
 import type { ReportDetail, ReportSection } from '../services/types'
 
 /**
- * As seis etapas. As cinco primeiras são seções do laudo; `images` não é seção
+ * As sete etapas. As cinco primeiras são seções do laudo; `images` não é seção
  * — é um anexo transversal (a foto pode pertencer a qualquer seção ou a
  * nenhuma), e por isso fica no fim, depois de haver conteúdo a ilustrar.
+ *
+ * `document` é o editor, e vem por último por dependência real: o `/draft` monta
+ * o texto a partir das seções preenchidas e das imagens confirmadas, então abri-lo
+ * antes só produziria um documento de "seção não avaliada".
  */
-export type WizardStepId = ReportSection | 'images'
+export type WizardStepId = ReportSection | 'images' | 'document'
 
 export const WIZARD_STEPS: readonly WizardStepId[] = [
 	'inspection_planning',
@@ -16,6 +20,7 @@ export const WIZARD_STEPS: readonly WizardStepId[] = [
 	'quantitative_assessment',
 	'circuits',
 	'images',
+	'document',
 ]
 
 export type StepStatus = 'done' | 'pending' | 'optional'
@@ -67,6 +72,10 @@ function stepStatus(report: ReportDetail | null, id: WizardStepId): StepStatus {
 			// Laudo sem foto continua sendo laudo válido — o `/draft` monta o
 			// documento inteiro sem nenhuma imagem.
 			return 'optional'
+		case 'document':
+			// `document_content` nasce `{}` e nunca é `null`: a árvore vazia é o
+			// sinal de que o documento ainda não foi gerado.
+			return Object.keys(report.documentContent).length > 0 ? 'done' : 'pending'
 	}
 }
 

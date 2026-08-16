@@ -169,6 +169,12 @@ export const findingCategoryLabels = {
 } as const
 
 export const reportTexts = {
+	/** Rótulos genéricos do `ConfirmDialog`; o texto da pergunta é de quem abre. */
+	confirmDialog: {
+		confirm: 'Confirmar',
+		cancel: 'Cancelar',
+	},
+
 	answers: {
 		yes: 'Sim',
 		no: 'Não',
@@ -186,6 +192,7 @@ export const reportTexts = {
 			quantitative_assessment: 'Avaliação quantitativa',
 			circuits: 'Circuitos',
 			images: 'Imagens',
+			document: 'Documento',
 		},
 		stepPosition: (current: number, total: number) =>
 			`Etapa ${current} de ${total}`,
@@ -277,5 +284,74 @@ export const reportTexts = {
 		unsupportedType: 'Formato não aceito. Use JPEG, PNG, WEBP ou HEIC.',
 		/** `view_url` vence em 5 minutos; a miniatura é recarregada, nunca guardada. */
 		refresh: 'Atualizar miniaturas',
+		loading: 'Carregando imagens…',
+		view: 'Ver imagem',
+		viewerTitle: 'Imagem do laudo',
+		viewerPrevious: 'Imagem anterior',
+		viewerNext: 'Próxima imagem',
+		viewerPosition: (current: number, total: number) =>
+			`${current} de ${total}`,
+		viewerExpired:
+			'O link desta imagem venceu. Use "Atualizar miniaturas" para pedir outro.',
+	},
+
+	editor: {
+		title: 'Documento do laudo',
+		description:
+			'O texto abaixo é gerado a partir das seções preenchidas e pode ser editado livremente. As alterações são salvas automaticamente.',
+
+		generate: '✨ Gerar Parecer com IA',
+		regenerate: '✨ Gerar novamente',
+		cancel: 'Interromper geração',
+		drafting: 'Montando o documento…',
+		streaming: 'Escrevendo o parecer…',
+
+		/**
+		 * A geração **substitui** o documento pelo modelo determinístico antes de
+		 * streamar a prosa. Quem já editou precisa saber disso antes de clicar.
+		 */
+		confirmRegenerate:
+			'Gerar novamente substitui todo o conteúdo do editor pelo documento montado a partir das seções. As edições feitas aqui serão perdidas. Continuar?',
+
+		/**
+		 * `finish_reason: "length"`: o teto de tokens cortou a redação. A última
+		 * seção chegou incompleta e as seguintes não chegaram — apresentar como
+		 * pronto seria entregar um laudo cortado sem avisar.
+		 */
+		truncated:
+			'A redação foi interrompida pelo limite de texto do modelo: a última seção ficou incompleta e as seguintes não foram escritas. Os dados e as tabelas do laudo estão completos — gere novamente para tentar a redação inteira.',
+
+		/** Falha do provedor no meio do stream. O documento determinístico continua íntegro. */
+		generationFailed:
+			'A redação por IA falhou, mas o documento do laudo está completo no editor — só a prosa não foi escrita.',
+
+		empty:
+			'Este laudo ainda não tem documento. Gere o parecer para montar o texto a partir das seções preenchidas.',
+
+		saveStatus: {
+			idle: '',
+			pending: 'Alterações não salvas',
+			saving: 'Salvando…',
+			saved: 'Salvo',
+			error: 'Não foi possível salvar',
+		},
+		saveNow: 'Salvar agora',
+
+		toolbar: {
+			label: 'Formatação do documento',
+			undo: 'Desfazer',
+			redo: 'Refazer',
+			bold: 'Negrito',
+			italic: 'Itálico',
+			underline: 'Sublinhado',
+			strike: 'Tachado',
+			heading2: 'Título de seção',
+			heading3: 'Subtítulo',
+			bulletList: 'Lista com marcadores',
+			orderedList: 'Lista numerada',
+			link: 'Inserir link',
+			unlink: 'Remover link',
+			linkPrompt: 'Endereço do link:',
+		},
 	},
 } as const

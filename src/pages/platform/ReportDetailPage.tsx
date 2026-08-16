@@ -31,9 +31,9 @@ export function ReportDetailPage() {
 
 			{isLoading && report === null ? (
 				<div className="route-loading">
-					<UaSkeleton />
-					<UaSkeleton />
-					<UaSkeleton />
+					<UaSkeleton height="56px" width="100%" />
+					<UaSkeleton height="72px" width="100%" />
+					<UaSkeleton height="560px" width="100%" />
 					<span className="visually-hidden">{reportTexts.loading}</span>
 				</div>
 			) : null}

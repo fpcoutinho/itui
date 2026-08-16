@@ -24,6 +24,7 @@ import type {
 	QuantitativeAssessment,
 	ReportDetail,
 } from '../../../services/types'
+import { ReportEditor } from '../editor/ReportEditor'
 import { CircuitsStep } from './CircuitsStep'
 import { ImagesStep } from './ImagesStep'
 import { SectionStep } from './SectionStep'
@@ -166,7 +167,19 @@ export function InspectionWizard({
 			) : null}
 
 			{current === 'images' ? (
-				<ImagesStep onPrevious={previous} reportId={report.id} />
+				<ImagesStep
+					onAdvance={advance}
+					onPrevious={previous}
+					reportId={report.id}
+				/>
+			) : null}
+
+			{current === 'document' ? (
+				<ReportEditor
+					onPrevious={previous}
+					onSaved={onUpdated}
+					report={report}
+				/>
 			) : null}
 		</div>
 	)

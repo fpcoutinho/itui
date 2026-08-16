@@ -1,0 +1,179 @@
+.report-editor {
+	display: flex;
+	flex-direction: column;
+	gap: spacing(4);
+
+	// Mesma razão do `.section-step`: soltos no bloco, `.title` e `.description`
+	// alcançariam também os do `UaAlert` que a etapa renderiza como irmão.
+	.intro {
+		display: flex;
+		flex-direction: column;
+		gap: spacing(1);
+
+		.title {
+			@include headline-5;
+
+			margin: 0;
+		}
+
+		.description {
+			@include body-2;
+
+			color: var(--app-text-muted);
+		}
+	}
+
+	.controls {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: spacing(3);
+
+		.status {
+			@include caption;
+
+			color: var(--app-text-muted);
+		}
+	}
+
+	.empty {
+		@include body-2;
+
+		margin: 0;
+		padding: spacing(4);
+		border: map.get($border-width, 'small') dashed var(--app-border-strong);
+		border-radius: map.get($border-radius, 'medium');
+		color: var(--app-text-muted);
+		text-align: center;
+	}
+
+	.actions {
+		display: flex;
+		justify-content: flex-start;
+		padding-top: spacing(2);
+	}
+
+	// -- Superfície de edição -------------------------------------------------
+	//
+	// `.surface` é a classe que o `editorProps.attributes` dá ao contenteditable
+	// do ProseMirror. Tudo abaixo está aninhado nela porque são seletores de
+	// elemento: soltos no bloco, atingiriam também as tabelas e os títulos de
+	// qualquer componente do Sanhauá que caísse dentro do editor.
+	.document {
+		.surface {
+			min-height: 24rem;
+			padding: spacing(6);
+			border: map.get($border-width, 'small') solid var(--app-border);
+			border-radius: map.get($border-radius, 'medium');
+			background: var(--app-surface);
+			color: var(--app-text);
+			overflow-x: auto;
+
+			&:focus-visible {
+				outline: map.get($border-width, 'medium') solid var(--app-focus);
+				outline-offset: 2px;
+			}
+
+			> * + * {
+				margin-top: spacing(4);
+			}
+
+			h1 {
+				@include headline-3;
+			}
+
+			h2 {
+				@include headline-4;
+			}
+
+			h3 {
+				@include headline-5;
+			}
+
+			h1,
+			h2,
+			h3 {
+				margin-bottom: 0;
+				color: var(--app-text-strong);
+			}
+
+			p {
+				@include body-1;
+
+				margin: 0;
+			}
+
+			// Prosa escrita pelo `/generate`. Marcada discretamente: o engenheiro
+			// assina o laudo e precisa saber o que veio de modelo de linguagem,
+			// mas o texto é dele a partir do momento em que revisa.
+			p[data-ai-section] {
+				border-left: map.get($border-width, 'medium') solid
+					var(--app-accent-edge);
+				padding-left: spacing(3);
+			}
+
+			ul,
+			ol {
+				margin: 0;
+				padding-left: spacing(6);
+			}
+
+			strong {
+				@include body-1-bold;
+			}
+
+			a {
+				color: var(--app-link);
+			}
+
+			table {
+				width: 100%;
+				border-collapse: collapse;
+				table-layout: fixed;
+
+				th,
+				td {
+					@include body-2;
+
+					padding: spacing(2) spacing(3);
+					border: map.get($border-width, 'small') solid var(--app-border-strong);
+					text-align: left;
+					vertical-align: top;
+				}
+
+				th {
+					@include body-2-bold;
+
+					background: var(--app-surface-sunken);
+					color: var(--app-text-strong);
+				}
+
+				// Célula selecionada pelo ProseMirror ao arrastar sobre a tabela.
+				.selectedCell::after {
+					content: '';
+					position: absolute;
+					inset: 0;
+					background: var(--app-accent-soft);
+					pointer-events: none;
+				}
+			}
+
+			// A imagem do achado: o `src` exibido é resolvido pelo node view a cada
+			// renderização e **nunca** é o que está gravado no documento.
+			.report-image {
+				display: block;
+				max-width: 100%;
+				margin: spacing(2) auto;
+				border-radius: map.get($border-radius, 'small');
+
+				// Enquanto a URL assinada não chegou (ou a imagem ainda está
+				// `pending` no bucket), o espaço fica reservado em vez de colapsar.
+				&[data-pending='true'] {
+					width: 100%;
+					min-height: spacing(30);
+					background: var(--app-surface-sunken);
+				}
+			}
+		}
+	}
+}

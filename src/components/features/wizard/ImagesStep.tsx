@@ -1,11 +1,13 @@
-import { type ChangeEvent, useRef, useState } from 'react'
+import { type ChangeEvent, useEffect, useRef, useState } from 'react'
 import {
 	UaAlert,
 	UaBadge,
 	UaButton,
 	UaButtonIcon,
 	UaInputField,
+	UaModal,
 	UaSelect,
+	UaSkeleton,
 } from 'sanhaua/react'
 import {
 	findingCategoryLabels,
@@ -55,6 +57,7 @@ const stageLabels: Record<UploadTask['stage'], string> = {
 interface ImagesStepProps {
 	reportId: string
 	onPrevious: () => void
+	onAdvance: () => void
 }
 
 /**
@@ -65,9 +68,16 @@ interface ImagesStepProps {
  * do documento — por isso a opção vazia tem rótulo próprio ("Apêndice geral") e
  * não é apresentada como ausência de escolha.
  */
-export function ImagesStep({ reportId, onPrevious }: ImagesStepProps) {
-	const { images, uploads, error, upload, retry, dismiss, refresh } =
+export function ImagesStep({
+	reportId,
+	onPrevious,
+	onAdvance,
+}: ImagesStepProps) {
+	const { images, uploads, isLoading, error, upload, retry, dismiss, refresh } =
 		useReportImages(reportId)
+
+	/** Índice da imagem aberta no visualizador; `null` com ele fechado. */
+	const [viewerIndex, setViewerIndex] = useState<number | null>(null)
 
 	const fileInputRef = useRef<HTMLInputElement>(null)
 	const [file, setFile] = useState<File | null>(null)
@@ -247,22 +257,150 @@ export function ImagesStep({ reportId, onPrevious }: ImagesStepProps) {
 				</UaButton>
 			</div>
 
-			{images.length === 0 ? (
+			{isLoading ? (
+				<GallerySkeleton />
+			) : images.length === 0 ? (
 				<p className="empty">{texts.empty}</p>
 			) : (
 				<ul className="gallery">
-					{images.map((image) => (
-						<ImageCard image={image} key={image.id} />
+					{images.map((image, index) => (
+						<ImageCard
+							image={image}
+							key={image.id}
+							onView={() => setViewerIndex(index)}
+						/>
 					))}
 				</ul>
 			)}
+
+			<ImageViewer
+				images={images}
+				index={viewerIndex}
+				onIndexChange={setViewerIndex}
+				onClose={() => setViewerIndex(null)}
+			/>
 
 			<div className="actions">
 				<UaButton appearance="tertiary" onClick={onPrevious} type="button">
 					{wizard.previous}
 				</UaButton>
+
+				{/* Etapa opcional: seguir para o documento não exige imagem nenhuma. */}
+				<UaButton onClick={onAdvance} type="button">
+					{wizard.next}
+				</UaButton>
 			</div>
 		</section>
+	)
+}
+
+/** Enquanto o `GET /images` não volta — a listagem também assina as `view_url`. */
+function GallerySkeleton() {
+	return (
+		<ul className="gallery" aria-busy="true" aria-label={texts.loading}>
+			{[0, 1, 2].map((slot) => (
+				<li className="card" key={slot}>
+					<UaSkeleton format="square" height="160px" width="100%" />
+					<div className="meta">
+						<UaSkeleton height="20px" width="88px" />
+						<UaSkeleton height="14px" width="60%" />
+					</div>
+				</li>
+			))}
+		</ul>
+	)
+}
+
+/**
+ * Visualizador em tela cheia, com navegação entre as fotos.
+ *
+ * É o carrossel que a galeria não é: a grade serve para **ver todas de uma vez**
+ * (é assim que se confere se cada seção do laudo tem foto), e um carrossel ali
+ * esconderia o conjunto atrás de uma janela de um item. A navegação sequencial
+ * só é útil depois de escolher uma foto — que é exatamente aqui.
+ */
+function ImageViewer({
+	images,
+	index,
+	onIndexChange,
+	onClose,
+}: {
+	images: ReportImage[]
+	index: number | null
+	onIndexChange: (index: number) => void
+	onClose: () => void
+}) {
+	const image = index === null ? undefined : images[index]
+
+	// Setas do teclado: o modal do pacote já trata Esc e o foco.
+	useEffect(() => {
+		const current = index
+
+		if (current === null) {
+			return
+		}
+
+		const handleKey = (event: KeyboardEvent) => {
+			if (event.key === 'ArrowLeft') {
+				onIndexChange((current + images.length - 1) % images.length)
+			}
+
+			if (event.key === 'ArrowRight') {
+				onIndexChange((current + 1) % images.length)
+			}
+		}
+
+		window.addEventListener('keydown', handleKey)
+		return () => window.removeEventListener('keydown', handleKey)
+	}, [images.length, index, onIndexChange])
+
+	if (image === undefined || index === null) {
+		return null
+	}
+
+	return (
+		<UaModal
+			className="image-viewer"
+			isOpen
+			onClose={onClose}
+			size="large"
+			title={texts.viewerTitle}
+		>
+			<div className="frame">
+				<UaButtonIcon
+					appearance="ghost"
+					disabled={images.length < 2}
+					icon="chevron_left"
+					label={texts.viewerPrevious}
+					onClick={() =>
+						onIndexChange((index + images.length - 1) % images.length)
+					}
+				/>
+
+				{image.viewUrl ? (
+					<img alt={image.caption ?? ''} className="full" src={image.viewUrl} />
+				) : (
+					// `view_url` nula é foto ainda `pending` ou link de 5 min vencido —
+					// nos dois casos o caminho é recarregar a lista, não recarregar a img.
+					<p className="expired">{texts.viewerExpired}</p>
+				)}
+
+				<UaButtonIcon
+					appearance="ghost"
+					disabled={images.length < 2}
+					icon="chevron_right"
+					label={texts.viewerNext}
+					onClick={() => onIndexChange((index + 1) % images.length)}
+				/>
+			</div>
+
+			<footer className="details">
+				<span className="position">
+					{texts.viewerPosition(index + 1, images.length)}
+				</span>
+				{image.caption ? <p className="caption">{image.caption}</p> : null}
+			</footer>
+		</UaModal>
 	)
 }
 
@@ -273,13 +411,36 @@ export function ImagesStep({ reportId, onPrevious }: ImagesStepProps) {
  * da última listagem, e o botão de atualizar existe justamente para pedir outra
  * quando a tela ficou aberta tempo demais.
  */
-function ImageCard({ image }: { image: ReportImage }) {
+function ImageCard({
+	image,
+	onView,
+}: {
+	image: ReportImage
+	onView: () => void
+}) {
 	const isUploaded = image.uploadStatus === 'uploaded'
 
 	return (
 		<li className="card">
+			{/*
+			 * A miniatura é cortada (`object-fit: cover`), então precisa haver um
+			 * caminho para a foto inteira: o próprio recorte é o botão que abre o
+			 * visualizador. `<button>` e não `<img onClick>` para vir com foco e
+			 * teclado de graça.
+			 */}
 			{image.viewUrl ? (
-				<img alt={image.caption ?? ''} className="thumb" src={image.viewUrl} />
+				<button
+					aria-label={`${texts.view}: ${image.caption ?? image.id}`}
+					className="thumb-button"
+					onClick={onView}
+					type="button"
+				>
+					<img
+						alt={image.caption ?? ''}
+						className="thumb"
+						src={image.viewUrl}
+					/>
+				</button>
 			) : (
 				<div className="thumb placeholder" />
 			)}

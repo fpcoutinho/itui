@@ -71,7 +71,7 @@ const DEFAULT_MESSAGE = 'Algo deu errado. Tente novamente.'
  * O texto do axum vai para o console — é bug de frontend, não entrada de
  * usuário — e nunca para a tela.
  */
-async function parseError(response: Response): Promise<ApiError> {
+export async function parseError(response: Response): Promise<ApiError> {
 	const rawBody = await response.text().catch(() => '')
 
 	let message: string | undefined
@@ -132,6 +132,17 @@ export function setAuthHandlers(handlers: AuthHandlers | null): void {
 	authHandlers = handlers
 }
 
+/**
+ * A mesma ponte, para o **único** consumidor que não passa por `request()`: o
+ * SSE do `/generate`, que precisa da resposta em streaming e por isso monta o
+ * `fetch` por conta própria (ver `services/generate.ts`).
+ *
+ * Não é porta de entrada para outros clientes HTTP paralelos — quem faz
+ * requisição comum usa `request()`, que já trata token, 401 e conversão de
+ * borda.
+ */
+export const getAuthHandlers = (): AuthHandlers | null => authHandlers
+
 // -- Requisição -------------------------------------------------------------
 
 export interface RequestOptions {
@@ -147,6 +158,9 @@ export interface RequestOptions {
 	authenticated?: boolean
 	signal?: AbortSignal
 }
+
+/** URL absoluta de uma rota da API, respeitando o modo proxy/cross-origin. */
+export const apiUrl = (path: string): string => buildUrl(path, undefined)
 
 function buildUrl(path: string, query: RequestOptions['query']): string {
 	// A base pode ser relativa (modo proxy); `window.location.origin` é ignorado

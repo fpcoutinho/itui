@@ -111,8 +111,8 @@ export function ReportsPage() {
 				<div aria-busy="true" className="report-loading">
 					<span className="visually-hidden">{platformTexts.loading}</span>
 					<UaSkeleton height="56px" width="100%" />
-					<UaSkeleton height="56px" width="100%" />
-					<UaSkeleton height="56px" width="100%" />
+					<UaSkeleton height="560px" width="100%" />
+					<UaSkeleton height="32px" width="100%" />
 				</div>
 			) : (
 				<>
