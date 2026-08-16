@@ -32,7 +32,7 @@ URLs em português (são conteúdo voltado ao usuário, diferente de rota de API
 | `/plataforma/relatorios` | Lista de laudos | Privado |
 | `/plataforma/relatorios/novo` | Criação de laudo | Privado |
 | `/plataforma/relatorios/:reportId` | Laudo: wizard de inspeção em 6 etapas | Privado |
-| `/plataforma/perfil` | Conta: e-mail, tema e sair | Privado |
+| `/plataforma/perfil` | Conta: e-mail, nome, título profissional, tema, troca de senha e sair | Privado |
 | `/conta/login` | Login (e-mail/senha + Google) | Público |
 | `/conta/cadastro` | Cadastro | Público |
 | `/conta/logout` | Ação: `POST /api/v1/auth/logout` com `credentials: 'include'`, limpa o access token da memória, redireciona pra `/` | — |
@@ -52,7 +52,7 @@ As cinco rotas, todas `POST` sob `/api/v1/auth`:
 
 | Rota | Corpo | Retorno |
 |---|---|---|
-| `/register` | `{ email, password }` | 201 + sessão |
+| `/register` | `{ email, password, full_name? }` | 201 + sessão |
 | `/login` | `{ email, password }` | 200 + sessão |
 | `/google` | `{ id_token }` | 200 + sessão |
 | `/refresh` | (nenhum — o cookie é a credencial) | 200 + sessão |
@@ -71,6 +71,14 @@ O corpo "sessão" é `{ access_token, token_type, expires_in, user }`. `token_ty
 - 401 em `/login` é **sempre** a mensagem genérica "E-mail ou senha inválidos". O backend nunca revela se o e-mail existe nem se é conta Google — isso seria um oráculo de enumeração de usuários. Por isso qualquer dica de "entrou com o Google?" na UI só pode ser **texto estático**, nunca algo renderizado em reação à resposta do servidor. Hoje não existe dica nenhuma na tela de login — o botão do Google fica logo abaixo do formulário e se explica sozinho; se voltar a existir, tem que ser estática.
 - 409 em `/register` distingue dois casos na mensagem: e-mail já cadastrado, ou e-mail que é conta Google (usar o botão do Google).
 - 503 em `/google` é serviço de chaves do Google inacessível — mostrar retentativa, não erro de credencial.
+
+## Perfil do usuário
+
+`GET`/`PATCH /api/v1/user/profile` e `PATCH /api/v1/user/password` (`src/services/user.ts`). São rotas autenticadas comuns (Bearer), não rotas de `/auth`.
+
+- **`undefined` não chega ao fio.** O `PATCH` do perfil distingue campo ausente (não mexe) de `null` (limpa), mas `JSON.stringify` apaga chaves `undefined` — um campo esvaziado na tela sairia como "não mexa" e o valor antigo voltaria no próximo `GET`, calado. Por isso `updateProfile` normaliza `undefined`, `null` e string em branco todos para `null`, e sempre manda os três campos limpáveis. Patch parcial de verdade tem função própria (`updateThemePreference`).
+- **A senha devolve sessão, não usuário.** A troca revoga todos os refresh tokens do usuário, inclusive o de quem trocou, e o backend reemite o par no mesmo response — o retorno vai pra `adoptSession`. O `Set-Cookie` sai por `issue_session` e por isso carrega `Path=/api/v1/auth` explícito, apesar da requisição ser em `/api/v1/user/password`; sem esse `Path` o navegador gravaria um segundo cookie de escopo `/api/v1/user` e o refresh seguinte apresentaria o token revogado.
+- **Tema é campo do usuário** (`theme_preference`, ternário: `light`/`dark`/`system`). Por isso o `ThemeProvider` mora **dentro** do `SessionProvider`: o login adota a preferência do servidor por cima da local (uma vez por usuário, via ref — não a cada renovação de sessão), e a troca no toggle aplica na hora e faz o `PATCH` em segundo plano. Falha de rede não desfaz a troca: ela continua valendo nesta aba e no `localStorage`, que é de onde o script anti-FOUC do `index.html` lê — e esse script também entende `system`. Anônimo não persiste nada; o `PATCH` tomaria 401 e o retry de refresh derrubaria a sessão inexistente pro login.
 
 **CORS**: toda chamada autenticada precisa de `credentials: 'include'`. Em dev, com o proxy do Vite, não há CORS nenhum — as chamadas são same-origin. Só no **modo cross-origin** (`VITE_API_BASE_URL` preenchido) e em produção a origem do `itui` precisa estar em `CORS_ALLOWED_ORIGINS` no `.env` do `raijin`; é o primeiro lugar a olhar diante de falha opaca de CORS.
 
@@ -147,7 +155,8 @@ O alvo de deploy resolve isso sem custo: o build do `itui` é estático (S3) e o
   A única exceção é o `GoogleSignInButton`: quem recebe o clique tem que ser o widget desenhado pelo Google (único caminho do GIS que devolve um ID Token) e ele não aceita CSS nosso — a face pintada é réplica de superfície, não botão do DS.
 
   Três regras redefinem cor de `.ua-button.ghost`: em `.landing .cta` e em `.account .theme`, os pontos onde um fundo em gradiente inverteria o contraste e a variante do pacote sumiria. Fora desses, não sobrescrever estilo de componente do Sanhauá.
-- Componentes prontos vêm de `sanhaua/react` — na `0.18.0` são dezoito: `UaAccordion`, `UaAlert`, `UaAvatar`, `UaBadge`, `UaButton`, `UaButtonIcon`, `UaCard`, `UaCheckbox`, `UaInputField`, `UaInputGroup`, `UaModal`, `UaPagination`, `UaRadio`, `UaSelect`, `UaSkeleton`, `UaTable`, `UaTextarea`, `UaToast`. Não duplicar nenhum deles. `UaInputRadio` virou `UaRadio` na `0.18.0` (classe `.ua-input-radio` → `.ua-radio`).
+- Componentes prontos vêm de `sanhaua/react` — na `0.19.0` são dezenove: `UaAccordion`, `UaAlert`, `UaAvatar`, `UaBadge`, `UaButton`, `UaButtonIcon`, `UaCard`, `UaCheckbox`, `UaInputField`, `UaInputGroup`, `UaModal`, `UaPagination`, `UaRadio`, `UaSelect`, `UaSkeleton`, `UaTable`, `UaTabs`, `UaTextarea`, `UaToast`. Não duplicar nenhum deles. `UaInputRadio` virou `UaRadio` na `0.18.0` (classe `.ua-input-radio` → `.ua-radio`).
+  - **`UaTabs` é só o `tablist`** — o painel é marcação de quem usa, não JSX passado por prop. Controlado por `value`/`onChange`, e por dentro a barra é **um único stop de Tab**: setas, Home e End movem entre as abas, pulando as desabilitadas. O `panelId` do item amarra o par (`aria-controls` na aba, e a aba ganha o id `${panelId}-tab`, que o painel referencia de volta em `aria-labelledby`). `activation="manual"` separa foco de seleção, e é o que o `ProfilePage` usa: com `automatic` a seta trocaria de aba e descartaria a linha em edição sem o usuário ter pedido.
   - **`UaModal` substituiu o `window.confirm`**: o nativo bloqueia a thread, não aceita estilo e alguns navegadores o suprimem depois do segundo uso na mesma página. As duas confirmações do wizard (remover circuito, gerar o parecer por cima do texto editado) passam pelo `ConfirmDialog` de `src/components/ui/`, que embrulha o `UaModal`.
   - **`UaInputGroup` é só a cápsula** (`fieldset`/`legend`, com `hint`/`error`/`required`/`orientation`), servindo tanto a `UaCheckbox` quanto a `UaRadio`. Mapear as opções e calcular o array de seleção múltipla é de quem usa — ver `MultiChoice` em `SchemaField.tsx`.
   - `UaTextarea` tem a anatomia do `UaInputField`; `onChange` é o evento nativo do React, e rótulo invisível é omitir `label` e passar `aria-label` (o wrapper cai de `<label>` para `<div>` sozinho).

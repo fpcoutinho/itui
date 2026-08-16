@@ -12,6 +12,7 @@ export function SignupPage() {
 	const { status, adoptSession } = useSession()
 	const navigate = useNavigate()
 
+	const [fullName, setFullName] = useState('')
 	const [email, setEmail] = useState('')
 	const [password, setPassword] = useState('')
 	const [formError, setFormError] = useState<string | null>(null)
@@ -38,7 +39,14 @@ export function SignupPage() {
 		setIsSubmitting(true)
 
 		try {
-			const session = await register(email.trim(), password)
+			// Campo opcional: em branco vai como `null`, e não como string vazia —
+			// gravar `""` deixaria o perfil com um nome que a tela não sabe exibir.
+			const trimmedName = fullName.trim()
+			const session = await register(
+				email.trim(),
+				password,
+				trimmedName === '' ? null : trimmedName,
+			)
 			adoptSession(session)
 			goToPlatform()
 		} catch (cause) {
@@ -74,6 +82,17 @@ export function SignupPage() {
 			) : null}
 
 			<form className="auth-form" noValidate onSubmit={handleSubmit}>
+				<UaInputField
+					autoComplete="name"
+					hint={authTexts.signup.fullNameHint}
+					label={authTexts.signup.fullName}
+					name="fullName"
+					onChange={(event) => setFullName(event.target.value)}
+					type="text"
+					value={fullName}
+					widthBehavior="full"
+				/>
+
 				<UaInputField
 					autoComplete="email"
 					label={authTexts.signup.email}

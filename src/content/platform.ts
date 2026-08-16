@@ -34,10 +34,70 @@ export const platformTexts = {
 
 	profile: {
 		title: 'Perfil',
-		underConstruction:
-			'Ainda não há o que editar: a API não expõe dados de perfil além do e-mail da sessão.',
+		description:
+			'Seus dados aparecem no cabeçalho e na assinatura dos laudos gerados.',
+
+		tabs: {
+			label: 'Seções do perfil',
+			personal: 'Informações Pessoais',
+			security: 'Login e Segurança',
+		},
+
+		/** Ações da linha em modo leitura/edição. */
+		edit: 'Editar',
+		editField: (field: string) => `Editar ${field.toLowerCase()}`,
+		cancel: 'Cancelar',
+		done: 'Concluir',
+		/** Valor ausente na linha — o campo é opcional, não é erro. */
+		empty: 'Não informado',
+
+		account: 'Conta',
 		email: 'E-mail',
+		/**
+		 * O e-mail é a chave que liga login por senha e login pelo Google, então
+		 * não é editável — e a tela precisa dizer isso, senão o campo travado
+		 * parece defeito.
+		 */
+		emailLocked: 'O e-mail não pode ser alterado.',
+		googleAccount: 'Conta vinculada ao Google',
+
+		data: 'Dados pessoais',
+		fullName: 'Nome completo',
+		fullNameHint: 'Deixe em branco para remover.',
+		professionalTitle: 'Título profissional',
+		professionalTitleHint:
+			'Como assina os laudos. Ex.: Engenheira Eletricista.',
+		save: 'Salvar',
+		saving: 'Salvando…',
+		saved: 'Perfil atualizado.',
+
 		theme: 'Tema',
+		themeHint: 'Fica salvo na sua conta e vale em qualquer dispositivo.',
+		themeOptions: {
+			system: 'Seguir o sistema',
+			light: 'Claro',
+			dark: 'Escuro',
+		},
+
+		password: 'Senha',
+		currentPassword: 'Senha atual',
+		newPassword: 'Nova senha',
+		newPasswordHint: 'Mínimo de 8 caracteres.',
+		confirmPassword: 'Confirmar nova senha',
+		changePassword: 'Alterar senha',
+		changingPassword: 'Alterando…',
+		/**
+		 * A troca revoga todos os refresh tokens do usuário: os outros aparelhos
+		 * caem no próximo refresh, e só este segue logado. Avisar antes, senão a
+		 * queda em outro dispositivo parece bug.
+		 */
+		passwordWarning:
+			'Ao alterar a senha, as sessões abertas em outros dispositivos são encerradas.',
+		passwordChanged: 'Senha alterada.',
+		passwordMismatch: 'A confirmação não confere com a nova senha.',
+		/** Conta criada pelo Google não tem senha para trocar por aqui. */
+		passwordUnavailable:
+			'Esta conta entra pelo Google e não tem senha para alterar.',
 	},
 
 	loading: 'Carregando laudos…',

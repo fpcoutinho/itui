@@ -14,11 +14,15 @@
     <script>
       (() => {
         try {
+          // A preferência gravada é ternária ('light' | 'dark' | 'system'), a
+          // mesma que o backend guarda em theme_preference. Ausente vale
+          // 'system': quem nunca escolheu segue o SO.
           const stored = localStorage.getItem('itui-theme')
-          const isDark =
-            stored === 'dark' ||
-            (!stored && window.matchMedia('(prefers-color-scheme: dark)').matches)
-          
+          const followsSystem = stored !== 'light' && stored !== 'dark'
+          const isDark = followsSystem
+            ? window.matchMedia('(prefers-color-scheme: dark)').matches
+            : stored === 'dark'
+
           const root = document.documentElement
           root.classList.remove('light', 'dark')
           root.classList.add(isDark ? 'dark' : 'light')

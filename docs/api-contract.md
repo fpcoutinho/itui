@@ -119,6 +119,9 @@ o navegador pode recusar o cookie — use o Postman ou sirva o front por HTTPS.
     "email": "engenheiro@ufpb.br",
     "google_id": null,
     "avatar_url": null,
+    "full_name": null,
+    "professional_title": null,
+    "theme_preference": "system",
     "created_at": "...",
     "updated_at": "..."
   }
@@ -131,11 +134,15 @@ navegador. `password_hash` nunca é serializado.
 ### `POST /api/v1/auth/register`
 
 ```json
-{ "email": "engenheiro@ufpb.br", "password": "senha123456" }
+{ "email": "engenheiro@ufpb.br", "password": "senha123456", "full_name": "Maria Andrade" }
 ```
 
 `201 Created` com a resposta de sessão. O e-mail é normalizado (`trim` + minúsculas) nos três
 pontos de entrada — sem isso o vínculo de conta por e-mail nunca dispararia.
+
+`full_name` é **opcional**: ausente, `null`, vazio ou só espaços gravam `NULL` — não é erro de
+validação. Quem entra pelo Google já chega com o nome do claim; aqui o campo evita que quem se
+cadastra por senha tenha que abrir o perfil logo depois de criar a conta.
 
 **Erros**: `409` em duas variantes de mensagem — `"E-mail já cadastrado."`, ou
 `"Esta conta usa login pelo Google. Entre com o Google."` se o e-mail já existe vinculado ao
@@ -196,6 +203,84 @@ senão o logout viraria oráculo de "esse token existe". A resposta traz um `Set
 `refresh_token` (`Max-Age=0`, com o mesmo `Path=/api/v1/auth`).
 
 Só a sessão daquele cookie é encerrada; outros dispositivos seguem logados.
+
+---
+
+## Perfil do usuário
+
+Rotas autenticadas (`Authorization: Bearer <access_token>`). O objeto devolvido é **o mesmo** que
+aparece em `user` na resposta de sessão — mesma forma, mesmos campos, `password_hash` nunca
+serializado.
+
+`email` e senha **não** são editáveis pelo `PATCH` do perfil: e-mail é a chave de convergência
+entre login por senha e login pelo Google, e senha tem endpoint próprio abaixo.
+
+### `GET /api/v1/user/profile`
+
+Sem corpo. `200 OK` com o objeto do usuário:
+
+```json
+{
+  "id": "1b2d4f60-...",
+  "email": "engenheiro@ufpb.br",
+  "google_id": null,
+  "avatar_url": null,
+  "full_name": "Maria Andrade",
+  "professional_title": "Engenheira Eletricista",
+  "theme_preference": "dark",
+  "created_at": "...",
+  "updated_at": "..."
+}
+```
+
+**Erros**: `401`.
+
+### `PATCH /api/v1/user/profile`
+
+```json
+{
+  "full_name": "Maria Andrade",
+  "professional_title": "Engenheira Eletricista",
+  "avatar_url": "https://.../foto.jpg",
+  "theme_preference": "dark"
+}
+```
+
+Campo **ausente** fica inalterado; `null` explícito **limpa** o campo (vale para `full_name`,
+`professional_title` e `avatar_url`). `theme_preference` é `light` | `dark` | `system` e não aceita
+`null` — para "seguir o sistema", mande `"system"`.
+
+`200 OK` com o objeto do usuário já atualizado.
+
+**Erros**: `422 "Informe um nome válido."` / `"Informe um título válido."` (string vazia ou só
+espaços — para limpar, use `null`), `422 "O endereço do avatar deve começar com https://."`,
+`401`.
+
+**Avatar e Google:** um `avatar_url` definido por aqui é **sobrescrito no próximo login pelo
+Google**, que reaplica o claim `picture` do ID Token. Comportamento aceito no MVP, não bug.
+
+### `PATCH /api/v1/user/password`
+
+```json
+{ "current_password": "senha123456", "new_password": "outrasenha789" }
+```
+
+`200 OK` com **uma resposta de sessão nova** (o mesmo formato das rotas de auth), incluindo
+`Set-Cookie` com um refresh token novo. Isso é necessário porque a troca de senha **revoga todos os
+refresh tokens do usuário** — inclusive o de quem acabou de trocar. Efeito prático: os outros
+dispositivos caem no próximo refresh (`401`), e o dispositivo atual continua logado sem precisar
+refazer o login.
+
+O `Set-Cookie` sai por `issue_session`, o mesmo caminho das rotas de auth, então traz
+`Path=/api/v1/auth` explícito — apesar de a requisição ter sido em `/api/v1/user/password`. Sem
+esse `Path`, o navegador gravaria um segundo cookie de escopo `/api/v1/user` e o refresh seguinte
+apresentaria o token já revogado. O `itui` precisa mandar `credentials: 'include'` aqui.
+
+Conta criada pelo Google **não** define senha por aqui.
+
+**Erros**: `409 "Esta conta usa login pelo Google. Entre com o Google."` (conta sem senha),
+`422 "Senha atual incorreta."`, `422 "A nova senha deve ter pelo menos 8 caracteres."`,
+`422 "A nova senha deve ser diferente da atual."`, `401`.
 
 ---
 

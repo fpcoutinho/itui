@@ -20,6 +20,9 @@ export const authTexts = {
 
 	signup: {
 		title: 'Criar conta',
+		/** Opcional: quem pula preenche depois no perfil, e o backend grava `NULL`. */
+		fullName: 'Nome completo',
+		fullNameHint: 'Aparece na assinatura dos laudos. Pode preencher depois.',
 		email: 'E-mail',
 		password: 'Senha',
 		passwordHint: 'Mínimo de 8 caracteres.',

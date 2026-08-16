@@ -12,10 +12,10 @@ componente não pode saber nada de laudo, sessão ou API.** Se souber, o lugar d
 é `src/components/ui/` (acoplado ao contexto da aplicação) ou
 `src/components/features/` (domínio).
 
-O que o Sanhauá `0.18.0` exporta hoje, e que **não** deve ser reimplementado:
+O que o Sanhauá `0.19.0` exporta hoje, e que **não** deve ser reimplementado:
 `UaAccordion`, `UaAlert`, `UaAvatar`, `UaBadge`, `UaButton`, `UaButtonIcon`, `UaCard`,
 `UaCheckbox`, `UaInputField`, `UaInputGroup`, `UaModal`, `UaPagination`, `UaRadio`,
-`UaSelect`, `UaSkeleton`, `UaTable`, `UaTextarea`, `UaToast`.
+`UaSelect`, `UaSkeleton`, `UaTable`, `UaTabs`, `UaTextarea`, `UaToast`.
 
 `UaInputRadio` foi **renomeado para `UaRadio`** na `0.18.0` (o tipo virou
 `UaRadioProps` e a classe CSS `.ua-input-radio` virou `.ua-radio`).
@@ -23,6 +23,17 @@ O que o Sanhauá `0.18.0` exporta hoje, e que **não** deve ser reimplementado:
 ---
 
 ## O que já subiu
+
+Na `0.19.0` entrou `UaTabs`, e ele é o único que **nunca passou pela quarentena**:
+as abas do `ProfilePage` eram marcação solta na página, não um componente. Extrair o
+que existia teria levado junto o que faltava — sem `aria-controls`/`aria-labelledby`
+ligando aba e painel, sem roving tabindex, sem navegação por seta. Foi escrito direto
+no pacote porque o trabalho era escrever o padrão inteiro, não mover código.
+
+Ele é **só a barra**. Chegou a ter um `content` por item, com o componente renderizando
+o `tabpanel` — some o wiring de `id`, mas some junto a árvore da página: o conteúdo
+de duas telas inteiras vira valor de prop, e quem lê o `ProfilePage` não enxerga mais
+onde cada painel começa. O `panelId` resolve o mesmo problema sem esconder markup.
 
 Na `0.18.0` subiram os dois últimos da quarentena, ambos vindos do wizard de
 inspeção (Step 6b):

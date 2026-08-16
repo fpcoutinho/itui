@@ -10,10 +10,20 @@ import type { Session } from './types'
  * `credentials: 'include'`, já embutido no cliente HTTP.
  */
 
-export function register(email: string, password: string): Promise<Session> {
+/**
+ * `full_name` é opcional no contrato: em branco grava `NULL` e não é erro. Sai
+ * daqui já como `null` em vez de `undefined` — `JSON.stringify` apagaria a
+ * chave, e o backend não distingue os dois casos no cadastro, mas mandar o
+ * campo explicitamente mantém o corpo igual ao documentado.
+ */
+export function register(
+	email: string,
+	password: string,
+	fullName: string | null = null,
+): Promise<Session> {
 	return request<Session>('/auth/register', {
 		method: 'POST',
-		body: { email, password },
+		body: { email, password, fullName },
 		authenticated: false,
 	})
 }

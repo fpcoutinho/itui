@@ -16,7 +16,9 @@ import { ThemeProvider } from './theme/ThemeProvider'
 // inglês. Ver CLAUDE.md.
 //
 // O SessionProvider fica dentro do BrowserRouter para que as páginas possam
-// navegar em resposta a mudanças de sessão.
+// navegar em resposta a mudanças de sessão, e **por fora** do ThemeProvider: a
+// preferência de tema é campo do usuário (`theme_preference`), então o tema
+// precisa enxergar a sessão para adotá-la no login e persistir a troca.
 //
 // `/plataforma` não é mais uma página: é o prefixo do shell logado, e o
 // `ProtectedRoute` envolve o layout inteiro em vez de cada tela. `relatorios/novo`
@@ -25,8 +27,8 @@ import { ThemeProvider } from './theme/ThemeProvider'
 export function App() {
 	return (
 		<BrowserRouter>
-			<ThemeProvider>
-				<SessionProvider>
+			<SessionProvider>
+				<ThemeProvider>
 					<Routes>
 						<Route element={<LandingPage />} path="/" />
 
@@ -52,8 +54,8 @@ export function App() {
 						<Route element={<SignupPage />} path="/conta/cadastro" />
 						<Route element={<LogoutPage />} path="/conta/logout" />
 					</Routes>
-				</SessionProvider>
-			</ThemeProvider>
+				</ThemeProvider>
+			</SessionProvider>
 		</BrowserRouter>
 	)
 }

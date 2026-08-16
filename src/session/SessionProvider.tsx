@@ -183,7 +183,9 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 	}, [clearSession])
 
 	return (
-		<SessionContext.Provider value={{ status, user, adoptSession, signOut }}>
+		<SessionContext.Provider
+			value={{ status, user, adoptSession, updateUser: setUser, signOut }}
+		>
 			{children}
 		</SessionContext.Provider>
 	)

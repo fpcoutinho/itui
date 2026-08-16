@@ -27,11 +27,22 @@ export type TipTapDocument = Record<string, unknown>
 
 // -- Autenticação -----------------------------------------------------------
 
+/**
+ * Preferência de tema **persistida**, que é ternária: `system` significa "siga o
+ * `prefers-color-scheme`", e é diferente de `light`. O tema em vigor na tela
+ * (`Theme`, em `theme/ThemeContext.ts`) é sempre binário — a resolução de
+ * `system` acontece no navegador, não no backend.
+ */
+export type ThemePreference = 'light' | 'dark' | 'system'
+
 export interface User {
 	id: string
 	email: string
 	googleId: string | null
 	avatarUrl: string | null
+	fullName: string | null
+	professionalTitle: string | null
+	themePreference: ThemePreference
 	createdAt: string
 	updatedAt: string
 }
