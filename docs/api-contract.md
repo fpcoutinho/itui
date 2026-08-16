@@ -294,57 +294,46 @@ sempre se aplica.
 |---|---|---|---|
 | `status` | enum de `report_status` | — | filtro exato |
 | `location_prefix` | string | — | filtra pelo bloco (`CCHLA` casa `CCHLA-102`, `CCHLA-205`) |
+| `search` | string | — | trecho em qualquer posição do `location_code` **ou** de um `responsible_parties`, sem diferenciar maiúsculas |
+| `sort` | `location_code` \| `inspected_at` \| `status` \| `created_at` \| `updated_at` | `updated_at` | |
+| `order` | `asc` \| `desc` | `desc` | |
 | `limit` | int 1..100 | 20 | |
 | `offset` | int ≥ 0 | 0 | |
 
-**Response `200 OK`** — array de `Report` **sem as seções JSONB** (payload de listagem é leve;
-para as seções, buscar o laudo individual):
+Filtro, busca e ordenação acontecem **no banco**, sobre a página inteira do recorte — não sobre as
+linhas já carregadas. Valor desconhecido em `status`, `sort` ou `order` é `400` (rejeitado na
+desserialização da query), não um default silencioso: ordenar por outra coisa sem avisar é pior que
+falhar. `%` e `_` digitados em `search` são escapados e casam a si mesmos.
+
+`search` e `location_prefix` filtram a mesma coluna e podem ser combinados (`AND`), mas não são
+sinônimos: um é âncora de bloco, o outro é caixa de busca.
+
+**Response `200 OK`** — envelope com a página e os totais. Os itens são `Report` **sem as seções
+JSONB** (payload de listagem é leve; para as seções, buscar o laudo individual):
 
 ```json
-[
-  {
-    "id": "9f1c3a7e-...",
-    "location_code": "CCHLA-102",
-    "inspected_at": "2026-08-07T14:30:00Z",
-    "status": "draft",
-    "created_at": "...",
-    "updated_at": "..."
-  }
-]
+{
+  "items": [
+    {
+      "id": "9f1c3a7e-...",
+      "location_code": "CCHLA-102",
+      "inspected_at": "2026-08-07T14:30:00Z",
+      "status": "draft",
+      "created_at": "...",
+      "updated_at": "..."
+    }
+  ],
+  "page": 1,
+  "page_size": 20,
+  "total_items": 137,
+  "total_pages": 7
+}
 ```
 
-### Pendências para a UI — pedidos ao `raijin`
-
-> Esta seção **não** faz parte do contrato vigente: é o que a listagem em dashboard precisa e
-> ainda não existe. Enquanto não chegar, o `itui` degrada de propósito, e cada degradação está
-> anotada abaixo. Ao implementar no `raijin`, atualizar a tabela de query params acima e apagar
-> este bloco.
-
-1. **Ordenação (`sort` + `order`).** Hoje não há parâmetro nenhum; a ordem é comportamento
-   implícito do backend. A tabela do `itui` já emite o evento de ordenação para cima
-   (`onSortChange` do `UaTable`, com `{ key, direction }`) sem reordenar nada por conta própria —
-   falta só o destino. Sugestão: `sort` ∈ {`location_code`, `inspected_at`, `updated_at`,
-   `created_at`, `status`} e `order` ∈ {`asc`, `desc`}, default `updated_at` + `desc`.
-
-   *Degradação atual:* a ordenação é client-side e por isso só classifica as linhas da página
-   carregada. O `itui` esconde os controles quando há mais de uma página, senão "mais antigo"
-   significaria "o mais antigo dos que calharam de vir".
-
-2. **Total de registros.** A resposta é um array cru, então não há como dizer "página 3 de 12"
-   nem "mostrando 1–8 de 256". Sugestão: envelope `{ "items": [...], "total": 256 }` (ou header
-   `X-Total-Count`, se preferir manter o corpo como está).
-
-   *Degradação atual:* o rodapé mostra só "Mostrando 21–40", com anterior/próximo, e infere que
-   existe próxima página quando a atual voltou cheia. O `UaPagination` já aceita `total` opcional
-   — no dia em que ele chegar, as páginas numeradas aparecem sem mudar mais nada.
-
-3. **Busca textual (`q`).** Só existe `location_prefix`, que casa o começo do código do local. Um
-   campo de busca de verdade precisa de correspondência parcial e, de preferência, cobrir mais de
-   uma coluna (código do local e responsáveis). Sugestão: `q`, case-insensitive, aplicado com
-   `AND` sobre os demais filtros.
-
-   *Degradação atual:* não há busca na tela — o campo é rotulado como filtro por bloco
-   (`Ex.: CCHLA`), não como busca genérica, para não prometer o que a API não faz.
+`page` é 1-based e derivado de `offset`/`limit` — quem pagina continua mandando `offset`. O total
+sai de uma contagem própria, com os mesmos filtros e sem `limit`/`offset`: `COUNT(*) OVER ()` viria
+grudado em cada linha e sumiria justamente na página vazia, que é quando a UI precisa saber que há
+conteúdo em outra página. Lista vazia é `total_pages: 0`, não uma página em branco.
 
 ---
 

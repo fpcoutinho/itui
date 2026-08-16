@@ -99,6 +99,31 @@ export interface ReportSummary {
 	updatedAt: string
 }
 
+/** Colunas ordenáveis da listagem. Os nomes são os do backend (`snake_case`). */
+export type ReportSortField =
+	| 'location_code'
+	| 'inspected_at'
+	| 'status'
+	| 'created_at'
+	| 'updated_at'
+
+export type SortOrder = 'asc' | 'desc'
+
+/**
+ * Página da listagem de laudos.
+ *
+ * A listagem devolve envelope, não array: sem `totalItems`/`totalPages` a UI não
+ * consegue dizer "página 3 de 12" nem desenhar a última página.
+ */
+export interface ReportPage {
+	items: ReportSummary[]
+	/** 1-based. */
+	page: number
+	pageSize: number
+	totalItems: number
+	totalPages: number
+}
+
 export interface Report {
 	id: string
 	authorId: string

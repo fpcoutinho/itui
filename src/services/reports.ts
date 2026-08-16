@@ -2,8 +2,10 @@ import { request } from './http'
 import type {
 	CreatedReport,
 	ReportDetail,
+	ReportPage,
+	ReportSortField,
 	ReportStatus,
-	ReportSummary,
+	SortOrder,
 } from './types'
 
 /**
@@ -18,6 +20,11 @@ export interface ListReportsParams {
 	status?: ReportStatus
 	/** Filtra pelo bloco: `CCHLA` casa `CCHLA-102` e `CCHLA-205`. */
 	locationPrefix?: string
+	/** Busca livre: trecho do código do local ou de um responsável. */
+	search?: string
+	/** Backend ordena; `updated_at` + `desc` é o default de lá. */
+	sort?: ReportSortField
+	order?: SortOrder
 	/** 1..100. O backend usa 20 quando ausente. */
 	limit?: number
 	offset?: number
@@ -26,17 +33,21 @@ export interface ListReportsParams {
 /**
  * Lista os laudos do usuário autenticado.
  *
- * Devolve `ReportSummary`, **sem as seções JSONB** — para as seções, buscar o
- * laudo individual.
+ * Filtro, busca e ordenação são **do backend**: a resposta é uma página, e
+ * ordenar em memória classificaria só as linhas dela. Os itens vêm **sem as
+ * seções JSONB** — para as seções, buscar o laudo individual.
  */
 export function listReports(
 	params: ListReportsParams = {},
 	signal?: AbortSignal,
-): Promise<ReportSummary[]> {
-	return request<ReportSummary[]>('/reports', {
+): Promise<ReportPage> {
+	return request<ReportPage>('/reports', {
 		query: {
 			status: params.status,
 			location_prefix: params.locationPrefix,
+			search: params.search,
+			sort: params.sort,
+			order: params.order,
 			limit: params.limit,
 			offset: params.offset,
 		},

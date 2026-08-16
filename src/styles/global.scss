@@ -67,6 +67,23 @@
 	// `--app-on-accent` (claro nos dois) por cima.
 	--app-showcase-from: #{map.get($color-primary-light, '800')};
 	--app-showcase-to: #{map.get($color-primary-light, '600')};
+
+	// Moldura da área logada (sidebar + margem em volta do painel) e o painel de
+	// conteúdo que flutua dentro dela. Par próprio, não `--app-surface-*`: a
+	// moldura é a superfície **mais escura nos dois temas**, e o painel é sempre
+	// o degrau acima dela. Com `--app-surface` a relação se inverteria no tema
+	// claro, onde a superfície da página é a mais clara.
+	//
+	// `--app-panel-raised` existe porque dentro do painel ainda há blocos
+	// elevados (estado vazio, cartões): no escuro o painel já ocupa o degrau que
+	// seria deles, e sem um degrau a mais eles sumiriam contra o fundo. Ver a
+	// religação de `--app-surface*` em DashboardLayout.scss.
+	--app-shell: #{map.get($color-neutral-light, '900')};
+	--app-shell-text: #{map.get($color-neutral-light, '100')};
+	--app-shell-text-muted: #{map.get($color-neutral-light, '500')};
+	--app-shell-border: #{map.get($color-neutral-light, '800')};
+	--app-panel: #{map.get($color-neutral-light, '100')};
+	--app-panel-raised: #{map.get($color-neutral-light, '200')};
 }
 
 :root.dark {
@@ -103,6 +120,16 @@
 	// fechado da família — continua legível sob texto claro sem estourar o brilho.
 	--app-showcase-from: #{map.get($color-neutral-dark, '200')};
 	--app-showcase-to: #{map.get($color-primary-dark, '100')};
+
+	// No escuro a moldura fica no fundo mais fechado da escala e o painel sobe um
+	// degrau — a mesma relação do tema claro (moldura mais escura que o painel),
+	// com os dois valores deslocados para baixo.
+	--app-shell: #{map.get($color-neutral-dark, '100')};
+	--app-shell-text: #{map.get($color-neutral-dark, '900')};
+	--app-shell-text-muted: #{map.get($color-neutral-dark, '600')};
+	--app-shell-border: #{map.get($color-neutral-dark, '300')};
+	--app-panel: #{map.get($color-neutral-dark, '200')};
+	--app-panel-raised: #{map.get($color-neutral-dark, '300')};
 }
 
 *,

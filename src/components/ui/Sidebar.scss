@@ -1,17 +1,21 @@
-
+// A sidebar é a moldura: pinta com os tokens `--app-shell*`, que são a
+// superfície mais escura nos dois temas. Nada aqui usa `--app-text*`, que é o
+// texto do painel claro e sumiria contra este fundo.
 .sidebar {
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	gap: spacing(3);
-	background-color: var(--app-surface-sunken);
+	padding: spacing(3);
+	color: var(--app-shell-text);
+	background-color: var(--app-shell);
 
 	.brand {
 		display: flex;
 		align-items: center;
 		gap: spacing(2);
 		text-decoration: none;
-		color: var(--app-text-strong);
+		color: var(--app-shell-text);
 		flex-shrink: 0;
 
 		.name {
@@ -32,52 +36,44 @@
 		overflow-x: auto;
 	}
 
+	// Selecionado se distingue por peso e cor, não por fundo: um retângulo
+	// preenchido dentro de uma moldura escura briga com o painel de conteúdo, que
+	// já é a única superfície clara da tela.
 	.item {
 		display: flex;
 		align-items: center;
 		gap: spacing(2);
-		padding: spacing(2) spacing(3);
-		border-radius: map.get($border-radius, 'medium');
+		padding: spacing(2) spacing(1);
 		text-decoration: none;
 		white-space: nowrap;
-		color: var(--app-text-muted);
+		color: var(--app-shell-text-muted);
 		@include body-1;
 
 		.icon {
-			@include icon-4;
+			@include icon-3;
 		}
 
 		&:hover {
-			color: var(--app-text);
+			color: var(--app-shell-text);
 		}
 
 		&.active {
-			color: var(--app-text-strong);
-			@include body-1-bold;
-		}
-	}
+			color: var(--app-shell-text);
+			@include headline-6;
 
-	.footer {
-		display: flex;
-		align-items: center;
-		gap: spacing(2);
-		flex-shrink: 0;
-	}
-
-	.sign-out {
-		@include caption;
-		color: var(--app-text-muted);
-
-		&:hover {
-			color: var(--app-text);
+			.icon {
+				font-weight: map.get($font-weight, 'bold');
+			}
 		}
 	}
 
 	@include breakpoint-min('rg') {
 		flex-direction: column;
 		align-items: stretch;
+		width: 15rem;
+		flex-shrink: 0;
 		gap: spacing(6);
-		padding: spacing(6) spacing(2);
+		padding: spacing(6) spacing(5);
 
 		.identity {
 			display: flex;
@@ -87,7 +83,7 @@
 
 			.email {
 				@include caption;
-				color: var(--app-text-muted);
+				color: var(--app-shell-text-muted);
 				overflow-wrap: anywhere;
 				min-width: 0;
 			}
@@ -95,12 +91,9 @@
 
 		.menu {
 			flex-direction: column;
+			gap: spacing(2);
 			flex: 1;
 			overflow-x: visible;
-		}
-
-		.footer {
-			justify-content: space-between;
 		}
 	}
 }

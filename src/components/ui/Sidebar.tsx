@@ -2,7 +2,6 @@ import { Link, NavLink } from 'react-router'
 import { UaAvatar } from 'sanhaua/react'
 import { platformTexts } from '../../content/platform'
 import { useSession } from '../../hooks/useSession'
-import { ThemeToggle } from './ThemeToggle'
 import './Sidebar.scss'
 
 interface NavItem {
@@ -21,10 +20,14 @@ const items: NavItem[] = [
 	},
 	{
 		to: '/plataforma/relatorios/novo',
-		icon: 'add',
+		icon: 'post_add',
 		label: platformTexts.nav.newReport,
 	},
-	{ to: '/plataforma/perfil', icon: 'person', label: platformTexts.nav.profile },
+	{
+		to: '/plataforma/perfil',
+		icon: 'person',
+		label: platformTexts.nav.profile,
+	},
 ]
 
 export function Sidebar() {
@@ -33,7 +36,13 @@ export function Sidebar() {
 	return (
 		<aside className="sidebar">
 			<Link className="brand" to="/">
-				<img alt="" className="mascot" height={32} src="/mascot.webp" width={32} />
+				<img
+					alt=""
+					className="mascot"
+					height={32}
+					src="/mascot.webp"
+					width={32}
+				/>
 				<span className="name">Ituí</span>
 			</Link>
 
@@ -56,13 +65,6 @@ export function Sidebar() {
 					</NavLink>
 				))}
 			</nav>
-
-			<div className="footer">
-				<ThemeToggle />
-				<Link className="sign-out" to="/conta/logout">
-					{platformTexts.nav.signOut}
-				</Link>
-			</div>
 		</aside>
 	)
 }

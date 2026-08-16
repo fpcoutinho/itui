@@ -28,7 +28,11 @@ URLs em português (são conteúdo voltado ao usuário, diferente de rota de API
 | Rota | Conteúdo | Acesso |
 |---|---|---|
 | `/` | Landing | Público |
-| `/plataforma` | Lista de laudos | Privado |
+| `/plataforma` | Shell do dashboard (`DashboardLayout` + `Sidebar`), com `<Outlet>`; a raiz redireciona pra `relatorios` | Privado |
+| `/plataforma/relatorios` | Lista de laudos | Privado |
+| `/plataforma/relatorios/novo` | Criação de laudo | Privado |
+| `/plataforma/relatorios/:reportId` | Laudo (placeholder até o editor) | Privado |
+| `/plataforma/perfil` | Conta: e-mail, tema e sair | Privado |
 | `/conta/login` | Login (e-mail/senha + Google) | Público |
 | `/conta/cadastro` | Cadastro | Público |
 | `/conta/logout` | Ação: `POST /api/v1/auth/logout` com `credentials: 'include'`, limpa o access token da memória, redireciona pra `/` | — |
@@ -141,7 +145,8 @@ O alvo de deploy resolve isso sem custo: o build do `itui` é estático (S3) e o
   A única exceção é o `GoogleSignInButton`: quem recebe o clique tem que ser o widget desenhado pelo Google (único caminho do GIS que devolve um ID Token) e ele não aceita CSS nosso — a face pintada é réplica de superfície, não botão do DS.
 
   Três regras redefinem cor de `.ua-button.ghost`: em `.landing .cta` e em `.account .theme`, os pontos onde um fundo em gradiente inverteria o contraste e a variante do pacote sumiria. Fora desses, não sobrescrever estilo de componente do Sanhauá.
-- Componentes prontos vêm de `sanhaua/react` — na `0.15.0` são oito: `UaAlert`, `UaButton`, `UaCard`, `UaInputField`, `UaInputRadio`, `UaSkeleton`, `UaTable`, `UaToast`. Não duplicar nenhum deles.
+- Componentes prontos vêm de `sanhaua/react` — na `0.17.0` são treze: `UaAccordion`, `UaAlert`, `UaAvatar`, `UaBadge`, `UaButton`, `UaButtonIcon`, `UaCard`, `UaInputField`, `UaInputRadio`, `UaPagination`, `UaSelect`, `UaSkeleton`, `UaTable`, `UaToast`. Não duplicar nenhum deles.
+  - **`UaTable` não ordena**: `sortable` por coluna só desenha o controle, e `onSortChange` emite `{ key, direction }` pra cima. Quem ordena é o backend — ver `ReportTable`, cujas `key` de coluna são os nomes do `sort` da API (`location_code`, `inspected_at`…), sem tabela de tradução no meio.
   - **`UaAlert` e `UaCard` substituíram o `Banner` e o `Card` locais**, que foram apagados de `src/components/ui/`. `UaAlert` tem as mesmas cinco `appearance` do toast, `title` (string), `description` (`ReactNode`), `icon` (`false` esconde) e uma ação opcional (`actionLabel` + `actionAs: 'button' | 'link'`) que só emite `onActionClick`. Ele **não tem dismiss**: o aviso de auto-preenchimento do planejamento, que precisava ser dispensável, usa a ação (`actionLabel` + `onActionClick`) pra isso.
   - **`UaCard` é só a superfície** (borda, raio, padding, sombra) — não tem `title` nem espaçamento interno. Cabeçalho, tipografia e o gap entre blocos são de quem usa: ver `.create-report-card` em `CreateReportForm.scss`. `behavior: 'container' | 'button' | 'link'` troca o elemento raiz entre `div`, `button` e `a`.
   - `UaInputField` aceita `type` (`text`, `email`, `password`, `number`, `tel`, `url`, `search`, `date`, `datetime-local`, `time`), além de `error` e `hint` com o wiring de acessibilidade (`aria-invalid`, `aria-describedby`, `role="alert"`). Serve pra senha e e-mail; não existe mais motivo pra escrever campo de texto próprio.
@@ -149,8 +154,9 @@ O alvo de deploy resolve isso sem custo: o build do `itui` é estático (S3) e o
 
 ## Estrutura de pastas
 
-- `src/pages/` — um componente por rota (`LandingPage`, `PlatformPage`, `pages/account/LoginPage` etc.).
-- `src/components/ui/` — componentes base acoplados ao contexto da aplicação (`PageHeader`, `ThemeToggle`). `Card` e `Banner` moravam aqui e saíram na `0.15.0`, virando `UaCard` e `UaAlert` no pacote.
+- `src/pages/` — um componente por rota (`LandingPage`, `pages/platform/ReportsPage`, `pages/account/LoginPage` etc.).
+- `src/layouts/` — shells de rota com `<Outlet>`. Hoje só o `DashboardLayout`, a moldura escura da área logada: ele pinta com os tokens `--app-shell*` (a superfície mais escura nos dois temas) e religa `--app-surface*` pra `--app-panel*` dentro do painel de conteúdo, pra que componente elevado continue elevado no tema escuro.
+- `src/components/ui/` — componentes base acoplados ao contexto da aplicação (`PageHeader`, `Sidebar`, `ThemeToggle`, `ButtonLink`). `Card` e `Banner` moravam aqui e saíram na `0.15.0`, virando `UaCard` e `UaAlert` no pacote.
 - `src/components/features/` — componentes de domínio (`CreateReportForm`, `GoogleSignInButton`, futuros `InspectionForm`/`ReportEditor`).
 - `src/design-system/` — **quarentena**: componentes micro e agnósticos a contexto, candidatos a subir pro `sanhaua` e voltar como dependência. **Hoje está vazia** — `TextField` e `DataTable` já subiram (viraram as props novas do `UaInputField` e o `UaTable`, na `0.13.0`). Quem entrar aqui vai registrado em [`docs/design-system-candidates.md`](docs/design-system-candidates.md). O critério de entrada é único: não pode saber nada de laudo, sessão ou API.
 - `src/hooks/` — hooks de estado e chamadas de API (`useSession`, `useReports`, `useGoogleIdentity`; futuro `useGenerateAI`, que consome o SSE do `raijin`).

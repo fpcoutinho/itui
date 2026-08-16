@@ -16,7 +16,7 @@
 		"react": "^19.2.8",
 		"react-dom": "^19.2.8",
 		"react-router": "^8.3.0",
-		"sanhaua": "^0.17.0"
+		"sanhaua": "^0.17.3"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.5.7",

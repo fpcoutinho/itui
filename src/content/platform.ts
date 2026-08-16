@@ -40,12 +40,14 @@ export const platformTexts = {
 		theme: 'Tema',
 	},
 
+	loading: 'Carregando laudos…',
+
 	filters: {
 		legend: 'Filtrar laudos',
 		status: 'Situação',
 		anyStatus: 'Todas as situações',
-		locationPrefix: 'Bloco',
-		locationPrefixPlaceholder: 'Ex.: CCHLA',
+		search: 'Buscar laudos',
+		searchPlaceholder: 'Local ou responsável',
 		clear: 'Limpar filtros',
 	},
 
@@ -61,17 +63,10 @@ export const platformTexts = {
 		label: 'Paginação dos laudos',
 		previous: 'Anterior',
 		next: 'Próxima',
-		/** Sem total: a listagem devolve array cru. Ver `docs/api-contract.md`. */
-		range: (first: number, last: number) => `Mostrando ${first}–${last}`,
-	},
-
-	sort: {
-		/**
-		 * A ordenação é client-side e só classifica a página carregada, então os
-		 * controles somem quando há mais de uma. Ver `docs/api-contract.md`.
-		 */
-		paginatedHint:
-			'A ordenação fica disponível quando todos os laudos cabem numa página.',
+		range: (first: number, last: number, total?: number) =>
+			total === undefined
+				? `Mostrando ${first}–${last}`
+				: `Mostrando ${first}–${last} de ${total}`,
 	},
 
 	empty: {

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useLocation } from 'react-router'
 import {
+	type TableSort,
 	UaAlert,
 	UaInputField,
 	UaPagination,
@@ -8,18 +9,23 @@ import {
 	UaSkeleton,
 } from 'sanhaua/react'
 import { ReportTable } from '../../components/features/ReportTable'
-import { ButtonLink } from '../../components/ui/ButtonLink'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { platformTexts, reportStatusLabels } from '../../content/platform'
-import { useReports } from '../../hooks/useReports'
-import type { CreatedReport, ReportStatus } from '../../services/types'
+import { useDebouncedValue } from '../../hooks/useDebouncedValue'
+import { REPORTS_PAGE_SIZE, useReports } from '../../hooks/useReports'
+import type {
+	CreatedReport,
+	ReportSortField,
+	ReportStatus,
+} from '../../services/types'
 import './ReportsPage.scss'
-
-const PAGE_SIZE = 100
 
 const statusOptions = Object.entries(reportStatusLabels).map(
 	([value, label]) => ({ value, label }),
 )
+
+/** Mesmo default do backend. Explicitado para a tabela nascer marcada nele. */
+const DEFAULT_SORT: TableSort = { key: 'updated_at', direction: 'descending' }
 
 export function ReportsPage() {
 	const location = useLocation()
@@ -27,23 +33,31 @@ export function ReportsPage() {
 		?.autofilled
 
 	const [status, setStatus] = useState<ReportStatus | ''>('')
-	const [locationPrefix, setLocationPrefix] = useState('')
+	const [search, setSearch] = useState('')
+	const [sort, setSort] = useState<TableSort>(DEFAULT_SORT)
 	const [offset, setOffset] = useState(0)
 	const [autofilled, setAutofilled] = useState<CreatedReport | null>(
 		created ?? null,
 	)
 
-	const { reports, isLoading, error } = useReports({
-		status: status || undefined,
-		locationPrefix: locationPrefix.trim() || undefined,
-		limit: PAGE_SIZE,
-		offset,
-	})
+	// O input responde a cada tecla; o GET só sai depois que o usuário parou.
+	const debouncedSearch = useDebouncedValue(search.trim())
 
-	const hasFilters = status !== '' || locationPrefix.trim() !== ''
-	const isPaginated = offset > 0 || reports.length === PAGE_SIZE
+	const { reports, page, totalItems, totalPages, isLoading, error } =
+		useReports({
+			status: status || undefined,
+			search: debouncedSearch || undefined,
+			sort: sort.key as ReportSortField,
+			order: sort.direction === 'ascending' ? 'asc' : 'desc',
+			limit: REPORTS_PAGE_SIZE,
+			offset,
+		})
 
-	function changeFilter(apply: () => void) {
+	const hasFilters = status !== '' || debouncedSearch !== ''
+
+	// Filtro novo, ordem nova: a página 3 do recorte anterior não quer dizer nada
+	// no recorte novo, e pode nem existir.
+	function fromFirstPage(apply: () => void) {
 		apply()
 		setOffset(0)
 	}
@@ -69,8 +83,8 @@ export function ReportsPage() {
 				<UaSelect
 					aria-label={platformTexts.filters.status}
 					icon="filter_list"
-					onChange={(event) =>
-						changeFilter(() => setStatus(event.target.value as ReportStatus | ''))
+					onChange={(value) =>
+						fromFirstPage(() => setStatus(value as ReportStatus | ''))
 					}
 					options={statusOptions}
 					placeholder={platformTexts.filters.anyStatus}
@@ -79,16 +93,15 @@ export function ReportsPage() {
 				/>
 
 				<UaInputField
-					aria-label={platformTexts.filters.locationPrefix}
+					aria-label={platformTexts.filters.search}
 					icon="search"
 					onChange={(event) =>
-						changeFilter(() =>
-							setLocationPrefix(event.target.value.toUpperCase()),
-						)
+						fromFirstPage(() => setSearch(event.target.value))
 					}
-					placeholder={platformTexts.filters.locationPrefixPlaceholder}
+					placeholder={platformTexts.filters.searchPlaceholder}
 					size="small"
-					value={locationPrefix}
+					type="search"
+					value={search}
 				/>
 			</div>
 
@@ -96,7 +109,7 @@ export function ReportsPage() {
 
 			{isLoading ? (
 				<div aria-busy="true" className="report-loading">
-					<span className="visually-hidden">Carregando laudos…</span>
+					<span className="visually-hidden">{platformTexts.loading}</span>
 					<UaSkeleton height="56px" width="100%" />
 					<UaSkeleton height="56px" width="100%" />
 					<UaSkeleton height="56px" width="100%" />
@@ -104,7 +117,6 @@ export function ReportsPage() {
 			) : (
 				<>
 					<ReportTable
-						canSort={!isPaginated}
 						emptyState={
 							<div className="report-empty">
 								<h2 className="title">{platformTexts.empty.title}</h2>
@@ -115,25 +127,22 @@ export function ReportsPage() {
 								</p>
 							</div>
 						}
+						onSortChange={(next) => fromFirstPage(() => setSort(next))}
 						reports={reports}
+						sort={sort}
 					/>
 
-					{isPaginated ? (
-						<>
-							<UaPagination
-								count={reports.length}
-								label={platformTexts.pagination.label}
-								nextLabel={platformTexts.pagination.next}
-								onPageChange={(next) => setOffset((next - 1) * PAGE_SIZE)}
-								page={offset / PAGE_SIZE + 1}
-								pageSize={PAGE_SIZE}
-								previousLabel={platformTexts.pagination.previous}
-								summary={platformTexts.pagination.range}
-							/>
-							<p className="report-sort-hint">
-								{platformTexts.sort.paginatedHint}
-							</p>
-						</>
+					{totalPages > 1 ? (
+						<UaPagination
+							label={platformTexts.pagination.label}
+							nextLabel={platformTexts.pagination.next}
+							onPageChange={(next) => setOffset((next - 1) * REPORTS_PAGE_SIZE)}
+							page={page}
+							pageSize={REPORTS_PAGE_SIZE}
+							previousLabel={platformTexts.pagination.previous}
+							summary={platformTexts.pagination.range}
+							total={totalItems}
+						/>
 					) : null}
 				</>
 			)}

@@ -1,4 +1,5 @@
 import { UaAlert, UaCard } from 'sanhaua/react'
+import { ButtonLink } from '../../components/ui/ButtonLink'
 import { PageHeader } from '../../components/ui/PageHeader'
 import { ThemeToggle } from '../../components/ui/ThemeToggle'
 import { platformTexts } from '../../content/platform'
@@ -28,6 +29,14 @@ export function ProfilePage() {
 					<ThemeToggle />
 				</div>
 			</UaCard>
+
+			{/* Sair é ação de conta, não de navegação: mora aqui, junto do resto da
+			    conta, e não na barra lateral, onde disputava espaço com as telas. */}
+			<div className="profile-actions">
+				<ButtonLink appearance="danger" leftIcon="logout" to="/conta/logout">
+					{platformTexts.nav.signOut}
+				</ButtonLink>
+			</div>
 		</>
 	)
 }

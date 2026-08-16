@@ -12,12 +12,6 @@
 	gap: spacing(2);
 }
 
-.report-sort-hint {
-	@include caption;
-	color: var(--app-text-muted);
-	margin: 0;
-}
-
 .report-empty {
 	display: flex;
 	flex-direction: column;

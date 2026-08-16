@@ -41,7 +41,10 @@ export function App() {
 							<Route element={<Navigate replace to="relatorios" />} index />
 							<Route element={<ReportsPage />} path="relatorios" />
 							<Route element={<NewReportPage />} path="relatorios/novo" />
-							<Route element={<ReportDetailPage />} path="relatorios/:reportId" />
+							<Route
+								element={<ReportDetailPage />}
+								path="relatorios/:reportId"
+							/>
 							<Route element={<ProfilePage />} path="perfil" />
 						</Route>
 
