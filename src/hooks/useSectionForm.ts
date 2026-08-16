@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { type Draft, type Field, missingFields } from '../domain/reportSchema'
 import { toWireDecimal } from '../services/decimal'
-import type { ReportDetail } from '../services/types'
+import type { Report } from '../services/types'
 import { describeError } from './useReports'
 
 interface UseSectionFormOptions<T extends object> {
@@ -9,8 +9,8 @@ interface UseSectionFormOptions<T extends object> {
 	/** Seção já gravada, ou `null` quando a etapa ainda não foi concluída. */
 	initial: T | null
 	/** O `PATCH` da seção. Substitui a seção inteira — ver `services/sections.ts`. */
-	submit: (section: T) => Promise<ReportDetail>
-	onSaved: (report: ReportDetail) => void
+	submit: (section: T) => Promise<Report>
+	onSaved: (report: Report) => void
 }
 
 interface UseSectionFormResult<T extends object> {

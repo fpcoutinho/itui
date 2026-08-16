@@ -104,9 +104,14 @@
 
 		// A imagem do achado: o `src` exibido é resolvido pelo node view a cada
 		// renderização e **nunca** é o que está gravado no documento.
+		// Largura fixa, altura pelo aspecto — o mesmo enquadramento do template
+		// legado. Sem isso a foto entra no tamanho original do arquivo e uma única
+		// imagem de celular ocupa a tela inteira.
 		.report-image {
 			display: block;
+			width: 200px;
 			max-width: 100%;
+			height: auto;
 			margin: spacing(2) auto;
 			border-radius: map.get($border-radius, 'small');
 

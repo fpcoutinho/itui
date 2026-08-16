@@ -1,0 +1,33 @@
+.error-boundary {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: spacing(4);
+
+	// Filho direto: o bloco rende um `UaAlert`, e nomes genéricos soltos aqui
+	// atravessariam a marcação interna dele.
+	> .details {
+		width: 100%;
+
+		summary {
+			@include caption;
+
+			cursor: pointer;
+			color: var(--app-text-muted);
+		}
+
+		.message {
+			@include caption;
+
+			margin: spacing(2) 0 0;
+			padding: spacing(3);
+			border-radius: map.get($border-radius, 'medium');
+			background: var(--app-surface-sunken);
+			color: var(--app-text);
+			// A mensagem vem de uma exceção: pode ser uma linha só ou um parágrafo
+			// com caminho de módulo, e não pode empurrar a largura do painel.
+			white-space: pre-wrap;
+			overflow-wrap: anywhere;
+		}
+	}
+}

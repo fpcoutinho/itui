@@ -3,7 +3,7 @@ import { UaAlert, UaButton } from 'sanhaua/react'
 import { reportTexts } from '../../../content/report'
 import type { Field } from '../../../domain/reportSchema'
 import { useSectionForm } from '../../../hooks/useSectionForm'
-import type { ReportDetail } from '../../../services/types'
+import type { Report } from '../../../services/types'
 import { SchemaField } from './SchemaField'
 import './SectionStep.scss'
 
@@ -24,8 +24,8 @@ interface SectionStepProps<T extends object> {
 	groups?: readonly FieldGroup<keyof T>[]
 	/** Seção já gravada, ou `null` se a etapa ainda não foi concluída. */
 	initial: T | null
-	submit: (section: T) => Promise<ReportDetail>
-	onSaved: (report: ReportDetail) => void
+	submit: (section: T) => Promise<Report>
+	onSaved: (report: Report) => void
 	onAdvance: () => void
 	onPrevious?: () => void
 	/** Conteúdo acima dos campos (ex.: painel de espaço-reserva). */

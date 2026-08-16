@@ -1,6 +1,7 @@
 import { request } from './http'
 import type {
 	CreatedReport,
+	Report,
 	ReportDetail,
 	ReportPage,
 	ReportSortField,
@@ -93,8 +94,8 @@ export function getReport(
 export function updateReport(
 	reportId: string,
 	changes: Partial<CreateReportInput> & { status?: ReportStatus },
-): Promise<ReportDetail> {
-	return request<ReportDetail>(`/reports/${reportId}`, {
+): Promise<Report> {
+	return request<Report>(`/reports/${reportId}`, {
 		method: 'PATCH',
 		body: changes,
 	})

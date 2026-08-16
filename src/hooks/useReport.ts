@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { getReport } from '../services/reports'
-import type { ReportDetail } from '../services/types'
+import type { Report, ReportDetail } from '../services/types'
 import { describeError } from './useReports'
 
 interface UseReportResult {
@@ -8,13 +8,18 @@ interface UseReportResult {
 	isLoading: boolean
 	error: string | null
 	/**
-	 * Substitui o laudo em memória pela resposta de um `PATCH`.
+	 * Aplica a resposta de um `PATCH` **por cima** do laudo em memória.
 	 *
-	 * Toda rota de seção devolve o `ReportDetail` inteiro, já com `spare_circuits`
-	 * recalculado — aproveitar isso poupa um `GET` por etapa do wizard e evita a
-	 * janela em que a tela mostra o estado anterior.
+	 * As rotas de `PATCH` devolvem `Report`, não `ReportDetail`: `circuits` e
+	 * `spare_circuits` são montados só pelo `GET /reports/{id}`. Substituir o
+	 * objeto inteiro apagava os dois, e a primeira leitura de `report.circuits`
+	 * — o `stepStatus` do wizard, em pleno render — derrubava a árvore do React
+	 * inteira, deixando a tela em branco até o F5.
+	 *
+	 * Mesclar é correto porque nenhuma dessas rotas mexe em circuito: quem mexe
+	 * é `useCircuits`, e ele dispara `refetch`.
 	 */
-	applyUpdate: (report: ReportDetail) => void
+	applyUpdate: (report: Report) => void
 	refetch: () => void
 }
 
@@ -62,5 +67,11 @@ export function useReport(reportId: string | undefined): UseReportResult {
 		}
 	}, [load])
 
-	return { report, isLoading, error, applyUpdate: setReport, refetch: load }
+	const applyUpdate = useCallback((updated: Report) => {
+		setReport((current) =>
+			current === null ? null : { ...current, ...updated },
+		)
+	}, [])
+
+	return { report, isLoading, error, applyUpdate, refetch: load }
 }

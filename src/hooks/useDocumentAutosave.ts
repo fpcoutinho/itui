@@ -1,7 +1,7 @@
 import type { Editor } from '@tiptap/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { updateDocumentContent } from '../services/sections'
-import type { ReportDetail, TipTapDocument } from '../services/types'
+import type { Report, TipTapDocument } from '../services/types'
 import { describeError } from './useReports'
 
 /**
@@ -28,7 +28,7 @@ interface UseDocumentAutosaveResult {
 export function useDocumentAutosave(
 	editor: Editor | null,
 	reportId: string,
-	onSaved?: (report: ReportDetail) => void,
+	onSaved?: (report: Report) => void,
 ): UseDocumentAutosaveResult {
 	const [status, setStatus] = useState<AutosaveStatus>('idle')
 	const [error, setError] = useState<string | null>(null)

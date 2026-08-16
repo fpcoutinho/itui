@@ -29,12 +29,11 @@ import type { EmbeddedImageSet } from './imageAssets'
 /**
  * Largura da foto dentro da célula, em pixels.
  *
- * O `.docx` sai em A4 com 2 cm de margem, o que dá ~17 cm úteis; 260px ≈ 6,9 cm
- * deixa a foto ocupando pouco menos de metade da linha, com a legenda ao lado
- * ainda legível. É o mesmo enquadramento do apêndice fotográfico do modelo de
- * referência, e o dobro dos 50 mm fixos do template legado.
+ * Mesmo valor da tela (`ReportDocument.scss`): a foto sai com largura fixa e
+ * altura pelo aspecto, como no template legado. 200px ≈ 5,3 cm — cabe na coluna
+ * de 40% da tabela do achado e deixa a legenda ao lado legível.
  */
-const FIGURE_WIDTH_PX = 260
+const FIGURE_WIDTH_PX = 200
 
 const HTML_ESCAPES: Record<string, string> = {
 	'&': '&amp;',

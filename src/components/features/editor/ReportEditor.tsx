@@ -5,7 +5,7 @@ import { reportTexts } from '../../../content/report'
 import { useDocumentAutosave } from '../../../hooks/useDocumentAutosave'
 import { useReportGeneration } from '../../../hooks/useReportGeneration'
 import { useReportImageUrls } from '../../../hooks/useReportImageUrls'
-import type { ReportDetail } from '../../../services/types'
+import type { Report, ReportDetail } from '../../../services/types'
 import { ConfirmDialog } from '../../ui/ConfirmDialog'
 import { EditorToolbar } from './EditorToolbar'
 import { ReportDocument } from './ReportDocument'
@@ -19,8 +19,8 @@ const { editor: texts, wizard } = reportTexts
 
 interface ReportEditorProps {
 	report: ReportDetail
-	/** Resposta do `PATCH /document-content`: o laudo inteiro, já com o documento gravado. */
-	onSaved: (report: ReportDetail) => void
+	/** Resposta do `PATCH /document-content`: o `Report` já com o documento gravado. */
+	onSaved: (report: Report) => void
 	onAdvance: () => void
 	onPrevious: () => void
 }

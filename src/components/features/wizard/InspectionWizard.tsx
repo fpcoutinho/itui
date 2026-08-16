@@ -22,6 +22,7 @@ import type {
 	InspectionPlanning,
 	QualitativeAssessment,
 	QuantitativeAssessment,
+	Report,
 	ReportDetail,
 } from '../../../services/types'
 import { ReportEditor } from '../editor/ReportEditor'
@@ -37,8 +38,11 @@ const { wizard, quantitative } = reportTexts
 
 interface InspectionWizardProps {
 	report: ReportDetail
-	/** Resposta de um `PATCH` de seção: o laudo inteiro, já recalculado. */
-	onUpdated: (report: ReportDetail) => void
+	/**
+	 * Resposta de um `PATCH` de seção — `Report`, sem circuitos: quem recebe
+	 * mescla no laudo em memória em vez de substituí-lo (ver `useReport`).
+	 */
+	onUpdated: (report: Report) => void
 	/** Revalidação completa — usada após mutação de circuito, que não devolve o laudo. */
 	onRefetch: () => void
 }

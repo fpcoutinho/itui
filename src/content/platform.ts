@@ -169,4 +169,18 @@ export const platformTexts = {
 			'Copiamos o planejamento do laudo anterior deste bloco. Confira e revalide cada item antes de prosseguir — as condições da inspeção podem ter mudado.',
 		dismiss: 'Dispensar aviso',
 	},
+
+	/**
+	 * O que aparece no lugar da tela quando um render estoura.
+	 *
+	 * A mensagem técnica é exibida de propósito: sem ela o relato que chega é
+	 * "ficou preto", que não localiza nada.
+	 */
+	crash: {
+		title: 'Algo quebrou nesta tela',
+		description:
+			'O restante da aplicação continua funcionando — use o menu para sair daqui, ou tente montar a tela de novo.',
+		retry: 'Tentar de novo',
+		details: 'Detalhe técnico',
+	},
 } as const

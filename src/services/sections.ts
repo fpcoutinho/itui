@@ -6,6 +6,10 @@
  * gravar) uma seção incompleta, que nenhum consumidor do laudo sabe interpretar.
  * Por isso as funções abaixo recebem a seção completa e tipada, nunca um
  * `Partial<>`.
+ *
+ * A resposta é `Report`, **não** `ReportDetail`: `circuits` e `spare_circuits`
+ * só são montados pelo `GET /reports/{id}`. Quem consome aplica isto por cima do
+ * laudo em memória (ver `useReport.applyUpdate`), nunca no lugar dele.
  */
 
 import { request } from './http'
@@ -14,7 +18,7 @@ import type {
 	InspectionPlanning,
 	QualitativeAssessment,
 	QuantitativeAssessment,
-	ReportDetail,
+	Report,
 	TipTapDocument,
 } from './types'
 
@@ -22,8 +26,8 @@ const patchSection = <T>(
 	reportId: string,
 	path: string,
 	section: T,
-): Promise<ReportDetail> =>
-	request<ReportDetail>(`/reports/${reportId}/${path}`, {
+): Promise<Report> =>
+	request<Report>(`/reports/${reportId}/${path}`, {
 		method: 'PATCH',
 		body: section,
 	})
@@ -31,26 +35,22 @@ const patchSection = <T>(
 export const updateInspectionPlanning = (
 	reportId: string,
 	section: InspectionPlanning,
-): Promise<ReportDetail> =>
-	patchSection(reportId, 'inspection-planning', section)
+): Promise<Report> => patchSection(reportId, 'inspection-planning', section)
 
 export const updateExternalInfluences = (
 	reportId: string,
 	section: ExternalInfluences,
-): Promise<ReportDetail> =>
-	patchSection(reportId, 'external-influences', section)
+): Promise<Report> => patchSection(reportId, 'external-influences', section)
 
 export const updateQualitativeAssessment = (
 	reportId: string,
 	section: QualitativeAssessment,
-): Promise<ReportDetail> =>
-	patchSection(reportId, 'qualitative-assessment', section)
+): Promise<Report> => patchSection(reportId, 'qualitative-assessment', section)
 
 export const updateQuantitativeAssessment = (
 	reportId: string,
 	section: QuantitativeAssessment,
-): Promise<ReportDetail> =>
-	patchSection(reportId, 'quantitative-assessment', section)
+): Promise<Report> => patchSection(reportId, 'quantitative-assessment', section)
 
 /**
  * Única seção que nasce `{}` em vez de `null`.
@@ -64,8 +64,8 @@ export const updateQuantitativeAssessment = (
 export const updateDocumentContent = (
 	reportId: string,
 	documentContent: TipTapDocument,
-): Promise<ReportDetail> =>
-	request<ReportDetail>(`/reports/${reportId}/document-content`, {
+): Promise<Report> =>
+	request<Report>(`/reports/${reportId}/document-content`, {
 		method: 'PATCH',
 		body: documentContent,
 	})
