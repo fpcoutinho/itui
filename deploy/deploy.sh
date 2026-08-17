@@ -2,15 +2,29 @@
 #
 # Publica o build do itui no S3 e invalida o CloudFront.
 #
-#   S3_BUCKET=meu-bucket CLOUDFRONT_DISTRIBUTION_ID=E123ABC ./deploy/deploy.sh
+#   npm run deploy
+#
+# S3_BUCKET e CLOUDFRONT_DISTRIBUTION_ID saem do `.env.local`; defini-las no
+# ambiente sobrescreve o arquivo, para um deploy pontual em outro destino.
 #
 # Requer AWS CLI v2 autenticada com permissão de s3:PutObject/DeleteObject no
 # bucket e cloudfront:CreateInvalidation na distribuição.
 
 set -euo pipefail
 
-: "${S3_BUCKET:?defina S3_BUCKET}"
-: "${CLOUDFRONT_DISTRIBUTION_ID:?defina CLOUDFRONT_DISTRIBUTION_ID}"
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+
+# Ler só as duas chaves de deploy, em vez de dar `source` no arquivo inteiro:
+# `.env.local` é editado à mão e um `source` executaria o que estivesse lá.
+if [[ -f .env.local ]]; then
+	while IFS='=' read -r key value; do
+		[[ $key == S3_BUCKET || $key == CLOUDFRONT_DISTRIBUTION_ID ]] || continue
+		[[ -n ${!key:-} ]] || printf -v "$key" '%s' "$value"
+	done < .env.local
+fi
+
+: "${S3_BUCKET:?defina S3_BUCKET no .env.local}"
+: "${CLOUDFRONT_DISTRIBUTION_ID:?defina CLOUDFRONT_DISTRIBUTION_ID no .env.local}"
 
 npm run build
 
