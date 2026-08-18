@@ -71,7 +71,7 @@ function AccountShowcase() {
 				<img
 					alt="Preview do Ituí, mostrando a tela de relatórios"
 					className="preview"
-					src="../../../public/preview.png"
+					src="/preview.png"
 				/>
 			</div>
 		</aside>
