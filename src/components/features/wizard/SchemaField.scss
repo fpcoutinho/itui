@@ -7,12 +7,10 @@
 	border-radius: map.get($border-radius, 'medium');
 	background-color: var(--app-surface);
 
-	// O `.ua-checkbox` do pacote é `justify-content: space-between` — desenhado
-	// para linha de largura total, com o rótulo na borda oposta. Aqui a lista é
-	// uma pergunta do laudo: encolher cada opção ao próprio conteúdo é o que
-	// mantém caixa e rótulo juntos.
-	.ua-input-group .options {
-		align-items: flex-start;
+	// O `UaCheckbox` é `space-between`, desenhado para linha de largura total.
+	// Aqui a opção encolhe ao próprio conteúdo, mantendo caixa e rótulo juntos.
+	.choice-option {
+		align-self: flex-start;
 	}
 
 	// Texto normativo de apoio (procedimento do ensaio, critério de aceitação).

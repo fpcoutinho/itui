@@ -35,23 +35,10 @@
 		right: spacing(5);
 		z-index: 1;
 
-		// A partir de `md` o botão fica sobre a vitrine. O `ghost` do Sanhauá NÃO é
-		// transparente no tema escuro (`background-color: #020617`), então sobre o
-		// painel ele viraria um quadrado preto avulso — daqui sai a cor do texto e
-		// o fundo transparente que deixam o gradiente aparecer.
+		// A metade direita é a vitrine em gradiente. O alternador fica na coluna
+		// do formulário, onde o botão do DS tem o fundo que ele espera.
 		@include breakpoint-min('md') {
-			.ua-button.ghost {
-				color: var(--app-on-accent);
-				background-color: transparent;
-
-				&:hover {
-					background-color: color-mix(
-						in srgb,
-						var(--app-on-accent) 20%,
-						transparent
-					);
-				}
-			}
+			right: calc(50% + #{spacing(5)});
 		}
 	}
 

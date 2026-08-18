@@ -1,29 +1,123 @@
-// Landing pública. Tokens do Sanhauá chegam pelo additionalData do Vite —
-// nada de @use aqui (ver src/styles/global.scss).
-//
-// Não há bloco de botão neste arquivo: os botões são `.ua-button` do Sanhauá,
-// renderizados pelo `ButtonLink`. As únicas regras que os tocam são as duas
-// dentro de `.cta`, onde o fundo em gradiente inverte o contraste.
-
 .landing {
+	--container-width: 1180px;
+	--gutter: #{spacing(5)};
+
+	position: relative;
+	isolation: isolate;
+	overflow-x: clip;
 	flex: 1;
 	display: flex;
 	flex-direction: column;
 
-	// -- Barra de navegação ----------------------------------------------------
+	@include breakpoint-min('sm') {
+		--gutter: #{spacing(10)};
+	}
+
+	&::before {
+		content: '';
+		position: absolute;
+		z-index: -1;
+		inset-inline: 0;
+		top: -18%;
+		height: 820px;
+		pointer-events: none;
+		background: radial-gradient(
+				60% 55% at 25% 60%,
+				color-mix(in srgb, var(--app-link) 22%, transparent),
+				transparent 70%
+			),
+			radial-gradient(
+				45% 50% at 80% 30%,
+				color-mix(in srgb, var(--app-accent-edge) 28%, transparent),
+				transparent 70%
+			);
+		filter: blur(40px);
+	}
+
+	.container {
+		max-width: var(--container-width);
+		width: 100%;
+		margin-inline: auto;
+	}
+
+	%card {
+		position: relative;
+		background-color: var(--app-surface-raised);
+		border-radius: map.get($border-radius, 'medium');
+		box-shadow: 0 1px 2px color-mix(in srgb, var(--app-shell) 10%, transparent),
+			0 6px 16px color-mix(in srgb, var(--app-shell) 6%, transparent);
+		transition: box-shadow 200ms ease;
+
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			border-radius: inherit;
+			padding: map.get($border-width, 'medium');
+			pointer-events: none;
+			background: linear-gradient(
+				135deg,
+				var(--app-link),
+				var(--app-accent-edge) 50%,
+				var(--app-link-deep)
+			);
+
+			-webkit-mask: linear-gradient(rgb(0 0 0) 0 0) content-box,
+				linear-gradient(rgb(0 0 0) 0 0);
+			-webkit-mask-composite: xor;
+			mask: linear-gradient(rgb(0 0 0) 0 0) content-box,
+				linear-gradient(rgb(0 0 0) 0 0);
+			mask-composite: exclude;
+			opacity: 0;
+			transition: opacity 200ms ease;
+		}
+
+		&:hover {
+			box-shadow: 0 1px 2px
+					color-mix(in srgb, var(--app-shell) 12%, transparent),
+				0 10px 28px color-mix(in srgb, var(--app-link) 24%, transparent);
+
+			&::after {
+				opacity: 1;
+			}
+		}
+	}
 
 	.nav {
-		display: flex;
-		align-items: center;
-		justify-content: space-between;
-		gap: spacing(4);
-		padding: spacing(4) spacing(5);
-		max-width: 1180px;
-		width: 100%;
-		margin: 0 auto;
+		position: sticky;
+		top: 0;
+		z-index: 10;
 
-		@include breakpoint-min('sm') {
-			padding: spacing(5) spacing(8);
+		&::before {
+			content: '';
+			position: absolute;
+			z-index: -1;
+			inset: 0;
+			pointer-events: none;
+			backdrop-filter: blur(12px);
+			background: linear-gradient(
+				to bottom,
+				color-mix(in srgb, var(--app-surface) 78%, transparent),
+				color-mix(in srgb, var(--app-surface) 28%, transparent)
+			);
+			mask-image: linear-gradient(
+				to bottom,
+				rgb(0 0 0) 45%,
+				rgb(0 0 0 / 0) 100%
+			);
+			-webkit-mask-image: linear-gradient(
+				to bottom,
+				rgb(0 0 0) 45%,
+				rgb(0 0 0 / 0) 100%
+			);
+		}
+
+		.container {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: spacing(4);
+			padding: spacing(3) var(--gutter);
 		}
 	}
 
@@ -50,88 +144,128 @@
 		gap: spacing(2);
 	}
 
-	// -- Hero ------------------------------------------------------------------
-
 	.hero {
-		max-width: 1180px;
-		width: 100%;
-		margin: 0 auto;
-		padding: spacing(10) spacing(5) spacing(12);
-		display: grid;
-		gap: spacing(8);
-		align-items: center;
+		position: relative;
 
-		@include breakpoint-min('rg') {
-			grid-template-columns: 1.15fr 0.85fr;
-			padding: spacing(16) spacing(8);
+		> .container {
+			display: grid;
+			align-items: center;
+
+			@include breakpoint-min('rg') {
+				grid-template-columns: 1.1fr 0.9fr;
+			}
 		}
 	}
 
-	.hero-text {
+	.intro {
 		display: flex;
 		flex-direction: column;
-		gap: spacing(4);
+		align-items: flex-start;
+		gap: spacing(5);
+		padding: spacing(12) var(--gutter);
 
-		.title {
+		@include breakpoint-min('sm') {
+			padding: spacing(20) var(--gutter);
+		}
+
+		> .title {
 			@include headline-2;
-			letter-spacing: -0.02em;
+			letter-spacing: -0.03em;
+			max-width: 15ch;
+			color: var(--app-text-strong);
 
 			@include breakpoint-min('sm') {
 				@include headline-1;
+				letter-spacing: -0.035em;
+			}
+
+			@supports (background-clip: text) or (-webkit-background-clip: text) {
+				background-image: linear-gradient(
+					100deg,
+					var(--app-text-strong) 25%,
+					var(--app-link-strong) 65%,
+					var(--app-link) 100%
+				);
+				-webkit-background-clip: text;
+				background-clip: text;
+				color: transparent;
 			}
 		}
 
-		.description {
+		> .description {
 			@include body-1;
-			color: var(--app-text-muted);
-			max-width: 56ch;
+			color: var(--app-text);
+			max-width: 52ch;
 		}
 	}
 
-	.eyebrow {
-		@include caption;
-		font-weight: map.get($font-weight, 'bold');
-		text-transform: uppercase;
-		letter-spacing: 0.1em;
-		color: var(--app-link);
+	.badge {
+		@include overline;
+		display: inline-flex;
+		align-items: center;
+		gap: spacing(2);
+		padding: spacing(2) spacing(4);
+		border-radius: map.get($border-radius, 'pill');
+		background-color: color-mix(in srgb, var(--app-link) 14%, transparent);
+		color: var(--app-link-strong);
+
+		.dot {
+			width: 6px;
+			height: 6px;
+			border-radius: map.get($border-radius, 'pill');
+			background-color: var(--app-link);
+			box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-link) 22%, transparent);
+		}
 	}
 
 	.hero-actions {
 		display: flex;
 		flex-wrap: wrap;
+		align-items: center;
 		gap: spacing(3);
-		margin-top: spacing(2);
+		margin-top: spacing(1);
 	}
 
-	.hero-figure {
+	.figure {
 		display: flex;
 		justify-content: center;
+		padding: 0 var(--gutter) spacing(12);
+
+		@include breakpoint-min('rg') {
+			padding: spacing(12) var(--gutter);
+		}
 	}
 
 	.hero-mascot {
-		width: min(280px, 70vw);
+		width: min(300px, 70vw);
 		height: auto;
-		filter: drop-shadow(0 18px 40px rgba(2, 6, 23, 0.16));
+		filter: drop-shadow(
+			0 24px 48px color-mix(in srgb, var(--app-link) 28%, transparent)
+		);
 	}
 
-	// -- Seções de conteúdo ----------------------------------------------------
-
-	.section {
-		max-width: 1180px;
-		width: 100%;
-		margin: 0 auto;
-		padding: spacing(12) spacing(5);
-		display: flex;
-		flex-direction: column;
-		gap: spacing(8);
+	.highlights {
+		display: grid;
+		gap: spacing(6);
+		padding: 0 var(--gutter) spacing(16);
 
 		@include breakpoint-min('sm') {
-			padding: spacing(16) spacing(8);
+			grid-template-columns: repeat(3, 1fr);
+			gap: spacing(10);
 		}
 
-		&.steps-section,
-		&.compliance-section {
-			border-top: map.get($border-width, 'small') solid var(--app-border);
+		.value {
+			@include headline-3;
+			display: block;
+			line-height: 1;
+			color: var(--app-link);
+		}
+
+		.label {
+			@include caption;
+			display: block;
+			margin-top: spacing(1);
+			color: var(--app-text);
 		}
 	}
 
@@ -139,11 +273,22 @@
 		display: flex;
 		flex-direction: column;
 		gap: spacing(3);
-		max-width: 68ch;
+		max-width: 62ch;
+		padding: spacing(10) var(--gutter);
+
+		@include breakpoint-min('sm') {
+			padding: spacing(16) var(--gutter) spacing(12);
+		}
+	}
+
+	.eyebrow {
+		@include overline;
+		color: var(--app-link);
 	}
 
 	.section-title {
 		@include headline-3;
+		letter-spacing: -0.02em;
 
 		@include breakpoint-min('sm') {
 			@include headline-2;
@@ -151,34 +296,37 @@
 	}
 
 	.section-description {
-		color: var(--app-text-muted);
 		@include body-1;
+		color: var(--app-text);
 	}
-
-	// -- Etapas ----------------------------------------------------------------
 
 	.steps {
 		display: grid;
-		gap: spacing(6);
+		gap: spacing(5);
+		padding: 0 var(--gutter);
 
 		@include breakpoint-min('rg') {
 			grid-template-columns: repeat(3, 1fr);
 		}
 
 		.step {
+			@extend %card;
+
 			display: flex;
 			flex-direction: column;
+			align-items: flex-start;
 			gap: spacing(3);
-			padding: spacing(6);
-			background-color: var(--app-surface-raised);
-			border: map.get($border-width, 'small') solid var(--app-border);
-			border-radius: map.get($border-radius, 'large');
+			padding: spacing(8);
 		}
 
 		.number {
-			@include headline-2;
-			line-height: 1;
-			color: var(--app-accent-soft);
+			@include overline;
+			color: var(--app-text-muted);
+		}
+
+		.marker {
+			@include icon-1;
+			color: var(--app-link);
 		}
 
 		.title {
@@ -186,28 +334,39 @@
 		}
 
 		.description {
-			color: var(--app-text-muted);
 			@include body-2;
+			color: var(--app-text);
 		}
 	}
 
-	// -- Conformidade ----------------------------------------------------------
-
 	.compliance {
 		display: grid;
-		gap: spacing(6);
+		gap: spacing(5);
+		padding: 0 var(--gutter);
 
 		@include breakpoint-min('sm') {
 			grid-template-columns: repeat(2, 1fr);
 		}
 
 		.item {
+			@extend %card;
+
 			display: flex;
 			flex-direction: column;
-			gap: spacing(2);
-			padding-left: spacing(4);
-			border-left: map.get($border-width, 'medium') solid
-				var(--app-accent-edge);
+			align-items: flex-start;
+			gap: spacing(3);
+			padding: spacing(8);
+		}
+
+		.marker {
+			@include icon-3;
+			display: grid;
+			place-items: center;
+			width: spacing(10);
+			height: spacing(10);
+			border-radius: map.get($border-radius, 'small');
+			background-color: color-mix(in srgb, var(--app-link) 14%, transparent);
+			color: var(--app-link);
 		}
 
 		.title {
@@ -215,33 +374,53 @@
 		}
 
 		.description {
-			color: var(--app-text-muted);
 			@include body-2;
+			color: var(--app-text);
 		}
 	}
 
-	// -- Chamada final ---------------------------------------------------------
+	.cta-section {
+		> .container {
+			padding: spacing(16) var(--gutter);
+
+			@include breakpoint-min('sm') {
+				padding: spacing(20) var(--gutter);
+			}
+		}
+	}
 
 	.cta {
-		margin: 0 auto spacing(16);
-		max-width: 1100px;
-		width: calc(100% - #{spacing(10)});
-		padding: spacing(12) spacing(6);
-		border-radius: map.get($border-radius, 'large');
-		text-align: center;
+		position: relative;
+		overflow: hidden;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: spacing(3);
-		background: linear-gradient(
-			135deg,
-			var(--app-link),
-			var(--app-link-deep)
-		);
+		padding: spacing(14) spacing(6);
+		border-radius: map.get($border-radius, 'large');
+		text-align: center;
+		background: linear-gradient(135deg, var(--app-link), var(--app-link-deep));
 		color: var(--app-on-accent);
+
+		&::before {
+			content: '';
+			position: absolute;
+			inset: 0;
+			pointer-events: none;
+			background: radial-gradient(
+				70% 100% at 50% 0%,
+				color-mix(in srgb, var(--app-on-accent) 20%, transparent),
+				transparent 65%
+			);
+		}
+
+		> * {
+			position: relative;
+		}
 
 		.title {
 			@include headline-3;
+			letter-spacing: -0.02em;
 			color: var(--app-on-accent);
 		}
 
@@ -249,12 +428,9 @@
 			color: color-mix(in srgb, var(--app-on-accent) 85%, transparent);
 		}
 
-		// Único ponto da tela que redefine cor de botão do Sanhauá. Sobre o
-		// gradiente o `ghost` do pacote (texto neutro-900, hover claro) some; aqui
-		// ele é invertido para o mesmo token do texto da faixa. O `tertiary` ao
-		// lado já funciona sem ajuste — é branco com borda, exatamente o papel de
-		// ação primária invertida.
-		.ua-button.ghost {
+		// Classe nossa na instância, não `.ua-button`: sobre o gradiente o `ghost`
+		// do pacote lê contra a superfície da página, que aqui não existe.
+		.cta-actions .on-accent {
 			color: var(--app-on-accent);
 			border: map.get($border-width, 'small') solid
 				color-mix(in srgb, var(--app-on-accent) 40%, transparent);
@@ -269,30 +445,26 @@
 		}
 	}
 
-	// -- Rodapé ----------------------------------------------------------------
-
 	.footer {
 		margin-top: auto;
-		border-top: map.get($border-width, 'small') solid var(--app-border);
-		padding: spacing(6) spacing(5);
-		max-width: 1180px;
-		width: 100%;
-		margin-inline: auto;
-		display: flex;
-		flex-direction: column;
-		gap: spacing(3);
 
-		@include breakpoint-min('sm') {
-			flex-direction: row;
-			align-items: center;
-			justify-content: space-between;
-			padding: spacing(6) spacing(8);
+		.container {
+			display: flex;
+			flex-direction: column;
+			gap: spacing(3);
+			padding: spacing(8) var(--gutter);
+
+			@include breakpoint-min('sm') {
+				flex-direction: row;
+				align-items: center;
+				justify-content: space-between;
+			}
 		}
 
 		.tagline,
 		.rights {
 			@include caption;
-			color: var(--app-text-muted);
+			color: var(--app-text);
 		}
 	}
 
@@ -301,5 +473,16 @@
 		align-items: baseline;
 		flex-wrap: wrap;
 		gap: spacing(2);
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.steps .step,
+		.compliance .item {
+			transition: none;
+
+			&::after {
+				transition: none;
+			}
+		}
 	}
 }

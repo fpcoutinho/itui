@@ -173,6 +173,7 @@ function MultiChoice({
 			{options.map((option) => (
 				<UaCheckbox
 					checked={value.includes(option.value)}
+					className="choice-option"
 					id={`${name}-${option.value}`}
 					key={option.value}
 					label={option.label}
