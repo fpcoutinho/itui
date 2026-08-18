@@ -130,18 +130,14 @@ export function ProfilePage() {
 		setTab(next as TabId)
 	}
 
-	// O PATCH substitui os campos limpáveis de uma vez: a linha em edição manda o
-	// rascunho e repete o valor atual da outra.
 	async function handleProfileSubmit(event: FormEvent<HTMLFormElement>) {
 		event.preventDefault()
 
-		const succeeded = await saveProfile({
-			fullName: editing === 'fullName' ? draft : (user?.fullName ?? null),
-			professionalTitle:
-				editing === 'professionalTitle'
-					? draft
-					: (user?.professionalTitle ?? null),
-		})
+		const succeeded = await saveProfile(
+			editing === 'fullName'
+				? { fullName: draft }
+				: { professionalTitle: draft },
+		)
 
 		if (succeeded) {
 			setSavedRow(editing)

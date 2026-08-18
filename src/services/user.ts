@@ -11,9 +11,9 @@ import type { Session, ThemePreference, User } from './types'
  */
 
 /**
- * O que o formulário produz. `undefined` aqui é "o formulário não tocou neste
- * campo" e `null` é "limpe este campo" — e é justamente essa distinção que o
- * adaptador abaixo desfaz de propósito.
+ * O que o formulário produz. `undefined` (ou chave ausente) é "o formulário não
+ * tocou neste campo" e `null` — como a string em branco — é "limpe este campo".
+ * A distinção é a mesma do backend, e chega inteira até o corpo do PATCH.
  */
 export interface ProfileFormValues {
 	fullName?: string | null
@@ -22,11 +22,11 @@ export interface ProfileFormValues {
 	themePreference?: ThemePreference
 }
 
-/** O corpo que de fato vai no fio, já sem `undefined` nos campos limpáveis. */
+/** O corpo que de fato vai no fio: só os campos que o chamador informou. */
 interface UpdateProfileBody {
-	fullName: string | null
-	professionalTitle: string | null
-	avatarUrl: string | null
+	fullName?: string | null
+	professionalTitle?: string | null
+	avatarUrl?: string | null
 	themePreference?: ThemePreference
 }
 
@@ -34,26 +34,21 @@ interface UpdateProfileBody {
  * Campo de texto do formulário → valor do PATCH.
  *
  * O backend distingue três casos com `Option<Option<String>>`: ausente (não
- * mexe), `null` (limpa) e string (grava). O formulário só tem dois — o input
- * está vazio ou tem texto — e `JSON.stringify` **apaga** chaves `undefined`,
- * então um campo esvaziado na tela sairia como "não mexa" e o valor antigo
- * voltaria no próximo GET, sem erro nenhum para dar pista. Daí a conversão
- * explícita: `undefined`, `null` e string em branco viram todos `null`.
+ * mexe), `null` (limpa) e string (grava). Os três são preservados aqui, e é o
+ * que faz este PATCH ser um PATCH: `undefined` sai do corpo, e só o que o
+ * formulário editou viaja.
  *
- * O efeito colateral é que este cliente sempre manda os três campos limpáveis,
- * ou seja, o PATCH aqui é um "substitua o perfil", não um "mexa só no que
- * mandei". É o que o formulário de perfil quer, porque ele edita todos eles de
- * uma vez. Quem precisar de um patch parcial de verdade — o toggle de tema, por
- * exemplo — usa `updateThemePreference` abaixo.
+ * A ponte com a tela é o chamador: um input esvaziado tem que virar `null`
+ * explícito, não `undefined` — daí a string em branco também virar `null`, já
+ * que o backend responde `422 "Informe um nome válido."` a string vazia. Quem
+ * não passar a chave não mexe no campo.
  */
-function clearable(value: string | null | undefined): string | null {
-	if (value === undefined || value === null) {
+function clearable(value: string | null): string | null {
+	if (value === null) {
 		return null
 	}
 
 	const trimmed = value.trim()
-	// String em branco é `422 "Informe um nome válido."` no backend: o jeito de
-	// limpar é `null`, e é isso que o campo vazio significa na tela.
 	return trimmed === '' ? null : trimmed
 }
 
@@ -62,16 +57,24 @@ export function getProfile(): Promise<User> {
 	return request<User>('/user/profile')
 }
 
-/** `PATCH /user/profile` com o perfil inteiro, `undefined` já normalizado. */
+/** `PATCH /user/profile` com os campos informados — os demais ficam intactos. */
 export function updateProfile(values: ProfileFormValues): Promise<User> {
-	const body: UpdateProfileBody = {
-		fullName: clearable(values.fullName),
-		professionalTitle: clearable(values.professionalTitle),
-		avatarUrl: clearable(values.avatarUrl),
+	const body: UpdateProfileBody = {}
+
+	if (values.fullName !== undefined) {
+		body.fullName = clearable(values.fullName)
+	}
+
+	if (values.professionalTitle !== undefined) {
+		body.professionalTitle = clearable(values.professionalTitle)
+	}
+
+	if (values.avatarUrl !== undefined) {
+		body.avatarUrl = clearable(values.avatarUrl)
 	}
 
 	// `theme_preference` **não** aceita `null` no backend ("siga o sistema" é
-	// `"system"`), então é o único que sai do corpo quando não foi informado.
+	// `"system"`), então nunca passa pelo `clearable`.
 	if (values.themePreference !== undefined) {
 		body.themePreference = values.themePreference
 	}
@@ -82,8 +85,8 @@ export function updateProfile(values: ProfileFormValues): Promise<User> {
 /**
  * `PATCH /user/profile` mexendo **só** no tema.
  *
- * Separado de `updateProfile` porque o toggle não conhece nome nem título, e
- * mandar o corpo inteiro a partir dele apagaria os dois.
+ * Equivale a `updateProfile({ themePreference })` — existe como nome próprio
+ * porque o toggle não é formulário de perfil e não deve carregar o tipo dele.
  */
 export function updateThemePreference(
 	themePreference: ThemePreference,
