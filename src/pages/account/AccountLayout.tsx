@@ -60,20 +60,20 @@ export function AccountLayout({
  * Painel decorativo com a prévia do produto.
  */
 function AccountShowcase() {
-    return (
-        <aside aria-hidden="true" className="showcase">
-            <div className="copy">
-                <p className="title">{authTexts.showcase.title}</p>
-                <p className="text">{authTexts.showcase.description}</p>
-            </div>
+	return (
+		<aside aria-hidden="true" className="showcase">
+			<div className="copy">
+				<p className="title">{authTexts.showcase.title}</p>
+				<p className="text">{authTexts.showcase.description}</p>
+			</div>
 
-            <div className="frame">
-                <img
-                    alt="Preview do Ituí, mostrando a tela de relatórios"
-                    className="preview"
-                    src="../../../public/preview.png"
-                />
-            </div>
-        </aside>
-    )
+			<div className="frame">
+				<img
+					alt="Preview do Ituí, mostrando a tela de relatórios"
+					className="preview"
+					src="../../../public/preview.png"
+				/>
+			</div>
+		</aside>
+	)
 }
