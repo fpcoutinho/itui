@@ -58,26 +58,22 @@ export function AccountLayout({
 
 /**
  * Painel decorativo com a prévia do produto.
- *
- * O quadro interno é **placeholder**: quando houver captura da tela de geração
- * de laudos, trocar a `<div className="account__preview">` por uma `<img>` com
- * o mesmo enquadramento (canto superior esquerdo ancorado, sangrando à direita
- * e embaixo). `aria-hidden` porque o painel inteiro é ornamento — o conteúdo
- * acionável está todo no formulário.
  */
 function AccountShowcase() {
-	return (
-		<aside aria-hidden="true" className="showcase">
-			<div className="copy">
-				<p className="title">{authTexts.showcase.title}</p>
-				<p className="text">{authTexts.showcase.description}</p>
-			</div>
+    return (
+        <aside aria-hidden="true" className="showcase">
+            <div className="copy">
+                <p className="title">{authTexts.showcase.title}</p>
+                <p className="text">{authTexts.showcase.description}</p>
+            </div>
 
-			<div className="frame">
-				<div className="preview">
-					<span className="label">{authTexts.showcase.placeholder}</span>
-				</div>
-			</div>
-		</aside>
-	)
+            <div className="frame">
+                <img
+                    alt="Preview do Ituí, mostrando a tela de relatórios"
+                    className="preview"
+                    src="../../../public/preview.png"
+                />
+            </div>
+        </aside>
+    )
 }
