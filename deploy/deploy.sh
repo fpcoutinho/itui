@@ -12,6 +12,10 @@
 
 set -euo pipefail
 
+# O Git Bash converte argumento parecido com caminho Unix em caminho Windows,
+# e os caminhos de invalidação do CloudFront chegariam como C:/Program Files/…
+export MSYS_NO_PATHCONV=1
+
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
 
 # Ler só as duas chaves de deploy, em vez de dar `source` no arquivo inteiro:
