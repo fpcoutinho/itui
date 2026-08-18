@@ -157,34 +157,6 @@ export function LandingPage() {
 						</ul>
 					</div>
 				</section>
-
-				{isAuthenticated ? null : (
-					<section className="cta-section">
-						<div className="container">
-							<div className="cta">
-								<h2 className="title">{landingTexts.cta.title}</h2>
-								<p className="description">{landingTexts.cta.description}</p>
-								<div className="hero-actions cta-actions">
-									<ButtonLink
-										appearance="tertiary"
-										size="large"
-										to="/conta/cadastro"
-									>
-										{landingTexts.cta.primary}
-									</ButtonLink>
-									<ButtonLink
-										appearance="ghost"
-										className="on-accent"
-										size="large"
-										to="/conta/login"
-									>
-										{landingTexts.cta.secondary}
-									</ButtonLink>
-								</div>
-							</div>
-						</div>
-					</section>
-				)}
 			</main>
 
 			<footer className="footer">

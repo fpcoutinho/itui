@@ -301,69 +301,6 @@
 		}
 	}
 
-	.cta-section {
-		> .container {
-			padding: spacing(16) var(--app-gutter);
-
-			@include breakpoint-min('sm') {
-				padding: spacing(20) var(--app-gutter);
-			}
-		}
-	}
-
-	.cta {
-		position: relative;
-		overflow: hidden;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: spacing(3);
-		padding: spacing(14) spacing(6);
-		border-radius: map.get($border-radius, 'large');
-		text-align: center;
-		color: var(--app-on-accent);
-
-		@include accent-surface;
-
-		&::before {
-			content: '';
-			position: absolute;
-			inset: 0;
-			pointer-events: none;
-			background: radial-gradient(
-				70% 100% at 50% 0%,
-				wash(var(--app-on-accent), 20%),
-				transparent 65%
-			);
-		}
-
-		> * {
-			position: relative;
-		}
-
-		.title {
-			@include headline-3;
-			letter-spacing: $tracking-tight;
-			color: var(--app-on-accent);
-		}
-
-		.description {
-			color: wash(var(--app-on-accent), 85%);
-		}
-
-		// Classe nossa na instância, não `.ua-button`: sobre o gradiente o `ghost`
-		// do pacote lê contra a superfície da página, que aqui não existe.
-		.cta-actions .on-accent {
-			color: var(--app-on-accent);
-			border: map.get($border-width, 'small') solid
-				wash(var(--app-on-accent), 40%);
-
-			&:hover {
-				background-color: wash(var(--app-on-accent), 12%);
-			}
-		}
-	}
-
 	.footer {
 		margin-top: auto;
 
