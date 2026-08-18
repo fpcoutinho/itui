@@ -59,6 +59,10 @@ export default defineConfig(({ mode }) => {
 		css: {
 			preprocessorOptions: {
 				scss: {
+					// Resolve o `@import "theme"` abaixo. O caminho não pode ser
+					// relativo: o `additionalData` é prepended ao .scss do componente,
+					// então "./" apontaria para a pasta dele, não para src/styles.
+					loadPaths: [fileURLToPath(new URL('./src/styles', import.meta.url))],
 					// Tokens do Sanhauá injetados globalmente: nenhum .scss de
 					// componente precisa importar os tokens manualmente.
 					//
@@ -70,8 +74,17 @@ export default defineConfig(({ mode }) => {
 					// ficam disponíveis e a media query não precisa mais ser escrita à mão.
 					additionalData: [
 						'@use "sass:map";',
+						// `sass:color` serve à paleta de `global.scss`, que mistura duas
+						// famílias do pacote em tempo de compilação — assim o token sai
+						// como hex estático, não como um `color-mix` aninhado no CSS.
+						'@use "sass:color";',
 						'@import "sanhaua/system/themes/main/design-tokens/design-tokens";',
 						'@import "sanhaua/system/themes/main/responsiveness/responsiveness";',
+						// Camada de identidade do projeto: elevação, gradiente de
+						// acento, moldura animada. Vem por último porque usa
+						// `spacing()`, `$border-radius` e `map.get` — tudo o que os
+						// dois imports acima acabaram de trazer.
+						'@import "theme";',
 						'',
 					].join('\n'),
 					// O Sanhauá é todo @import; sem silenciar, todo build vira um muro

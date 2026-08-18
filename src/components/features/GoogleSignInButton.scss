@@ -49,8 +49,8 @@
 		border-radius: map.get($border-radius, 'small');
 		@include body-2-bold;
 		transition:
-			background-color 120ms,
-			border-color 120ms;
+			background-color $motion-fast,
+			border-color $motion-fast;
 	}
 
 	// O foco vive no widget invisível, então o anel precisa ser desenhado na face.

@@ -13,6 +13,8 @@
 	overflow: hidden;
 	background-color: var(--app-shell);
 
+	@include shell-gradient;
+
 	.container {
 		flex: 1;
 		min-height: 0;
@@ -47,10 +49,13 @@
 		flex-direction: column;
 		gap: spacing(6);
 		padding: spacing(6);
-		// Volta a ser `map.get($border-radius, 'large')` quando a versão nova do
-		// sanhaua (escala de raio redimensionada, 'large' = 32px) for publicada.
-		border-radius: 32px;
+		border-radius: map.get($border-radius, 'large');
 		background-color: var(--app-panel);
+
+		// O painel flutua sobre a moldura: sem a sombra ele é só uma mancha clara
+		// de cantos redondos, e no tema escuro, onde os dois tons quase se tocam,
+		// a borda some de vez.
+		@include elevation-resting;
 	}
 
 	@include breakpoint-min('rg') {

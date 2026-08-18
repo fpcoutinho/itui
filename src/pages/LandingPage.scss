@@ -1,7 +1,4 @@
 .landing {
-	--container-width: 1180px;
-	--gutter: #{spacing(5)};
-
 	position: relative;
 	isolation: isolate;
 	overflow-x: clip;
@@ -9,78 +6,15 @@
 	display: flex;
 	flex-direction: column;
 
-	@include breakpoint-min('sm') {
-		--gutter: #{spacing(10)};
-	}
-
 	&::before {
-		content: '';
-		position: absolute;
-		z-index: -1;
-		inset-inline: 0;
+		@include ambient-glow;
+
 		top: -18%;
 		height: 820px;
-		pointer-events: none;
-		background: radial-gradient(
-				60% 55% at 25% 60%,
-				color-mix(in srgb, var(--app-link) 22%, transparent),
-				transparent 70%
-			),
-			radial-gradient(
-				45% 50% at 80% 30%,
-				color-mix(in srgb, var(--app-accent-edge) 28%, transparent),
-				transparent 70%
-			);
-		filter: blur(40px);
 	}
 
 	.container {
-		max-width: var(--container-width);
-		width: 100%;
-		margin-inline: auto;
-	}
-
-	%card {
-		position: relative;
-		background-color: var(--app-surface-raised);
-		border-radius: map.get($border-radius, 'medium');
-		box-shadow: 0 1px 2px color-mix(in srgb, var(--app-shell) 10%, transparent),
-			0 6px 16px color-mix(in srgb, var(--app-shell) 6%, transparent);
-		transition: box-shadow 200ms ease;
-
-		&::after {
-			content: '';
-			position: absolute;
-			inset: 0;
-			border-radius: inherit;
-			padding: map.get($border-width, 'medium');
-			pointer-events: none;
-			background: linear-gradient(
-				135deg,
-				var(--app-link),
-				var(--app-accent-edge) 50%,
-				var(--app-link-deep)
-			);
-
-			-webkit-mask: linear-gradient(rgb(0 0 0) 0 0) content-box,
-				linear-gradient(rgb(0 0 0) 0 0);
-			-webkit-mask-composite: xor;
-			mask: linear-gradient(rgb(0 0 0) 0 0) content-box,
-				linear-gradient(rgb(0 0 0) 0 0);
-			mask-composite: exclude;
-			opacity: 0;
-			transition: opacity 200ms ease;
-		}
-
-		&:hover {
-			box-shadow: 0 1px 2px
-					color-mix(in srgb, var(--app-shell) 12%, transparent),
-				0 10px 28px color-mix(in srgb, var(--app-link) 24%, transparent);
-
-			&::after {
-				opacity: 1;
-			}
-		}
+		@include content-container;
 	}
 
 	.nav {
@@ -97,8 +31,8 @@
 			backdrop-filter: blur(12px);
 			background: linear-gradient(
 				to bottom,
-				color-mix(in srgb, var(--app-surface) 78%, transparent),
-				color-mix(in srgb, var(--app-surface) 28%, transparent)
+				wash(var(--app-surface), 78%),
+				wash(var(--app-surface), 28%)
 			);
 			mask-image: linear-gradient(
 				to bottom,
@@ -117,7 +51,7 @@
 			align-items: center;
 			justify-content: space-between;
 			gap: spacing(4);
-			padding: spacing(3) var(--gutter);
+			padding: spacing(3) var(--app-gutter);
 		}
 	}
 
@@ -162,34 +96,24 @@
 		flex-direction: column;
 		align-items: flex-start;
 		gap: spacing(5);
-		padding: spacing(12) var(--gutter);
+		padding: spacing(12) var(--app-gutter);
 
 		@include breakpoint-min('sm') {
-			padding: spacing(20) var(--gutter);
+			padding: spacing(20) var(--app-gutter);
 		}
 
 		> .title {
 			@include headline-2;
-			letter-spacing: -0.03em;
+			letter-spacing: $tracking-tighter;
 			max-width: 15ch;
 			color: var(--app-text-strong);
 
 			@include breakpoint-min('sm') {
 				@include headline-1;
-				letter-spacing: -0.035em;
+				letter-spacing: $tracking-display;
 			}
 
-			@supports (background-clip: text) or (-webkit-background-clip: text) {
-				background-image: linear-gradient(
-					100deg,
-					var(--app-text-strong) 25%,
-					var(--app-link-strong) 65%,
-					var(--app-link) 100%
-				);
-				-webkit-background-clip: text;
-				background-clip: text;
-				color: transparent;
-			}
+			@include gradient-text;
 		}
 
 		> .description {
@@ -206,7 +130,7 @@
 		gap: spacing(2);
 		padding: spacing(2) spacing(4);
 		border-radius: map.get($border-radius, 'pill');
-		background-color: color-mix(in srgb, var(--app-link) 14%, transparent);
+		background-color: wash(var(--app-link), 14%);
 		color: var(--app-link-strong);
 
 		.dot {
@@ -214,7 +138,7 @@
 			height: 6px;
 			border-radius: map.get($border-radius, 'pill');
 			background-color: var(--app-link);
-			box-shadow: 0 0 0 3px color-mix(in srgb, var(--app-link) 22%, transparent);
+			box-shadow: 0 0 0 3px wash(var(--app-link), 22%);
 		}
 	}
 
@@ -229,25 +153,23 @@
 	.figure {
 		display: flex;
 		justify-content: center;
-		padding: 0 var(--gutter) spacing(12);
+		padding: 0 var(--app-gutter) spacing(12);
 
 		@include breakpoint-min('rg') {
-			padding: spacing(12) var(--gutter);
+			padding: spacing(12) var(--app-gutter);
 		}
 	}
 
 	.hero-mascot {
 		width: min(300px, 70vw);
 		height: auto;
-		filter: drop-shadow(
-			0 24px 48px color-mix(in srgb, var(--app-link) 28%, transparent)
-		);
+		filter: drop-shadow(0 24px 48px wash(var(--app-link), 28%));
 	}
 
 	.highlights {
 		display: grid;
 		gap: spacing(6);
-		padding: 0 var(--gutter) spacing(16);
+		padding: 0 var(--app-gutter) spacing(16);
 
 		@include breakpoint-min('sm') {
 			grid-template-columns: repeat(3, 1fr);
@@ -274,10 +196,10 @@
 		flex-direction: column;
 		gap: spacing(3);
 		max-width: 62ch;
-		padding: spacing(10) var(--gutter);
+		padding: spacing(10) var(--app-gutter);
 
 		@include breakpoint-min('sm') {
-			padding: spacing(16) var(--gutter) spacing(12);
+			padding: spacing(16) var(--app-gutter) spacing(12);
 		}
 	}
 
@@ -288,7 +210,7 @@
 
 	.section-title {
 		@include headline-3;
-		letter-spacing: -0.02em;
+		letter-spacing: $tracking-tight;
 
 		@include breakpoint-min('sm') {
 			@include headline-2;
@@ -303,14 +225,14 @@
 	.steps {
 		display: grid;
 		gap: spacing(5);
-		padding: 0 var(--gutter);
+		padding: 0 var(--app-gutter);
 
 		@include breakpoint-min('rg') {
 			grid-template-columns: repeat(3, 1fr);
 		}
 
 		.step {
-			@extend %card;
+			@include surface-card-interactive;
 
 			display: flex;
 			flex-direction: column;
@@ -342,14 +264,14 @@
 	.compliance {
 		display: grid;
 		gap: spacing(5);
-		padding: 0 var(--gutter);
+		padding: 0 var(--app-gutter);
 
 		@include breakpoint-min('sm') {
 			grid-template-columns: repeat(2, 1fr);
 		}
 
 		.item {
-			@extend %card;
+			@include surface-card-interactive;
 
 			display: flex;
 			flex-direction: column;
@@ -365,7 +287,7 @@
 			width: spacing(10);
 			height: spacing(10);
 			border-radius: map.get($border-radius, 'small');
-			background-color: color-mix(in srgb, var(--app-link) 14%, transparent);
+			background-color: wash(var(--app-link), 14%);
 			color: var(--app-link);
 		}
 
@@ -381,10 +303,10 @@
 
 	.cta-section {
 		> .container {
-			padding: spacing(16) var(--gutter);
+			padding: spacing(16) var(--app-gutter);
 
 			@include breakpoint-min('sm') {
-				padding: spacing(20) var(--gutter);
+				padding: spacing(20) var(--app-gutter);
 			}
 		}
 	}
@@ -399,8 +321,9 @@
 		padding: spacing(14) spacing(6);
 		border-radius: map.get($border-radius, 'large');
 		text-align: center;
-		background: linear-gradient(135deg, var(--app-link), var(--app-link-deep));
 		color: var(--app-on-accent);
+
+		@include accent-surface;
 
 		&::before {
 			content: '';
@@ -409,7 +332,7 @@
 			pointer-events: none;
 			background: radial-gradient(
 				70% 100% at 50% 0%,
-				color-mix(in srgb, var(--app-on-accent) 20%, transparent),
+				wash(var(--app-on-accent), 20%),
 				transparent 65%
 			);
 		}
@@ -420,12 +343,12 @@
 
 		.title {
 			@include headline-3;
-			letter-spacing: -0.02em;
+			letter-spacing: $tracking-tight;
 			color: var(--app-on-accent);
 		}
 
 		.description {
-			color: color-mix(in srgb, var(--app-on-accent) 85%, transparent);
+			color: wash(var(--app-on-accent), 85%);
 		}
 
 		// Classe nossa na instância, não `.ua-button`: sobre o gradiente o `ghost`
@@ -433,14 +356,10 @@
 		.cta-actions .on-accent {
 			color: var(--app-on-accent);
 			border: map.get($border-width, 'small') solid
-				color-mix(in srgb, var(--app-on-accent) 40%, transparent);
+				wash(var(--app-on-accent), 40%);
 
 			&:hover {
-				background-color: color-mix(
-					in srgb,
-					var(--app-on-accent) 12%,
-					transparent
-				);
+				background-color: wash(var(--app-on-accent), 12%);
 			}
 		}
 	}
@@ -452,7 +371,7 @@
 			display: flex;
 			flex-direction: column;
 			gap: spacing(3);
-			padding: spacing(8) var(--gutter);
+			padding: spacing(8) var(--app-gutter);
 
 			@include breakpoint-min('sm') {
 				flex-direction: row;
@@ -473,16 +392,5 @@
 		align-items: baseline;
 		flex-wrap: wrap;
 		gap: spacing(2);
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.steps .step,
-		.compliance .item {
-			transition: none;
-
-			&::after {
-				transition: none;
-			}
-		}
 	}
 }

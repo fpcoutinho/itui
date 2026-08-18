@@ -146,6 +146,24 @@ O alvo de deploy resolve isso sem custo: o build do `itui` é estático (S3) e o
   `map.get($font-weight, …)` (`light`, `regular`, `bold`, `black`) continua válido, mas **só** para o caso em que a escala não tem a variante que você precisa — hoje isso é exatamente "caption em negrito" (rótulo pequeno, pill de status). Peso junto de `font-size` cru, nunca.
 
 - **Nunca abrir um `.scss` de componente com `@use`.** O `additionalData` é prepended a cada arquivo, então um `@use` do componente deixaria de ser a primeira regra e o Sass aborta a compilação. O `@use "sass:map"` já está na primeira linha do `additionalData`, então escreva `map.get` — igual ao próprio fonte do Sanhauá. O legado `map-get` não é mais usado aqui, e por isso `global-builtin` saiu do `silenceDeprecations` do `vite.config.ts` (sobrou só `['import']`, por conta dos `@import` do pacote).
+- **O que o Sanhauá não tem mora em `src/styles/_theme.scss`**, injetado pelo mesmo `additionalData` (quarta linha, depois dos dois `@import` do pacote — ele usa `spacing()`, `$border-radius` e `map.get`). O pacote traz cor, espaçamento, raio, espessura e tipografia; **não traz elevação, gradiente de acento nem moldura animada** — verificado em `design-tokens/`, não existe token de sombra. Vocabulário disponível em todo `.scss`:
+
+  | Uso | Escreve-se |
+  |---|---|
+  | Cor de token diluída | `wash(var(--app-link), 14%)` — substitui o `color-mix(in srgb, …, transparent)` à mão |
+  | Elevação | `@include elevation-resting` (repouso), `elevation-accent` (hover), `elevation-floating` (vitrine) |
+  | Gradiente | `@include accent-gradient` (3 paradas, moldura), `accent-surface` (2 paradas, fundo do CTA), `shell-gradient` (moldura da área logada), `gradient-text` |
+  | Cartão | `@include surface-card` / `surface-card-interactive` |
+  | Brilho | `@include ambient-glow` (pseudo-elemento borrado; quem inclui define `top`/`height`) |
+  | Moldura | `@include gradient-border('medium')` |
+  | Container | `@include content-container` + `var(--app-gutter)` |
+  | Constantes | `$motion-fast`/`$motion-base`, `$tracking-*`, `$measure-form`/`$measure-prose` |
+
+  **`_theme.scss` não pode emitir uma linha de CSS**: sendo prepended a cada folha, qualquer regra sairia duplicada nas 27. Só variáveis, `@function` e `@mixin` — placeholder (`%card`) não serve porque não atravessa arquivo, que foi exatamente por que a estética da landing ficou presa nela.
+
+  **Moldura em gradiente é só para superfície clicável.** `surface-card` (elevação e raio) é o caso comum; `surface-card-interactive` acrescenta a moldura no hover e fica reservado ao que de fato responde ao clique — em bloco de formulário o gradiente piscando vira ruído. O `prefers-reduced-motion` já vem dobrado dentro do mixin, não repetir na folha.
+
+  **Gradiente de fundo vai no bloco que pinta a superfície inteira, não num filho.** O `shell-gradient` mora em `.dashboard-layout` e a `.sidebar` é `background-color: transparent`: presa à caixa da sidebar, a rampa terminava onde a sidebar termina e a emenda aparecia na faixa que a moldura continua desenhando em volta e embaixo do painel. Sobre superfície quase preta, acento acima de ~10% deixa de ler como luz e vira névoa cinza.
 - **A camada de responsividade inteira é injetada**, com os mixins `breakpoint-min`/`breakpoint-max`/`breakpoint-between` disponíveis — usar `@include breakpoint-min('sm')`, nunca escrever a media query à mão. Isso depende do `@use "sass:map";` ser a **primeira** linha do `additionalData`: `_media-queries.scss` chama `map.get` sem declarar o namespace no próprio arquivo, então só compila se quem importa já o tiver em escopo.
 - O pacote `sanhaua` usa um alias interno `@theme` nos próprios arquivos-fonte; replicado em `resolve.alias` do `vite.config.ts` (necessário pra resolver `system.scss` de dentro de `node_modules` sem erro).
 - `sanhaua/style.css` é importado no `src/main.tsx`, e o `<html>` carrega `class="sanhaua light"` (ou `dark`) — os componentes do pacote só recebem estilo dentro desse escopo. **A classe de tema mora só no `<html>`**: o script anti-FOUC do `index.html` e o `ThemeProvider` escrevem no mesmo elemento. O pacote estiliza descendentes diretamente (`.sanhaua.dark .ua-button`), então um segundo `.sanhaua` no `<body>` faria as duas regras casarem e a escura vencer por ordem de arquivo — componentes escuros no tema claro. Pelo mesmo motivo os tokens `--app-*` ficam em `:root`/`:root.dark`, não no `body`.
@@ -181,7 +199,7 @@ O alvo de deploy resolve isso sem custo: o build do `itui` é estático (S3) e o
 - `src/services/` — clientes HTTP e integração com a API Rust. A conversão `snake_case` ↔ `camelCase` acontece **só** aqui, dentro do `request()` de `http.ts`.
 - `src/session/` — provider do access token em memória e da renovação agendada.
 - `src/content/` — textos em pt-BR voltados ao usuário, isolados do JSX.
-- `src/styles/` — `global.scss` (reset e base). Estilo de componente mora no `.scss` ao lado do `.tsx`.
+- `src/styles/` — `global.scss` (paleta `--app-*`, reset e base), `print.scss` e `_theme.scss` (as receitas visuais compartilhadas; ver a seção do Design System). Estilo de componente mora no `.scss` ao lado do `.tsx`.
 
 ## Documentação de domínio
 

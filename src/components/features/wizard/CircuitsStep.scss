@@ -32,6 +32,8 @@
 		border-radius: map.get($border-radius, 'medium');
 		background-color: var(--app-surface);
 
+		@include elevation-resting;
+
 		.grid {
 			display: grid;
 			gap: spacing(4);

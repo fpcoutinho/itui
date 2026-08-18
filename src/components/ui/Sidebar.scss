@@ -5,7 +5,9 @@
 	gap: spacing(3);
 	padding: spacing(3);
 	color: var(--app-shell-text);
-	background-color: var(--app-shell);
+	// Sem fundo próprio: quem pinta a moldura é o `.dashboard-layout`, e um
+	// `--app-shell` opaco aqui recortaria o gradiente dele no vão da sidebar.
+	background-color: transparent;
 
 	.brand {
 		display: flex;
@@ -69,11 +71,20 @@
 		gap: spacing(10);
 		padding: spacing(10) spacing(5);
 
+		// Cartão em vez de linha solta: sobre a moldura escura o bloco de conta
+		// não tem nada que o separe da navegação logo abaixo. O véu vem do
+		// texto da moldura, não de `--app-panel`, para não trazer o painel de
+		// conteúdo para dentro da barra.
 		.identity {
 			display: flex;
 			align-items: center;
-			gap: spacing(2);
+			gap: spacing(3);
 			min-width: 0;
+			padding: spacing(3);
+			border: map.get($border-width, 'small') solid
+				wash(var(--app-shell-text), 10%);
+			border-radius: map.get($border-radius, 'medium');
+			background-color: wash(var(--app-shell-text), 6%);
 
 			.user-info {
 				display: flex;

@@ -82,8 +82,29 @@
 	--app-shell-text: #{map.get($color-neutral-light, '100')};
 	--app-shell-text-muted: #{map.get($color-neutral-light, '500')};
 	--app-shell-border: #{map.get($color-neutral-light, '800')};
-	--app-panel: #{map.get($color-neutral-light, '100')};
-	--app-panel-raised: #{map.get($color-neutral-light, '200')};
+	// O painel não é cinza puro: a neutra do pacote tem viés levemente arroxeado,
+	// e violeta ao lado do turquesa da marca lê como cinza sujo. A correção é de
+	// matiz, não de brilho — uma tinta de primário na mesma neutra.
+	--app-panel: #{color.mix(
+			map.get($color-primary-light, '100'),
+			map.get($color-neutral-light, '100'),
+			18%
+		)};
+	--app-panel-raised: #{color.mix(
+			map.get($color-primary-light, '100'),
+			map.get($color-neutral-light, '200'),
+			22%
+		)};
+
+	// Ritmo horizontal do conteúdo. Custom property, não variável SCSS, porque a
+	// calha muda por breakpoint e um bloco isolado pode querer estreitá-la sem
+	// recompilar quem está em volta.
+	--app-container-width: 1180px;
+	--app-gutter: #{spacing(5)};
+
+	@include breakpoint-min('sm') {
+		--app-gutter: #{spacing(10)};
+	}
 }
 
 :root.dark {
@@ -128,8 +149,22 @@
 	--app-shell-text: #{map.get($color-neutral-dark, '900')};
 	--app-shell-text-muted: #{map.get($color-neutral-dark, '600')};
 	--app-shell-border: #{map.get($color-neutral-dark, '300')};
-	--app-panel: #{map.get($color-neutral-dark, '200')};
-	--app-panel-raised: #{map.get($color-neutral-dark, '300')};
+	--app-panel: #{color.mix(
+			map.get($color-primary-dark, '100'),
+			map.get($color-neutral-dark, '200'),
+			12%
+		)};
+	// O elevado sobe menos que um degrau inteiro da escala: `neutral-dark '300'`
+	// cheio abria demais contra o painel e o cartão passava a competir com ele.
+	--app-panel-raised: #{color.mix(
+			map.get($color-primary-dark, '100'),
+			color.mix(
+				map.get($color-neutral-dark, '300'),
+				map.get($color-neutral-dark, '200'),
+				45%
+			),
+			12%
+		)};
 }
 
 *,

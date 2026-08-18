@@ -32,7 +32,7 @@
 			@include body-1-bold;
 
 			text-transform: uppercase;
-			letter-spacing: 0.08em;
+			letter-spacing: $tracking-wide;
 		}
 
 		.subtitle {
@@ -70,7 +70,7 @@
 			padding: spacing(2) spacing(6);
 			border: map.get($border-width, 'small') solid currentcolor;
 			text-transform: uppercase;
-			letter-spacing: 0.04em;
+			letter-spacing: $tracking-caps;
 		}
 	}
 

@@ -1,0 +1,180 @@
+// Camada de identidade visual da aplicação: as receitas que o Sanhauá não tem.
+//
+// O pacote traz cor, espaçamento, raio, espessura e tipografia — não traz
+// elevação, gradiente de acento nem moldura animada. Estas ficam aqui, ao lado
+// da paleta semântica `--app-*` de global.scss.
+//
+// REGRA: este arquivo não pode emitir CSS. Ele é prepended a cada folha pelo
+// `additionalData` do vite.config.ts, então uma única regra aqui sairia
+// duplicada em todas elas. Só variáveis, funções e mixins.
+
+$motion-fast: 120ms ease;
+$motion-base: 200ms ease;
+
+$tracking-display: -0.035em;
+$tracking-tighter: -0.03em;
+$tracking-tight: -0.02em;
+$tracking-loose: 0.02em;
+$tracking-caps: 0.04em;
+$tracking-wide: 0.08em;
+
+$measure-form: 44rem;
+$measure-prose: 30rem;
+
+// Cor de token diluída em transparência. Substitui o `color-mix` escrito à mão,
+// que aparecia quinze vezes com a mesma forma e três grafias diferentes.
+@function wash($color, $amount) {
+	@return color-mix(in srgb, #{$color} #{$amount}, transparent);
+}
+
+@mixin elevation-resting {
+	box-shadow: 0 1px 2px wash(var(--app-shell), 10%),
+		0 6px 16px wash(var(--app-shell), 6%);
+}
+
+@mixin elevation-accent {
+	box-shadow: 0 1px 2px wash(var(--app-shell), 12%),
+		0 10px 28px wash(var(--app-link), 24%);
+}
+
+@mixin elevation-floating {
+	box-shadow: 0 24px 60px wash(var(--app-showcase-from), 45%);
+}
+
+@mixin accent-gradient($angle: 135deg) {
+	background-image: linear-gradient(
+		$angle,
+		var(--app-link),
+		var(--app-accent-edge) 50%,
+		var(--app-link-deep)
+	);
+}
+
+// Fundo chapado do CTA. Duas paradas, não três: o gradiente da moldura precisa
+// do tom claro no meio para a borda ter brilho; um fundo com ele ficaria lavado
+// sob texto claro.
+@mixin accent-surface($angle: 135deg) {
+	background-image: linear-gradient(
+		$angle,
+		var(--app-link),
+		var(--app-link-deep)
+	);
+}
+
+// Moldura de um pixel em gradiente, desenhada num pseudo-elemento: o gradiente
+// preenche a caixa e a máscara recorta o miolo, deixando só a borda.
+@mixin gradient-border($width: 'medium') {
+	content: '';
+	position: absolute;
+	inset: 0;
+	border-radius: inherit;
+	padding: map.get($border-width, $width);
+	pointer-events: none;
+
+	@include accent-gradient;
+
+	-webkit-mask: linear-gradient(rgb(0 0 0) 0 0) content-box,
+		linear-gradient(rgb(0 0 0) 0 0);
+	-webkit-mask-composite: xor;
+	mask: linear-gradient(rgb(0 0 0) 0 0) content-box,
+		linear-gradient(rgb(0 0 0) 0 0);
+	mask-composite: exclude;
+}
+
+@mixin surface-card($radius: 'medium', $background: var(--app-surface-raised)) {
+	position: relative;
+	background-color: $background;
+	border-radius: map.get($border-radius, $radius);
+
+	@include elevation-resting;
+}
+
+// Cartão que responde ao ponteiro. Reservado a superfície de fato clicável — em
+// bloco de formulário a moldura vira ruído.
+@mixin surface-card-interactive(
+	$radius: 'medium',
+	$background: var(--app-surface-raised)
+) {
+	@include surface-card($radius, $background);
+
+	transition: box-shadow $motion-base;
+
+	&::after {
+		@include gradient-border;
+
+		opacity: 0;
+		transition: opacity $motion-base;
+	}
+
+	&:hover {
+		@include elevation-accent;
+
+		&::after {
+			opacity: 1;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		transition: none;
+
+		&::after {
+			transition: none;
+		}
+	}
+}
+
+// Brilho de fundo: dois halos de acento desfocados. Quem inclui define `top` e
+// `height` — a altura depende do que o brilho está iluminando.
+@mixin ambient-glow {
+	content: '';
+	position: absolute;
+	z-index: -1;
+	inset-inline: 0;
+	pointer-events: none;
+	background: radial-gradient(
+			60% 55% at 25% 60%,
+			wash(var(--app-link), 22%),
+			transparent 70%
+		),
+		radial-gradient(
+			45% 50% at 80% 30%,
+			wash(var(--app-accent-edge), 28%),
+			transparent 70%
+		);
+	filter: blur(40px);
+}
+
+// Levantada discreta no topo da moldura escura, dissolvendo no `--app-shell`
+// puro antes da metade. Percentual baixo de propósito: sobre uma superfície
+// quase preta, acento acima de ~10% deixa de ler como luz e vira névoa cinza.
+//
+// Vai na moldura inteira, nunca num filho dela: presa à caixa da sidebar, a
+// rampa termina onde a sidebar termina e a emenda aparece na faixa que a
+// moldura continua desenhando em volta e embaixo do painel.
+@mixin shell-gradient {
+	background-image: linear-gradient(
+		180deg,
+		wash(var(--app-link), 8%) 0%,
+		transparent 55%
+	);
+}
+
+@mixin gradient-text($angle: 100deg) {
+	@supports (background-clip: text) or (-webkit-background-clip: text) {
+		background-image: linear-gradient(
+			$angle,
+			var(--app-text-strong) 25%,
+			var(--app-link-strong) 65%,
+			var(--app-link) 100%
+		);
+		-webkit-background-clip: text;
+		background-clip: text;
+		color: transparent;
+	}
+}
+
+@mixin content-container {
+	max-width: var(--app-container-width);
+	width: 100%;
+	margin-inline: auto;
+}

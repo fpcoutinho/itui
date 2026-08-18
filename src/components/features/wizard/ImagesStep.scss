@@ -32,6 +32,8 @@
 		border-radius: map.get($border-radius, 'medium');
 		background-color: var(--app-surface);
 
+		@include elevation-resting;
+
 		.file {
 			display: flex;
 			align-items: center;
@@ -73,6 +75,8 @@
 		padding: spacing(3);
 		border: map.get($border-width, 'small') solid var(--app-border);
 		border-radius: map.get($border-radius, 'medium');
+
+		@include elevation-resting;
 
 		.task-header {
 			display: flex;
@@ -143,15 +147,37 @@
 		border-radius: map.get($border-radius, 'medium');
 		background-color: var(--app-surface);
 
+		@include elevation-resting;
+
 		// O recorte inteiro é clicável: o `<button>` não deve parecer botão, só
 		// oferecer o alvo, o cursor e o anel de foco.
 		.thumb-button {
 			display: block;
+			position: relative;
 			padding: 0;
 			border: none;
 			background: none;
 			cursor: zoom-in;
 			border-radius: map.get($border-radius, 'small');
+
+			// Anel de acento em vez de sombra: a miniatura já é a superfície, e
+			// elevá-la faria a foto flutuar sobre o cartão que a contém.
+			&::after {
+				@include gradient-border('small');
+
+				opacity: 0;
+				transition: opacity $motion-fast;
+			}
+
+			&:hover::after {
+				opacity: 1;
+			}
+
+			@media (prefers-reduced-motion: reduce) {
+				&::after {
+					transition: none;
+				}
+			}
 
 			&:focus-visible {
 				outline: map.get($border-width, 'medium') solid var(--app-focus);

@@ -21,6 +21,10 @@
 		color: var(--app-text);
 		overflow-x: auto;
 
+		// Folha sobre a mesa: é o único bloco da tela que representa papel, e a
+		// elevação é o que faz a metáfora funcionar.
+		@include elevation-resting;
+
 		&:focus-visible {
 			outline: map.get($border-width, 'medium') solid var(--app-focus);
 			outline-offset: 2px;

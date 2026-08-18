@@ -3,7 +3,7 @@
 	flex-direction: column;
 	flex: 0 0 auto;
 	gap: spacing(6);
-	max-width: 44rem;
+	max-width: $measure-form;
 }
 
 .profile-section {
@@ -63,5 +63,5 @@
 .profile-actions {
 	display: flex;
 	margin-top: spacing(6);
-	max-width: 44rem;
+	max-width: $measure-form;
 }

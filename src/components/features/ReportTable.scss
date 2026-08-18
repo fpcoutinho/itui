@@ -2,7 +2,7 @@
 .report-table {
 	.code {
 		font-weight: map.get($font-weight, 'bold');
-		letter-spacing: 0.02em;
+		letter-spacing: $tracking-loose;
 		color: var(--app-link);
 		text-decoration: none;
 

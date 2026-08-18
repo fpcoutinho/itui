@@ -7,6 +7,8 @@
 	border-radius: map.get($border-radius, 'medium');
 	background-color: var(--app-surface);
 
+	@include elevation-resting;
+
 	// O `UaCheckbox` é `space-between`, desenhado para linha de largura total.
 	// Aqui a opção encolhe ao próprio conteúdo, mantendo caixa e rótulo juntos.
 	.choice-option {
@@ -31,7 +33,7 @@
 
 			font-weight: map.get($font-weight, 'bold');
 			text-transform: uppercase;
-			letter-spacing: 0.04em;
+			letter-spacing: $tracking-caps;
 		}
 
 		.value {

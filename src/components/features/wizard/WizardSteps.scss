@@ -14,9 +14,16 @@
 		border-radius: map.get($border-radius, 'pill');
 		background-color: var(--app-surface);
 		cursor: pointer;
+		transition: box-shadow $motion-fast;
 
 		&:hover {
 			border-color: var(--app-border-strong);
+
+			@include elevation-accent;
+		}
+
+		@media (prefers-reduced-motion: reduce) {
+			transition: none;
 		}
 
 		&.active {
